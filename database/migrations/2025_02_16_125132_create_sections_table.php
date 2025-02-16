@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->time('schedule_from');
+            $table->time('schedule_to');
+            $table->string('day');
             $table->timestamps();
         });
     }

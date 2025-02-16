@@ -3,63 +3,68 @@
 namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
+use App\Models\Section;
 use Illuminate\Http\Request;
 
 class SectionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function getSections()
+    {
+        return response()->json(["data" => Section::all()]);
+    }
     public function index()
     {
-        return view('instructor.pages.sections');
+        $sections = Section::all();
+        return view('instructor.pages.sections', compact('sections'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('sections.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'schedule_from' => 'required',
+            'schedule_to' => 'required|after:schedule_from',
+            'day' => 'required|string',
+        ]);
+
+        Section::create($request->all());
+
+        return redirect()->route('sections.index')->with('success', 'Section added successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Section $section)
     {
-        //
+        return view('sections.show', compact('section'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Section $section)
     {
-        //
+        return view('sections.edit', compact('section'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'schedule_from' => 'required',
+            'schedule_to' => 'required|after:schedule_from',
+            'day' => 'required|string',
+        ]);
+
+        $section = Section::findOrFail($id);
+        $section->update($request->all());
+
+        return response()->json(['success' => 'Section updated successfully!']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        Section::findOrFail($id)->delete();
+        return response()->json(['success' => 'Section deleted successfully!']);
     }
 }

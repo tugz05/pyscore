@@ -62,7 +62,7 @@ class GoogleController extends Controller
     {
         return match ($accountType) {
             'admin' => redirect()->intended(route('admin.dashboard')),
-            'instructor' => redirect()->intended(route('instructor.index')),
+            'instructor' => redirect()->intended(route('classlist.index')),
             default => redirect()->intended(route('user.index')), // Default redirect for students
         };
     }

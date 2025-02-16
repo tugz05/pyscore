@@ -1,3 +1,13 @@
+<style>
+    .truncate-text {
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px; /* Adjust width as needed */
+}
+</style>
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
@@ -16,7 +26,7 @@
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item active">
-        <a class="nav-link" href="{{ route('instructor.index') }}">
+        <a class="nav-link" href="{{ route('classlist.index') }}">
             <i class="fas fa-fw fa-home"></i>
             <span>Home</span></a>
     </li>
@@ -39,10 +49,18 @@
         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Subjects:</h6>
-                <a class="collapse-item" href="buttons.html">Sample 1</a>
-                <a class="collapse-item" href="cards.html">Sample 2</a>
+                @if(count($classlists) > 0)
+                    @foreach ($classlists as $class)
+                        <a class="collapse-item truncate-text" href="{{ route('classlist.show', $class->id) }}" title="{{ $class->name }}">
+                            {{ $class->name }}
+                        </a>
+                    @endforeach
+                @else
+                    <p class="collapse-item text-muted">No classes available</p>
+                @endif
             </div>
         </div>
+
     </li>
 
     <!-- Nav Item - Utilities Collapse Menu -->
@@ -56,7 +74,7 @@
             data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Manage Class:</h6>
-                <a class="collapse-item" href="{{ route('section') }}">Sections</a>
+                <a class="collapse-item" href="{{ route('sections.index') }}">Sections</a>
                 <a class="collapse-item" href="utilities-border.html">Grades</a>
                 {{-- <a class="collapse-item" href="utilities-animation.html">Animations</a>
                 <a class="collapse-item" href="utilities-other.html">Other</a> --}}
