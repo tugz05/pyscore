@@ -1,0 +1,11 @@
+Creating a file
+php artisan make:migration create_activities_table 
+
+Push to Database
+php artisan migrate
+
+Push to Github
+git add .
+git commit -m "Created a migration for Activities"
+git push
+
