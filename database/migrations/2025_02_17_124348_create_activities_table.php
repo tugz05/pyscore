@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('classlist_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('section_id')->constrained()->cascadeOnDelete();
+            $table->string('title');
+            $table->longText('instruction');
+            $table->double('points');
+            $table->date('due_date');
+            $table->time('due_time');
+            $table->date('accesible_date')->nullable();
+            $table->time('accesible_time')->nullable();
             $table->timestamps();
         });
     }
