@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('classlist_id')->constrained()->cascadeOnDelete();
+            $table->string('classlist_id', 15);
             $table->foreignId('section_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->longText('instruction');
@@ -23,6 +23,11 @@ return new class extends Migration
             $table->date('accesible_date')->nullable();
             $table->time('accesible_time')->nullable();
             $table->timestamps();
+
+            $table->foreign('classlist_id')
+            ->references('id')
+            ->on('classlists')
+            ->onDelete('cascade'); // Optional: delete submissions if classlist is deleted
         });
     }
 

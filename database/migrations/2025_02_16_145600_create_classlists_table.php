@@ -12,14 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('classlists', function (Blueprint $table) {
-            $table->id();
-            $table->string('code', 12)->unique();
+            $table->string('id', 15)->primary(); // Google Classroom-style ID
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('section_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('academic_year');
             $table->string('room');
             $table->timestamps();
+
+            
         });
     }
 

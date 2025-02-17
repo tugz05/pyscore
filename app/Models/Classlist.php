@@ -10,19 +10,25 @@ use Illuminate\Support\Str;
 class Classlist extends Model
 {
     use HasFactory;
+
+    public $incrementing = false; // Disable auto-incrementing ID
+    protected $keyType = 'string'; // Ensure the primary key is treated as a string
+
     protected $fillable = [
-        'code',
+        'id', // Google Classroom-style ID as primary key
         'user_id',
         'section_id',
         'name',
         'academic_year',
     ];
-    // Automatically generate a Google Classroom-style code when creating a section
+
+    // Automatically generate Google Classroom-style ID when creating a section
     protected static function boot()
     {
         parent::boot();
+
         static::creating(function ($section) {
-            $section->code = self::generateClassroomCode();
+            $section->id = self::generateClassroomCode(); // Generate Google Classroom-style ID
         });
     }
 
@@ -31,6 +37,7 @@ class Classlist extends Model
     {
         return strtolower(Str::random(3)) . '-' . strtolower(Str::random(4)) . '-' . strtolower(Str::random(3));
     }
+
     /**
      * Get the section that owns the Classlist
      *

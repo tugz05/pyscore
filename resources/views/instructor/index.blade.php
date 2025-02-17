@@ -123,7 +123,7 @@
                         <a class="btn btn-danger delete-btn" data-id="${classlist.id}">
                             <i class="fas fa-fw fa-trash"></i>
                         </a>
-                        <button class="btn btn-primary share-btn" data-id="${classlist.id}" data-share_code="${classlist.code}">
+                        <button class="btn btn-primary share-btn" data-id="${classlist.id}" data-share_code="${classlist.id}">
                     <i class="fas fa-fw fa-share"></i>
                 </button>
                     </div>

@@ -85,8 +85,8 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
     <!-- Nav Item - Dashboard -->
-    <li class="nav-item active">
-        <a class="nav-link" href="index.html">
+    <li class="nav-item">
+        <a class="nav-link" href="">
             <i class="fas fa-fw fa-cog"></i>
             <span>Settings</span></a>
     </li>
