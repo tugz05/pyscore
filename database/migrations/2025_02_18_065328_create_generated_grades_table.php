@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('combined_datas', function (Blueprint $table) {
+        Schema::create('generated_grades', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('activity_id')->constrained()->cascadeOnDelete();
             $table->foreignId('output_id')->constrained()->cascadeOnDelete();
+            $table->float('score');
+            $table->longText('feedback');
             $table->timestamps();
         });
     }
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('combined_datas');
+        Schema::dropIfExists('generated_grades');
     }
 };

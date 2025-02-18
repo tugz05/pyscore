@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('grades', function (Blueprint $table) {
+        Schema::create('combined_outputs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('generated_grade_id')->constrained()->cascadeOnDelete();
-            $table->float('instruction');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('output_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('grades');
+        Schema::dropIfExists('combined_outputs');
     }
 };

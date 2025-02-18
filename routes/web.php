@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClasslistController;
 use App\Http\Controllers\Instructor\DashboardController as InstructorDashboardController;
 use App\Http\Controllers\Instructor\SectionController;
@@ -29,6 +30,7 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
     Route::delete('/classlist/{id}', [ClasslistController::class, 'destroy'])->name('classlist.destroy');
     Route::resource('classlist', ClasslistController::class);
     Route::get('/classlist_data', [ClasslistController::class, 'getClasslists'])->name('classlist.data');
+    Route::get('/class', [ClassController::class, 'index'])->name('class');
 });
 
 Route::middleware(['account_type:student', 'auth'])->prefix('user')->group(function(){
