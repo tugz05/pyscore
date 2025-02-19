@@ -6,7 +6,10 @@ use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClasslistController;
 use App\Http\Controllers\Instructor\DashboardController as InstructorDashboardController;
 use App\Http\Controllers\Instructor\SectionController;
+use App\Http\Controllers\Admin\InstructorController;
+use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -35,5 +38,18 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
 
 Route::middleware(['account_type:student', 'auth'])->prefix('user')->group(function(){
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.index');
+});
+
+Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function(){
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');
+    Route::get('/instructors', [InstructorController::class, 'index'])->name('admin.instructor');
+    Route::get('/students', [StudentController::class, 'index'])->name('admin.student');
+    Route::post('/admin/students/update-role', [StudentController::class, 'update'])->name('admin.student.update');
+    Route::post('/admin/instructors/update-role', [InstructorController::class, 'update'])->name('admin.instructor.update');
+    Route::delete('/admin/students/{id}', [StudentController::class, 'destroy'])->name('admin.student.destroy');
+    Route::delete('/admin/instructors/{id}', [InstructorController::class, 'destroy'])->name('admin.instructor.destroy');
+
+
+
 });
 
