@@ -22,19 +22,24 @@ class ClassController extends Controller
     public function viewClass($id)
     {
         $activities = Activity::where('classlist_id', $id)
-            ->with(['classlist', 'section']) // Load relationships
+            ->with(['classlist', 'section', 'user']) // Load relationships
             ->get();
 
         // Fetch the classlist details separately
-        $classlist = Classlist::with('section')->where('id', $id)->first();
+        $classlist = Classlist::with('section', 'user')->where('id', $id)->first();
         return view('instructor.pages.class', compact('activities', 'classlist'));
     }
     public function list($id)
     {
+        $classlist = Classlist::with(['section', 'user'])->find($id);
         $activities = Activity::where('classlist_id', $id)
-            ->with(['classlist', 'section']) // Load relationships
+            ->with(['classlist', 'section','user']) // Load relationships
             ->get();
-        return response()->json(["data" => $activities]);
+        // return response()->json(["data" => $activities]);
+        return response()->json([
+            'data' => $activities,
+            'classlist' => $classlist
+        ]);
     }
     public function store(Request $request)
     {
