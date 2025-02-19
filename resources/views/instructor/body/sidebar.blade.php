@@ -51,7 +51,7 @@
                 <h6 class="collapse-header">Subjects:</h6>
                 @if(count($classlists) > 0)
                     @foreach ($classlists as $class)
-                        <a class="collapse-item truncate-text" href="{{ route('classlist.show', $class->id) }}" title="{{ $class->name }}">
+                        <a class="collapse-item truncate-text" href="{{ route('class.view', $class->id) }}" title="{{ $class->name }}">
                             {{ $class->name }}
                         </a>
                     @endforeach
