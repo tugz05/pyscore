@@ -75,7 +75,7 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Manage Class:</h6>
                 <a class="collapse-item" href="{{ route('sections.index') }}">Sections</a>
-                <a class="collapse-item" href="utilities-border.html">Grades</a>
+                <a class="collapse-item" href="">Grades</a>
                 {{-- <a class="collapse-item" href="utilities-animation.html">Animations</a>
                 <a class="collapse-item" href="utilities-other.html">Other</a> --}}
             </div>
@@ -85,6 +85,11 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
     <!-- Nav Item - Dashboard -->
+    <li class="nav-item">
+        <a class="nav-link" href="">
+            <i class="fas fa-fw fa-archive"></i>
+            <span>Archived Classes </span></a>
+    </li>
     <li class="nav-item">
         <a class="nav-link" href="">
             <i class="fas fa-fw fa-cog"></i>

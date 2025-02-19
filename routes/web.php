@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\HomeController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -56,6 +57,9 @@ Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(functi
     Route::get('/instructors/data', [InstructorController::class, 'getInstructors'])->name('instructor.data');
     Route::get('/instructors', [InstructorController::class, 'index'])->name('admin.instructor');
     Route::get('/students', [StudentController::class, 'index'])->name('admin.student');
+
+    Route::get('/dashboard', [HomeController::class, 'index'])->name('admin.index');
+
     Route::post('/admin/students/update-role', [StudentController::class, 'update'])->name('admin.student.update');
     Route::post('/admin/instructors/update-role', [InstructorController::class, 'update'])->name('admin.instructor.update');
     Route::delete('/admin/students/{id}', [StudentController::class, 'destroy'])->name('admin.student.destroy');
