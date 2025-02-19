@@ -228,7 +228,7 @@
                 let id = $('#activity_id').val().trim();
                 let classlistId = $('#classlist_id').val(); // Always keep classlist_id
                 let sectionId = $('#section_id').val(); // Always keep section_id
-                let url = id ? `/instructor/activity/update/${id}` : "{{ route('activity.store') }}";
+                let url = id ? `activity/update/${id}` : "{{ route('activity.store') }}";
                 let method = id ? 'PUT' : 'POST';
                 $.ajax({
                     url: url,
@@ -260,7 +260,7 @@
         /** Edit Activity **/
         $(document).on("click", ".edit-btn", function() {
             $("#activity_id").val($(this).data('id'));
-            $("#title").val($(this).data('name'));
+            $("#title").val($(this).data('title'));
             $("#points").val($(this).data('points'));
             $("#instruction").val($(this).data('instruction'));
             $("#due_date").val($(this).data('due_date'));
