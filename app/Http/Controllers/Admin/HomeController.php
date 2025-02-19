@@ -12,12 +12,14 @@ class HomeController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $studentCount = User::where('account_type', 'student')->count();
-        $instructorCount = User::where('account_type', 'instructor')->count();
+{
+    $studentCount = User::where('account_type', 'student')->count();
+    $instructorCount = User::where('account_type', 'instructor')->count();
+    $instructors = User::where('account_type', 'instructor')->select('name', 'avatar', 'created_at')->get();
 
-        return view('admin.index', compact('studentCount', 'instructorCount'));
-    }
+    return view('admin.index', compact('studentCount', 'instructorCount', 'instructors'));
+}
+
 
 
     /**
