@@ -66,4 +66,19 @@ class Classlist extends Model
     {
         return $this->belongsTo(User::class);
     }
+    /**
+     * Get all of the joinedclasses for the Classlist
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function joinedclasses(): HasMany
+    {
+        return $this->hasMany(JoinedClass::class);
+    }
+
+
+public function instructor()
+{
+    return $this->belongsTo(User::class, 'user_id',); // User who created the class
+}
 }

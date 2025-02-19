@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\JoinedClassController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -47,8 +48,13 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
 
 });
 
-Route::middleware(['account_type:student', 'auth'])->prefix('user')->group(function(){
-    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.index');
+Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(function(){
+    Route::get('/dashboard', [JoinedClassController::class, 'index'])->name('user.index');
+
+    Route::get('/classlist_data', [JoinedClassController::class, 'getClasslists'])->name('user.classlist.data');
+    Route::resource('joinclass', JoinedClassController::class);
+    Route::get('/class/i/{id}', [JoinedClassController::class, 'viewClass'])->name('user.class.view');
+    Route::get('/activity/{id}', [JoinedClassController::class, 'viewActivity'])->name('user.activity.view');
 });
 
 Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function(){
@@ -60,8 +66,5 @@ Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(functi
     Route::post('/admin/instructors/update-role', [InstructorController::class, 'update'])->name('admin.instructor.update');
     Route::delete('/admin/students/{id}', [StudentController::class, 'destroy'])->name('admin.student.destroy');
     Route::delete('/admin/instructors/{id}', [InstructorController::class, 'destroy'])->name('admin.instructor.destroy');
-
-
-
 });
 
