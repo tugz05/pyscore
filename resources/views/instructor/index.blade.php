@@ -26,7 +26,7 @@
                 <i class="fa-brands fa-python text-primary"></i> Welcome Admin
             </h1>
             <h1 class="h3 mb-0 text-gray-800">
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addClassModal">
+                <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addClassModal">
                     <i class="fa-brands fa-plus mr-3"></i>
                     Create Class
                     </a>
@@ -104,6 +104,7 @@
                     url: "{{ route('classlist.data') }}",
                     type: "GET",
                     success: function(response) {
+
                         let classCards = '';
                         if (response.data.length === 0) {
                             classCards = `
@@ -118,6 +119,7 @@
                             $.each(response.data, function(index, classlist) {
                                 classCards += `
                             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                <a href="{{ route('class.view', '') }}/${classlist.id}">
                                 <div class="card shadow-lg rounded-4 border-1 hover-effect h-100">
                                     <img src="https://picsum.photos/300/120" class="card-img-top rounded-top-4" alt="Course Image">
                                     <div class="card-body p-3 d-flex flex-column">

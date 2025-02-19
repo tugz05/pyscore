@@ -20,8 +20,8 @@ return new class extends Migration
             $table->double('points');
             $table->date('due_date');
             $table->time('due_time');
-            $table->date('accesible_date')->nullable();
-            $table->time('accesible_time')->nullable();
+            $table->date('accessible_date')->nullable();
+            $table->time('accessible_time')->nullable();
             $table->timestamps();
 
             $table->foreign('classlist_id')
