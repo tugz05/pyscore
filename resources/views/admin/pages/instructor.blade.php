@@ -119,7 +119,7 @@
         let table = $('#instructorsTable').DataTable({
             "processing": true,
             "serverSide": false,
-            "ajax": "{{ route('admin.instructor') }}",
+            "ajax": "{{ route('instructor.data') }}",
             "columns": [
                 { "data": "id" },
                 { "data": "name" },

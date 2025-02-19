@@ -13,13 +13,18 @@ class InstructorController extends Controller
      */
     public function index()
     {
-        $users = User::where('account_type', 'instructor')->get();
+        $users = User::where('account_type', 'admin')->get();
 
         if (request()->ajax()) {
             return response()->json(['data' => $users]);
         }
 
         return view('admin.pages.instructor', compact('users'));
+    }
+    public function getInstructors()
+    {
+        $users = User::where('account_type', 'instructor')->get();
+        return response()->json(['data' => $users]);
     }
 
     /**

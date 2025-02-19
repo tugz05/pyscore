@@ -53,6 +53,7 @@ Route::middleware(['account_type:student', 'auth'])->prefix('user')->group(funct
 
 Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function(){
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');
+    Route::get('/instructors/data', [InstructorController::class, 'getInstructors'])->name('instructor.data');
     Route::get('/instructors', [InstructorController::class, 'index'])->name('admin.instructor');
     Route::get('/students', [StudentController::class, 'index'])->name('admin.student');
     Route::post('/admin/students/update-role', [StudentController::class, 'update'])->name('admin.student.update');
