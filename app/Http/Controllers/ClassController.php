@@ -14,9 +14,11 @@ class ClassController extends Controller
     }
     public function viewActivity($id)
     {
-        $activity = Activity::findOrFail($id);
-        return response()->json($activity);
-
+        $activity = Activity::where('id', $id)
+            ->with(['user']) // Load relationships
+            ->first();
+            // dd($activity);
+        return view('instructor.pages.activity', compact('activity'));
     }
 
     public function viewClass($id)
