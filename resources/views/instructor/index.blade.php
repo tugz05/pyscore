@@ -23,7 +23,7 @@
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">
-                <i class="fa-brands fa-python text-primary"></i> Welcome Admin
+                <i class="fa-brands fa-python text-primary"></i> Welcome Instructor
             </h1>
             <h1 class="h3 mb-0 text-gray-800">
                 <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addClassModal">

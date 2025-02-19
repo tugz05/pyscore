@@ -11,7 +11,7 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('classlist.index') }}">
         <div class="sidebar-brand-icon rotate-n-15">
             <svg width="30" height="30" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
                 <path fill="#306998" d="M63.88 0C47.3 0 34.18 11.06 34.18 27.29v9.11h29.34v2.99H22.57C10.17 39.39 0 47.7 0 61.76v20.47c0 12.95 10.04 22.46 22.57 22.46h7.19v-9.64c0-9.61 8.2-17.93 18.15-17.93h29.34c8.04 0 14.58-6.52 14.58-14.54V27.29C91.83 11.06 79.17 0 63.88 0zM48.06 8.68a4.5 4.5 0 0 1 4.5 4.51 4.5 4.5 0 0 1-4.5 4.51 4.5 4.5 0 0 1-4.5-4.51 4.5 4.5 0 0 1 4.5-4.51z"/>

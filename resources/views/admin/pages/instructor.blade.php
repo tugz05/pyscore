@@ -128,7 +128,7 @@
                 { "data": null, "orderable": false, "searchable": false, "render": function(data, type, row) {
                     return `
                         <button class="btn btn-sm btn-primary role-btn" data-id="${row.id}" data-role="${row.account_type}">
-                            Role
+                            Change Role
                         </button>
                         <button class="btn btn-sm btn-danger delete-btn" data-id="${row.id}">
                             Delete
