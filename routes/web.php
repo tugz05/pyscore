@@ -68,7 +68,6 @@ Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(functi
 
     Route::post('/admin/students/update-role', [StudentController::class, 'update'])->name('admin.student.update');
     Route::post('/admin/instructors/update-role', [InstructorController::class, 'update'])->name('admin.instructor.update');
-    Route::delete('/admin/students/{id}', [StudentController::class, 'destroy'])->name('admin.student.destroy');
-    Route::delete('/admin/instructors/{id}', [InstructorController::class, 'destroy'])->name('admin.instructor.destroy');
+
 });
 

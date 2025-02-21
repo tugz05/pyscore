@@ -61,12 +61,6 @@
                         <div class="card-body text-center">
                             <canvas id="requestsChart" width="200" height="200"></canvas>
                             <div class="mt-3">
-                                <span class="mr-2">
-                                    <i class="fas fa-circle text-primary"></i> Pending
-                                </span>
-                                <span class="mr-2">
-                                    <i class="fas fa-circle text-success"></i> Approved
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -109,30 +103,24 @@
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    var ctx = document.getElementById('requestsChart').getContext('2d');
-    var requestsChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Pending', 'Approved'],
-            datasets: [{
-                data: [13, 5],
-                backgroundColor: ['#4e73df', '#1cc88a'], // Blue for Pending, Green for Approved
-                hoverBackgroundColor: ['#2e59d9', '#17a673'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            cutout: '70%',
-            maintainAspectRatio: true, // Set to true to maintain aspect ratio
-            plugins: {
-                legend: {
-                    display: false
-                }
-            }
-        }
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById('requestsChart').getContext('2d');
+        var requestsChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Approved'],
+                datasets: [{
+                    data: [13, 5],
+                    backgroundColor: ['#4e73df', '#1cc88a'], // Blue for Pending, Green for Approved
+                    hoverBackgroundColor: ['#2e59d9', '#17a673'],
+                    borderWidth: 1
+                }]
+            },
+
+        });
     });
-});
 </script>
+
+
 
 @endsection

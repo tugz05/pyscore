@@ -21,7 +21,7 @@
                                     <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody></tbody> <!-- DataTables will load data dynamically -->
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -30,86 +30,11 @@
     </div>
 </div>
 
-<!-- Modal for Changing Role -->
-<div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="roleModalLabel">Change Role</h5>
-            </div>
-            <div class="modal-body">
-                <form id="roleForm">
-                    <input type="hidden" id="userId" name="userId">
-                    <div class="mb-3">
-                        <label for="roleSelect" class="form-label">Select Role</label>
-                        <select class="form-select" id="roleSelect" name="roleSelect" >
-                            <option value="student">Student</option>
-                            <option value="instructor">Instructor</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveRoleBtn">Save changes</button>
-            </div>
-        </div>
-    </div>
+<div id="roleUpdateNotification" class="alert alert-success position-fixed text-center" style="display: none; top: 90%; left: 50%; transform: translate(-50%, -50%); width: 300px; z-index: 1050;">
+    Role updated successfully!
 </div>
 
-<!-- Modal for Response Message -->
-<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="responseModalLabel">Response</h5>
-            </div>
-            <div class="modal-body" id="responseMessage">
-                <!-- Response message will be inserted here -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Modal for Delete Confirmation -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Delete Confirmation</h5>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this student?</p>
-                <input type="hidden" id="deleteUserId">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal for Delete Success Message -->
-<div class="modal fade" id="deleteSuccessModal" tabindex="-1" aria-labelledby="deleteSuccessModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteSuccessModalLabel">Success</h5>
-            </div>
-            <div class="modal-body">
-                User deleted successfully!
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 @endsection
 
@@ -127,90 +52,49 @@
                 { "data": "account_type" },
                 { "data": null, "orderable": false, "searchable": false, "render": function(data, type, row) {
                     return `
-                        <button class="btn btn-sm btn-primary role-btn" data-id="${row.id}" data-role="${row.account_type}">
-                            Change Role
-                        </button>
-                        <button class="btn btn-sm btn-danger delete-btn" data-id="${row.id}">
-                            Delete
-                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenu${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                Change Role
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu${row.id}">
+
+                                <li><a class="dropdown-item role-change" data-id="${row.id}" data-role="instructor">Instructor</a></li>
+                                <li><a class="dropdown-item role-change" data-id="${row.id}" data-role="student">Student</a></li>
+                            </ul>
+
+                        </div>
+
                     `;
                 }}
             ]
         });
 
-        // Open Modal and Populate Data for Role Change
-        $(document).on('click', '.role-btn', function() {
+        $(document).on('click', '.role-change', function() {
             let userId = $(this).data('id');
-            let currentRole = $(this).data('role');
-
-            $('#userId').val(userId);
-            $('#roleSelect').val(currentRole);
-            $('#roleModal').modal('show');
-        });
-
-        // Save Role Changes
-        $('#saveRoleBtn').on('click', function() {
-            let userId = $('#userId').val();
-            let newRole = $('#roleSelect').val();
+            let newRole = $(this).data('role');
 
             $.ajax({
                 url: "{{ route('admin.student.update') }}",
-                method: 'POST',
+                method: "POST",
                 data: {
                     id: userId,
-                    account_type: newRole
+                    account_type: newRole,
+                    _token: "{{ csrf_token() }}"
                 },
                 success: function(response) {
-                    $('#roleModal').modal('hide');
-                    table.ajax.reload();
-
-                    $('#responseMessage').text(response.success ? 'Role updated successfully!' : 'Failed to update role.');
-                    $('#responseModal').modal('show');
-                },
-                error: function(xhr) {
-                    $('#roleModal').modal('hide');
-                    $('#responseMessage').text('An error occurred. Please try again.');
-                    $('#responseModal').modal('show');
-                }
-            });
-        });
-
-        // Open Delete Confirmation Modal
-        $(document).on('click', '.delete-btn', function() {
-            let userId = $(this).data('id');
-            $('#deleteUserId').val(userId);
-            $('#deleteModal').modal('show');
-        });
-
-        // Confirm Delete
-        $('#confirmDeleteBtn').on('click', function() {
-            let userId = $('#deleteUserId').val();
-
-            $.ajax({
-                url: "{{ route('admin.student.destroy', '') }}/" + userId,
-                method: 'DELETE',
-                success: function(response) {
-                    $('#deleteModal').modal('hide');
                     if (response.success) {
-                        $('#deleteSuccessModal').modal('show');
+                        $('#roleUpdateNotification').fadeIn().delay(3000).fadeOut();
                         table.ajax.reload();
                     } else {
-                        alert('Failed to delete user.');
+                        alert('Failed to update role.');
                     }
                 },
-                error: function(xhr) {
-                    $('#deleteModal').modal('hide');
+                error: function() {
                     alert('An error occurred. Please try again.');
                 }
             });
         });
 
-        // Ensure CSRF token is included in all AJAX requests
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
     });
 </script>
 @endpush

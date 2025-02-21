@@ -59,7 +59,7 @@ class StudentController extends Controller
     {
         $request->validate([
             'id' => 'required|exists:users,id',
-            'account_type' => 'required|in:student,instructor,admin',
+            'account_type' => 'required|in:student,instructor',
         ]);
 
         $user = User::find($request->id);
@@ -74,14 +74,7 @@ class StudentController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = User::find($id);
-        if (!$user) {
-        return response()->json(['success' => false, 'message' => 'User not found.'], 404);
-    }
-
-    $user->delete();
-
-    return response()->json(['success' => true, 'message' => 'User deleted successfully.']);
+       //
     }
 
 }

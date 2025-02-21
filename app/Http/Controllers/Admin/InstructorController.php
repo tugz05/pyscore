@@ -13,7 +13,7 @@ class InstructorController extends Controller
      */
     public function index()
     {
-        $users = User::where('account_type', 'admin')->get();
+        $users = User::where('account_type', 'instructor')->get();
 
         if (request()->ajax()) {
             return response()->json(['data' => $users]);
@@ -66,7 +66,7 @@ class InstructorController extends Controller
     {
         $request->validate([
             'id' => 'required|exists:users,id',
-            'account_type' => 'required|in:student,instructor,admin',
+            'account_type' => 'required|in:student,instructor',
         ]);
 
         $user = User::find($request->id);
@@ -81,14 +81,7 @@ class InstructorController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = User::find($id);
-        if (!$user) {
-        return response()->json(['success' => false, 'message' => 'User not found.'], 404);
-    }
-
-    $user->delete();
-
-    return response()->json(['success' => true, 'message' => 'User deleted successfully.']);
+       //
     }
 
 }
