@@ -3,9 +3,9 @@
 @section('content')
 <div class="container-fluid mx-6">
     <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    {{-- <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Assignment</h1>
-    </div>
+    </div> --}}
 
     <div class="card shadow-lg border-0">
         <div class="card-body">

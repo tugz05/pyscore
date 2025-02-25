@@ -197,6 +197,8 @@
                 }).then(submissionResponse => {
                     let submissionStatus = submissionResponse.status;
                     let statusClass = submissionStatus === 'Submitted' ? 'text-success' : 'text-danger';
+                    let statusClassBadge = submissionStatus === 'Submitted' ? 'bg-success' : 'bg-danger';
+                    let submissionAssignedScore = submissionResponse.assigned_score;
                     console.log(submissionResponse);
 
                     classCards += `
@@ -213,7 +215,7 @@
                                             <span class="text-dark">${activity.title}</span>
                                         </p>
                                         ${activity.created_at ? new Date(activity.created_at).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }) : 'No date available'}
-                                        <span class="badge bg-success ml-3 text-white">${activity.points} points</span>
+                                        <span class="badge ${statusClassBadge} ml-3 text-white">${submissionAssignedScore} / ${activity.points}</span>
                                     </div>
                                 </div>
                                 <!-- Submission Status -->

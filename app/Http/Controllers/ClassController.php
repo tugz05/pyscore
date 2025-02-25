@@ -15,9 +15,12 @@ class ClassController extends Controller
         $submission = Output::where('user_id', $userId)
                             ->where('activity_id', $activityId)
                             ->exists();
-
+        $total_score = Activity::find($activityId)->points;
+        $assigned_score = $submission ? $total_score : 0;
         return response()->json([
             'submission_status' => $submission,
+            'assigned_score' => $assigned_score,
+            'total_score' => $total_score,
             'status' => $submission ? 'Submitted' : 'Missing'
         ]);
     }
@@ -39,6 +42,7 @@ class ClassController extends Controller
     {
         $activities = Activity::where('classlist_id', $id)
             ->with(['classlist', 'section', 'user']) // Load relationships
+            ->orderBy('created_at', 'desc') // Sort by latest time
             ->get();
 
         // Fetch the classlist details separately

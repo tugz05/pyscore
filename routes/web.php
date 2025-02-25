@@ -61,6 +61,8 @@ Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(fu
     Route::get('/activity/{id}', [JoinedClassController::class, 'viewActivity'])->name('user.activity.view');
     Route::post('/submit', [PythonEvaluationController::class, 'evaluate'])->name('submit.python.code');
     Route::get('/submission-status/{userId}/{activityId}', [ClassController::class, 'getSubmissionStatus']);
+    Route::get('/check-submission', [PythonEvaluationController::class, 'checkSubmission'])->name('check.submission');
+
 
 
 

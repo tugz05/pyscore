@@ -9,7 +9,6 @@
 }
 </style>
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('user.index') }}">
         <div class="sidebar-brand-icon rotate-n-15">
@@ -51,9 +50,9 @@
                 <h6 class="collapse-header">Subjects:</h6>
                 @if(count($classlists) > 0)
                     @foreach ($classlists as $class)
-                        <a class="collapse-item truncate-text" href="{{ route('classlist.show', $class->id) }}" title="{{ $class->name }}">
-                            {{ $class->name }}
-                        </a>
+                    <a class="collapse-item truncate-text" href="{{ route('user.class.view', $class->id) }}" title="{{ $class->name }}">
+                        {{ $class->name }}
+                    </a>
                     @endforeach
                 @else
                     <p class="collapse-item text-muted">No classes available</p>

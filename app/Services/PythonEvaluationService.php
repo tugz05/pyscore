@@ -11,20 +11,24 @@ class PythonEvaluationService {
         $this->apiKey = env('GEMINI_API_KEY');
     }
 
-    public function evaluatePythonCode($code, $userId, $activityId, $sectionId) {
+    public function evaluatePythonCode($code, $instruction, $userId, $activityId, $sectionId,$assigned_score) {
+        // Construct a more precise and structured prompt
+        $prompt = "Instruction: $instruction\n\n"
+                . "Evaluate the following Python code based on the given instruction. Provide a score (0-$assigned_score) and detailed feedback covering correctness, efficiency, and best coding practices.\n\n"
+                . "```python\n$code\n```";
+
         $response = Http::post("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={$this->apiKey}", [
             'contents' => [
-                ['parts' => [['text' => "Evaluate the following Python code and provide a score (0-100) along with feedback:\n\n$code"]]]
+                ['parts' => [['text' => $prompt]]]
             ]
         ]);
-
         $result = $response->json();
 
         // Handle possible missing response
         if (!isset($result['candidates'][0]['content']['parts'][0]['text'])) {
             return [
                 'score' => 0,
-                'feedback' => 'No feedback received.',
+                'feedback' => 'No feedback received. Please try again.',
             ];
         }
 
@@ -34,12 +38,12 @@ class PythonEvaluationService {
         preg_match('/Score:\s*(\d+)/', $feedback, $matches);
         $score = isset($matches[1]) ? floatval($matches[1]) : 0;
 
-        // Save to database
+        // Save evaluation to database
         return Output::create([
             'user_id' => $userId,
             'activity_id' => $activityId,
             'section_id' => $sectionId,
-            'code' => $code, // Assuming you want to store the code
+            'code' => $code,
             'score' => $score,
             'feedback' => $feedback,
         ]);

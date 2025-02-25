@@ -15,6 +15,7 @@ class JoinedClassController extends Controller
         $classlist = Classlist::with(['section', 'user'])->find($id);
         $activities = Activity::where('classlist_id', $id)
             ->with(['classlist', 'section','user']) // Load relationships
+            ->orderBy('created_at', 'desc') // Sort by latest time
             ->get();
         // return response()->json(["data" => $activities]);
         return response()->json([
