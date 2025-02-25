@@ -38,7 +38,8 @@
 
                                 <input type="text" id="shareCode" class="form-control text-center fw-bold mb-3"
                                     value="{{ $classlist->id }}" readonly>
-                                <button class="btn btn-primary w-100" onclick="copyShareCode()">Copy Code</button>
+                                <button class="btn btn-success w-100 m-2" onclick="copyShareCode()">Copy Code</button>
+                                <button class="btn btn-primary w-100 m-2" onclick="copyLink()">Copy Link</button>
                             </div>
                         </div>
 
@@ -170,7 +171,16 @@
         function copyShareCode() {
             let copyText = document.getElementById("shareCode");
             copyText.select();
-            navigator.clipboard.writeText("http://127.0.0.1:8000/" + copyText.value).then(() => {
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                alert("Share code copied: " + copyText.value);
+            }).catch(err => {
+                console.error("Error copying text:", err);
+            });
+        }
+        function copyLink() {
+            let copyText = document.getElementById("shareCode");
+            copyText.select();
+            navigator.clipboard.writeText("http://127.0.0.1:8000/student/join/class/s/" + copyText.value).then(() => {
                 alert("Share code copied: " + copyText.value);
             }).catch(err => {
                 console.error("Error copying text:", err);
@@ -290,7 +300,12 @@
                         $('#section_id').val("{{ $classlist->section->id }}");
                         $('#classlist_id').val(classlistId); // Restore classlist_id after reset
                         $('#section_id').val(sectionId); // Restore section_id after reset
-                        alert(response.success || "Activity saved successfully!");
+                        Swal.fire({
+                        icon: "success",
+                        title: "Submission Failed!",
+                        text: "Activity saved successfully!",
+                        confirmButtonColor: "#d33"
+                    });
                         loadActivities(classlistId);
 
                     },

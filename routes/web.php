@@ -27,7 +27,7 @@ Route::get('/logout', [GoogleController::class, 'logout'])->name('logout');
 
 Route::get('/', function () {
     return view('auth.login');
-})->name('home');
+})->name('login');
 
 Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->group(function(){
     Route::get('/dashboard', [InstructorDashboardController::class, 'index'])->name('instructor.index');
@@ -52,6 +52,8 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
 });
 
 Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(function(){
+
+    Route::get('/join/class/s/{classId}', [JoinedClassController::class, 'joinClass'])->name('student.join.class');
     Route::get('/dashboard', [JoinedClassController::class, 'index'])->name('user.index');
     Route::get('/activities/list/{classlist_id}', [JoinedClassController::class, 'list'])->name('activity.list');
 

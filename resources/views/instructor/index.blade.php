@@ -80,8 +80,15 @@
                 </div>
                 <div class="modal-body text-center">
                     <p class="fw-bold">Share this code to allow others to join your class:</p>
-                    <input type="text" id="shareCode" class="form-control text-center fw-bold">
-                    <button class="btn btn-success mt-3" onclick="copyShareCode()">Copy Code</button>
+                    <input type="text" id="shareCode" class="form-control text-center fw-bold" readonly>
+                    <button class="btn btn-success mt-3" onclick="copyShareCode()">
+                        <i class="fas fa-clipboard-list text-white fs-1 mr-2"></i>
+                        Copy Code
+                    </button>
+                    <button class="btn btn-primary mt-3 mr-3" onclick="copyLink()">
+                        <i class="fas fa-link text-white fs-1 mr-2"></i>
+                        Copy Link
+                    </button>
                 </div>
             </div>
         </div>
@@ -95,6 +102,15 @@
             copyText.setSelectionRange(0, 99999);
             document.execCommand("copy");
             alert("Share code copied: " + copyText.value);
+        }
+        function copyLink() {
+            let copyText = document.getElementById("shareCode");
+            copyText.select();
+            navigator.clipboard.writeText("http://127.0.0.1:8000/student/join/class/s/" + copyText.value).then(() => {
+                alert("Share code copied: " + copyText.value);
+            }).catch(err => {
+                console.error("Error copying text:", err);
+            });
         }
         $(document).ready(function() {
             loadClasses();
@@ -127,13 +143,13 @@
                                         <p class="card-text text-muted">${classlist.section.name} | ${classlist.academic_year}</p>
                                         <p class="card-text text-muted"><b>Room:</b> ${classlist.room}</p>
                                         <div class="mt-auto d-flex justify-content-between">
-                                            <a class="btn btn-warning edit-btn" data-id="${classlist.id}" data-name="${classlist.name}" data-section_id="${classlist.section_id}" data-academic_year="${classlist.academic_year}" data-room="${classlist.room}">
+                                            <a class="btn btn-warning edit-btn" data-id="${classlist.id}" data-name="${classlist.name}" data-section_id="${classlist.section_id}" data-academic_year="${classlist.academic_year}" data-room="${classlist.room}" data-toggle="tooltip" data-placement="top" title="Edit Class">
                                                 <i class="fas fa-fw fa-pen-to-square"></i>
                                             </a>
-                                            <a class="btn btn-danger delete-btn" data-id="${classlist.id}">
-                                                <i class="fas fa-fw fa-trash"></i>
+                                            <a class="btn btn-success delete-btn" data-id="${classlist.id}" data-toggle="tooltip" data-placement="top" title="Move to Archive">
+                                                <i class="fas fa-fw fa-box-archive"></i>
                                             </a>
-                                            <button class="btn btn-primary share-btn" data-id="${classlist.id}" data-share_code="${classlist.id}">
+                                            <button class="btn btn-primary share-btn" data-id="${classlist.id}" data-share_code="${classlist.id}" data-toggle="tooltip" data-placement="top" title="Share Class">
                                                 <i class="fas fa-fw fa-share"></i>
                                             </button>
                                         </div>

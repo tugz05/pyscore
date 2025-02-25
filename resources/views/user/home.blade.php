@@ -22,7 +22,7 @@
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fa-brands fa-python text-primary"></i> Welcome Instructor
+            <i class="fa-brands fa-python text-primary"></i> Welcome {{ Auth::user()->name }}!
         </h1>
         <h1 class="h3 mb-0 text-gray-800">
             <a class="btn btn-success" data-toggle="modal" data-target="#joinClassModal">

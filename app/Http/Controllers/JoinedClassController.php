@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Auth;
 
 class JoinedClassController extends Controller
 {
+    public function joinClass($classId){
+        $class = Classlist::find($classId);
+        if(!$class){
+            return response()->json(['error' => 'Class not found!'], 404);
+        }
+        return view('user.pages.join_class',compact('class'), ['id' => $classId]);
+    }
     public function list($id)
     {
         $classlist = Classlist::with(['section', 'user'])->find($id);

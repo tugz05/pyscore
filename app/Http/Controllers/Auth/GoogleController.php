@@ -69,7 +69,7 @@ class GoogleController extends Controller
     public function logout()
     {
         Auth::logout();
-        return redirect(route('home'))->with('success', 'You have been logged out.');
+        return redirect(route('login'))->with('success', 'You have been logged out.');
     }
 
 }
