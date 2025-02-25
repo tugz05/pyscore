@@ -1,24 +1,31 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+
 class StudentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $users = User::where('account_type', 'student')->get();
+{
+    $requestedUpgrades = User::where('isRequested', true)
+        ->where('account_type', 'student') // Ensure only students who requested an upgrade are shown
+        ->get();
 
-        if (request()->ajax()) {
-            return response()->json(['data' => $users]);
-        }
-
-        return view('admin.pages.student', compact('users'));
+    if (request()->ajax()) {
+        return response()->json(['data' => $requestedUpgrades]); // Ensure 'data' key exists
     }
+
+    return view('admin.pages.student', compact('requestedUpgrades'));
+}
+
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -64,17 +71,34 @@ class StudentController extends Controller
 
         $user = User::find($request->id);
         $user->account_type = $request->account_type;
+        $user->isRequested = null; // Reset the request flag
+        $user->request_status = null; // Reset request_status so they can request again
         $user->save();
 
         return response()->json(['success' => true]);
     }
+
+
+    public function denyUpgradeRequest(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request->id);
+        $user->isRequested = null; // Reset the request
+        $user->request_status = 'denied'; // Mark as denied
+        $user->save();
+
+        return response()->json(['success' => true]);
+    }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-       //
+        //
     }
-
 }

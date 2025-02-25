@@ -11,13 +11,13 @@
                         <h4 class="card-title text-center">Manage Students</h4>
                     </div>
                     <div class="table-responsive">
-                        <table id="studentsTable" class="table table-hover table-bordered text-center align-middle">
+                        <h4 class="card-title text-center">Upgrade Requests</h4>
+                        <table id="requestsTable" class="table table-hover table-bordered text-center align-middle">
                             <thead class="table-dark">
                                 <tr>
                                     <th class="text-center">ID</th>
                                     <th class="text-center">Name</th>
                                     <th class="text-center">Email</th>
-                                    <th class="text-center">Role</th>
                                     <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
@@ -41,52 +41,68 @@
 @push('script')
 <script>
     $(document).ready(function() {
-        let table = $('#studentsTable').DataTable({
+        let requestTable = $('#requestsTable').DataTable({
             "processing": true,
             "serverSide": false,
-            "ajax": "{{ route('admin.student') }}",
+            "ajax": "{{ route('admin.student') }}", // Fetch only upgrade requests
             "columns": [
                 { "data": "id" },
                 { "data": "name" },
                 { "data": "email" },
-                { "data": "account_type" },
                 { "data": null, "orderable": false, "searchable": false, "render": function(data, type, row) {
                     return `
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenu${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
-                                Change Role
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu${row.id}">
-
-                                <li><a class="dropdown-item role-change" data-id="${row.id}" data-role="instructor">Instructor</a></li>
-                                <li><a class="dropdown-item role-change" data-id="${row.id}" data-role="student">Student</a></li>
-                            </ul>
-
-                        </div>
-
+                        <button class="btn btn-sm btn-primary approve-request" data-id="${row.id}">
+                            Approve
+                        </button>
+                        <button class="btn btn-sm btn-danger deny-request" data-id="${row.id}">
+                            Deny
+                        </button>
                     `;
                 }}
             ]
         });
 
-        $(document).on('click', '.role-change', function() {
+        $(document).on('click', '.approve-request', function() {
             let userId = $(this).data('id');
-            let newRole = $(this).data('role');
 
             $.ajax({
                 url: "{{ route('admin.student.update') }}",
                 method: "POST",
                 data: {
                     id: userId,
-                    account_type: newRole,
+                    account_type: "instructor",
                     _token: "{{ csrf_token() }}"
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#roleUpdateNotification').fadeIn().delay(3000).fadeOut();
-                        table.ajax.reload();
+                        requestTable.ajax.reload();
+                        alert('User approved as instructor.');
                     } else {
-                        alert('Failed to update role.');
+                        alert('Failed to approve request.');
+                    }
+                },
+                error: function() {
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+
+        $(document).on('click', '.deny-request', function() {
+            let userId = $(this).data('id');
+
+            $.ajax({
+                url: "{{ route('admin.student.deny') }}",
+                method: "POST",
+                data: {
+                    id: userId,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response.success) {
+                        requestTable.ajax.reload();
+                        alert('Request denied successfully.');
+                    } else {
+                        alert('Failed to deny request.');
                     }
                 },
                 error: function() {

@@ -71,7 +71,7 @@
     </li>
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
-        <a class="nav-link" href="">
+        <a class="nav-link" href="{{ route('user.settings') }}">
             <i class="fas fa-fw fa-cog"></i>
             <span>Settings</span></a>
     </li>
