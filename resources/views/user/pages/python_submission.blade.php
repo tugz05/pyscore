@@ -6,7 +6,8 @@
     <style>
         .code-editor {
             width: 100%;
-            height: 500px; /* Adjusted default height */
+            height: 500px;
+            /* Adjusted default height */
             border-radius: 8px;
             border: 1px solid #ddd;
         }
@@ -14,12 +15,33 @@
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .code-editor {
-                height: 300px; /* Reduce height for smaller screens */
+                height: 300px;
+                /* Reduce height for smaller screens */
             }
         }
 
         .custom-file-label::after {
             content: "Browse";
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+
+        .loading-overlay .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
         }
     </style>
 </head>
@@ -76,93 +98,117 @@
         </div>
     </div>
 </div>
-
+<div class="loading-overlay">
+    <div class="spinner">
+        <i class="fas fa-spinner fa-spin"></i> Submitting your code...
+    </div>
+</div>
 @push('script')
-<script>
-    // Initialize Ace Editor
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/monokai");
-    editor.session.setMode("ace/mode/python");
-    editor.setOptions({
-        fontSize: "16px",
-        wrap: true,
-        showPrintMargin: false
-    });
+    <script>
+        // Initialize Ace Editor
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/python");
+        editor.setOptions({
+            fontSize: "16px",
+            wrap: true,
+            showPrintMargin: false
+        });
 
-    // Adjust editor height dynamically based on screen size
-    function adjustEditorHeight() {
-        if (window.innerWidth < 768) {
-            editor.container.style.height = "300px"; // Mobile height
-        } else {
-            editor.container.style.height = "500px"; // Default height
+        function showLoading() {
+            $(".loading-overlay").fadeIn();
+            $("#submitCode").prop("disabled", true).html('<i class="fas fa-spinner fa-spin"></i> Submitting...');
         }
-        editor.resize();
-    }
 
-    // Call function on load and window resize
-    adjustEditorHeight();
-    window.addEventListener("resize", adjustEditorHeight);
+        // Function to hide loading UI
+        function hideLoading() {
+            $(".loading-overlay").fadeOut();
+            $("#submitCode").prop("disabled", false).html('<i class="fas fa-paper-plane"></i> Submit Code');
+        }
 
-    // Fetch student submission
-    function checkSubmission() {
-        $.ajax({
-            url: "{{ route('check.submission') }}",
-            type: "GET",
-            data: {
-                user_id: $("#user_id").val(),
-                activity_id: $("#activity_id").val()
-            },
-            success: function (response) {
-                if (response.submitted) {
-                    // Display score and feedback
-                    $("h1#page-title").html('<i class="fa-solid fa-code text-primary"></i> Submitted Python Code');
-                    $("#feedback-text").html("<strong>Feedback:</strong> " + response.feedback);
-                    $("#score-text").html("Score: " + response.score + "/"+ response.assigned_score);
-
-                    // Disable submit button
-                    $("#submitCode").prop("disabled", true).addClass("btn-secondary").removeClass("btn-success");
-
-                    // Load the submitted code into the editor
-                    editor.setValue(response.python_code, -1);
-                    editor.setReadOnly(true);
-                }
-                else{
-                    $("h1#page-title").html('<i class="fa-solid fa-code text-primary"></i> Submit Python Code');
-                }
-            },
-            error: function () {
-                console.log("Error checking submission.");
+        // Adjust editor height dynamically based on screen size
+        function adjustEditorHeight() {
+            if (window.innerWidth < 768) {
+                editor.container.style.height = "300px"; // Mobile height
+            } else {
+                editor.container.style.height = "500px"; // Default height
             }
+            editor.resize();
+        }
+
+        // Call function on load and window resize
+        adjustEditorHeight();
+        window.addEventListener("resize", adjustEditorHeight);
+
+        // Fetch student submission
+        function checkSubmission() {
+            $.ajax({
+                url: "{{ route('check.submission') }}",
+                type: "GET",
+                data: {
+                    user_id: $("#user_id").val(),
+                    activity_id: $("#activity_id").val()
+                },
+                success: function(response) {
+                    if (response.submitted) {
+                        // Display score and feedback
+                        $("h1#page-title").html(
+                            '<i class="fa-solid fa-code text-primary"></i> Submitted Python Code');
+                        $("#feedback-text").html("<strong>Feedback:</strong> " + response.feedback);
+                        $("#score-text").html("Score: " + response.score + "/" + response.assigned_score);
+
+                        // Disable submit button
+                        $("#submitCode").prop("disabled", true).addClass("btn-secondary").removeClass(
+                            "btn-success");
+
+                        // Load the submitted code into the editor
+                        editor.setValue(response.python_code, -1);
+                        editor.setReadOnly(true);
+                    } else {
+                        $("h1#page-title").html(
+                            '<i class="fa-solid fa-code text-primary"></i> Submit Python Code');
+                    }
+                },
+                error: function() {
+                    console.log("Error checking submission.");
+                }
+            });
+        }
+
+        // Call the function on page load
+        checkSubmission();
+
+        // AJAX Submission
+        $('#submitCode').on('click', function() {
+            var pythonCode = editor.getValue();
+            $('#python_code').val(pythonCode);
+            showLoading();
+            $.ajax({
+                url: "{{ route('submit.python.code') }}",
+                type: "POST",
+                data: $('#codeForm').serialize(),
+                success: function(response) {
+                    hideLoading();
+                    Swal.fire({
+                        icon: "success",
+                        title: "Code Submitted!",
+                        text: "Your code has been successfully submitted.",
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+
+                    // Refresh the submission status
+                    checkSubmission();
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Submission Failed!",
+                        text: "There was an error submitting your code. Please try again.",
+                        confirmButtonColor: "#d33"
+                    });
+                }
+            });
         });
-    }
-
-    // Call the function on page load
-    checkSubmission();
-
-    // AJAX Submission
-    $('#submitCode').on('click', function () {
-        var pythonCode = editor.getValue();
-        $('#python_code').val(pythonCode);
-
-        $.ajax({
-            url: "{{ route('submit.python.code') }}",
-            type: "POST",
-            data: $('#codeForm').serialize(),
-            success: function (response) {
-                $('#responseMessage').html(
-                    '<div class="alert alert-success">Code submitted successfully!</div>'
-                );
-
-                // Refresh the submission status
-                checkSubmission();
-            },
-            error: function (xhr) {
-                $('#responseMessage').html(
-                    '<div class="alert alert-danger">Error submitting code. Please try again.</div>'
-                );
-            }
-        });
-    });
-
-</script>
+    </script>
 @endpush
