@@ -4,10 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\Classlist;
+use App\Models\Output;
 use Illuminate\Http\Request;
 
 class ClassController extends Controller
 {
+    public function getSubmissionStatus($userId, $activityId)
+    {
+        // Check if the user has already submitted the activity
+        $submission = Output::where('user_id', $userId)
+                            ->where('activity_id', $activityId)
+                            ->exists();
+
+        return response()->json([
+            'submission_status' => $submission,
+            'status' => $submission ? 'Submitted' : 'Missing'
+        ]);
+    }
+
     public function index()
     {
         return view('instructor.pages.class');
@@ -36,6 +50,7 @@ class ClassController extends Controller
         $classlist = Classlist::with(['section', 'user'])->find($id);
         $activities = Activity::where('classlist_id', $id)
             ->with(['classlist', 'section','user']) // Load relationships
+            ->orderBy('created_at', 'desc') // Sort by latest time
             ->get();
         // return response()->json(["data" => $activities]);
         return response()->json([
@@ -46,6 +61,7 @@ class ClassController extends Controller
     public function store(Request $request)
     {
         $activity = Activity::create($request->all());
+        // dd($activity);
         return response()->json(['message' => 'Activity added successfully!', 'activity' => $activity]);
     }
 

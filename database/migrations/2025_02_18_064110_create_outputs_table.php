@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('activity_id')->constrained()->cascadeOnDelete();
-            $table->string('code');
+            $table->foreignId('section_id')->constrained()->cascadeOnDelete();
+            $table->longText('code');
+            $table->integer('score');
+            $table->longText('feedback');
             $table->timestamps();
         });
     }

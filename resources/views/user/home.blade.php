@@ -116,7 +116,7 @@ $(document).ready(function() {
                     $.each(response.data, function(index, classlist) {
                         classCards += `
                             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                <a href="{{ url('student/activity') }}/${classlist.id}">
+                                <a href="{{ url('student/class/i') }}/${classlist.id}">
                                     <div class="card shadow-lg rounded-4 border-1 hover-effect h-100">
                                         <img src="https://picsum.photos/300/120" class="card-img-top rounded-top-4" alt="Course Image">
                                         <div class="card-body p-3 d-flex flex-column">

@@ -2,18 +2,20 @@
 
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\HomeController;
+use App\Http\Controllers\Admin\InstructorController;
+use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClasslistController;
 use App\Http\Controllers\Instructor\DashboardController as InstructorDashboardController;
 use App\Http\Controllers\Instructor\SectionController;
-use App\Http\Controllers\Admin\InstructorController;
-use App\Http\Controllers\Admin\StudentController;
-use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\JoinedClassController;
+use App\Http\Controllers\PythonEvaluationController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -51,11 +53,17 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
 
 Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(function(){
     Route::get('/dashboard', [JoinedClassController::class, 'index'])->name('user.index');
+    Route::get('/activities/list/{classlist_id}', [JoinedClassController::class, 'list'])->name('activity.list');
 
     Route::get('/classlist_data', [JoinedClassController::class, 'getClasslists'])->name('user.classlist.data');
     Route::resource('joinclass', JoinedClassController::class);
     Route::get('/class/i/{id}', [JoinedClassController::class, 'viewClass'])->name('user.class.view');
     Route::get('/activity/{id}', [JoinedClassController::class, 'viewActivity'])->name('user.activity.view');
+    Route::post('/submit', [PythonEvaluationController::class, 'evaluate'])->name('submit.python.code');
+    Route::get('/submission-status/{userId}/{activityId}', [ClassController::class, 'getSubmissionStatus']);
+
+
+
 });
 
 Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function(){

@@ -10,6 +10,18 @@ use Illuminate\Support\Facades\Auth;
 
 class JoinedClassController extends Controller
 {
+    public function list($id)
+    {
+        $classlist = Classlist::with(['section', 'user'])->find($id);
+        $activities = Activity::where('classlist_id', $id)
+            ->with(['classlist', 'section','user']) // Load relationships
+            ->get();
+        // return response()->json(["data" => $activities]);
+        return response()->json([
+            'data' => $activities,
+            'classlist' => $classlist
+        ]);
+    }
     public function getClasslists(Request $request)
     {
         // Get the classlist IDs that the authenticated user has joined
@@ -25,7 +37,7 @@ class JoinedClassController extends Controller
 
     public function viewActivity($id)
     {
-        $activity = Activity::where('classlist_id', $id)
+        $activity = Activity::where('id', $id)
             ->with(['user']) // Load relationships
             ->first();
             // dd($activity);
@@ -33,11 +45,14 @@ class JoinedClassController extends Controller
     }
     public function viewClass($id)
     {
-        $joinedclass = JoinedClass::where('classlist_id', $id)->where('user_id', auth()->user()->id)->first();
-        if (!$joinedclass) {
-            return redirect()->route('user.index')->with('error', 'You are not enrolled in this class!');
-        }
-        return view('user.pages.class', compact('activities', 'classlist'));
+        $activity = Activity::where('classlist_id', $id)
+            ->with(['classlist', 'section', 'user']) // Load relationships
+            ->get();
+
+        // Fetch the classlist details separately
+        $classlist = Classlist::with('section', 'user')->where('id', $id)->first();
+        // dd($classlist);
+        return view('user.pages.class', compact('activity', 'classlist'));
     }
     public function index()
     {
@@ -57,23 +72,34 @@ class JoinedClassController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'classlist_id' => 'required|string|max:255',
-            ]);
-            $user = Auth::user()->id;
-            $classlist = new JoinedClass();
-            $classlist->user_id = $user;
-            $classlist->classlist_id = $validated['classlist_id'];
-            $classlist->date_joined = now();
-            $classlist->save(); // Save manually
+{
+    try {
+        $validated = $request->validate([
+            'classlist_id' => 'required|string|max:255',
+        ]);
 
-            return response()->json(['success' => 'Class joined successfully!']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        $user = Auth::user()->id;
+
+        // Check if the user has already joined the class
+        $existingClass = JoinedClass::where('user_id', $user)
+            ->where('classlist_id', $validated['classlist_id'])
+            ->exists();
+
+        if ($existingClass) {
+            return response()->json(['error' => 'You have already joined this class!'], 400);
         }
+
+        $classlist = new JoinedClass();
+        $classlist->user_id = $user;
+        $classlist->classlist_id = $validated['classlist_id'];
+        $classlist->date_joined = now();
+        $classlist->save(); // Save manually
+
+        return response()->json(['success' => 'Class joined successfully!']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
     }
+}
 
     /**
      * Display the specified resource.

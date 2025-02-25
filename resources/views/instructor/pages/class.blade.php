@@ -104,6 +104,7 @@
                 </div>
                 <form id="addActivityForm">
                     @csrf
+                    <input type="hidden" name="user_id" id="user_id" value="{{ Auth::id()}}">
                     <input type="hidden" name="classlist_id" id="classlist_id" value="{{ $classlist->id }}">
                     <input type="hidden" name="section_id" id="section_id" value="{{ $classlist->section->id }}">
                     <input type="hidden" name="activity_id" id="activity_id">

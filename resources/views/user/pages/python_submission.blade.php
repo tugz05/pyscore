@@ -19,7 +19,7 @@
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fa-brands fa-python text-primary"></i> Submit Python Code
+            <i class="fa-solid fa-code text-primary"></i> Submit Python Code
         </h1>
     </div>
 
@@ -32,11 +32,16 @@
                 </div>
                 <div class="card-body">
                     <div id="editor" class="code-editor"></div>
-                    <form id="submitCodeForm">
+
+                    <form method="POST" action="{{ route('submit.python.code') }}">
                         @csrf
+                        <input type="hidden" name="user_id" id="user_id" value="{{ Auth::id() }}">
+                        <input type="hidden" name="section_id" id="section_id" value="{{ $activity->section_id }}">
+                        <input type="hidden" name="activity_id" id="activity_id" value="{{ $activity->id }}">
                         <input type="hidden" name="python_code" id="python_code">
+
                         <div class="mt-3 text-right">
-                            <button type="submit" class="btn btn-success">
+                            <button type="submit" class="btn btn-success" onclick="setPythonCode()">
                                 <i class="fas fa-paper-plane"></i> Submit Code
                             </button>
                         </div>
@@ -52,7 +57,7 @@
                     <h5 class="mb-0">Upload Python File</h5>
                 </div>
                 <div class="card-body">
-                    <form id="uploadFileForm" enctype="multipart/form-data">
+                    <form method="POST" action="#" enctype="multipart/form-data">
                         @csrf
                         <div class="custom-file">
                             <input type="file" class="custom-file-input" id="pythonFile" name="pythonFile" accept=".py">
@@ -70,8 +75,6 @@
     </div>
 </div>
 
-
-
 @push('script')
 <script>
     // Initialize Ace Editor
@@ -79,59 +82,20 @@
     editor.setTheme("ace/theme/monokai");
     editor.session.setMode("ace/mode/python");
     editor.setOptions({
-        fontSize: "14px",
+        fontSize: "18px",
         wrap: true,
         showPrintMargin: false
     });
 
-    // Handle Code Submission
-    $('#submitCodeForm').submit(function(e) {
-        e.preventDefault();
-        $('#python_code').val(editor.getValue()); // Get code from editor
-
-        $.ajax({
-            url: "#",
-            type: "POST",
-            data: $(this).serialize(),
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                alert(response.success);
-            },
-            error: function(xhr) {
-                alert("Error: " + xhr.responseText);
-            }
-        });
-    });
-
-    // Handle File Upload
-    $('#uploadFileForm').submit(function(e) {
-        e.preventDefault();
-        var formData = new FormData(this);
-
-        $.ajax({
-            url: "#",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                alert(response.success);
-            },
-            error: function(xhr) {
-                alert("Error: " + xhr.responseText);
-            }
-        });
-    });
+    // Set Python code in the hidden input before submission
+    function setPythonCode() {
+        document.getElementById("python_code").value = editor.getValue();
+    }
 
     // Update file label when selected
-    $('#pythonFile').change(function() {
-        var fileName = $(this).val().split("\\").pop();
-        $(this).next('.custom-file-label').addClass("selected").html(fileName);
+    document.getElementById("pythonFile").addEventListener("change", function () {
+        var fileName = this.value.split("\\").pop();
+        this.nextElementSibling.innerHTML = fileName;
     });
 </script>
 @endpush
