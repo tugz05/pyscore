@@ -28,6 +28,8 @@ class User extends Authenticatable
         'email_verified_at',
         'password',
         'status',
+        'isRequested',
+        'request_status',
     ];
 
     /**
