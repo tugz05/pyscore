@@ -124,44 +124,67 @@
                         let classCards = '';
                         if (response.data.length === 0) {
                             classCards = `
-                       <div class="d-flex align-items-center justify-content-center w-100" style="height: 75vh;">
-                            <div class="text-center">
-                                <img src="{{ asset('assets/img/undraw_posting_photo.svg') }}" style="max-width: 50%; height: auto; padding: 20px;">
-                                <h1>No classes available</h1>
-                            </div>
-                        </div>
-                    `;
+                                <div class="d-flex align-items-center justify-content-center w-100" style="height: 75vh;">
+                                    <div class="text-center">
+                                        <img src="{{ asset('assets/img/undraw_posting_photo.svg') }}" style="max-width: 50%; height: auto; padding: 20px;">
+                                        <h1>No classes available</h1>
+                                    </div>
+                                </div>
+                            `;
                         } else {
                             $.each(response.data, function(index, classlist) {
                                 classCards += `
-                            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                <a href="{{ route('class.view', '') }}/${classlist.id}">
-                                <div class="card shadow-lg rounded-4 border-1 hover-effect h-100">
-                                    <img src="https://picsum.photos/300/120" class="card-img-top rounded-top-4" alt="Course Image">
-                                    <div class="card-body p-3 d-flex flex-column">
-                                        <h5 class="card-title text-primary fw-bold">${classlist.name}</h5>
-                                        <p class="card-text text-muted">${classlist.section.name} | ${classlist.academic_year}</p>
-                                        <p class="card-text text-muted"><b>Room:</b> ${classlist.room}</p>
-                                        <div class="mt-auto d-flex justify-content-between">
-                                            <a class="btn btn-warning edit-btn" data-id="${classlist.id}" data-name="${classlist.name}" data-section_id="${classlist.section_id}" data-academic_year="${classlist.academic_year}" data-room="${classlist.room}" data-toggle="tooltip" data-placement="top" title="Edit Class">
-                                                <i class="fas fa-fw fa-pen-to-square"></i>
+                                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                    <div class="card shadow-lg rounded-4 border-1 hover-effect h-100">
+                                        <img src="https://picsum.photos/300/120" class="card-img-top rounded-top-4" alt="Course Image">
+                                        <div class="card-body p-3 d-flex flex-column">
+                                            <a href="{{ route('class.view', '') }}/${classlist.id}" class="text-decoration-none">
+                                                <h5 class="card-title text-primary fw-bold">${classlist.name}</h5>
                                             </a>
-                                            <a class="btn btn-success delete-btn" data-id="${classlist.id}" data-toggle="tooltip" data-placement="top" title="Move to Archive">
-                                                <i class="fas fa-fw fa-box-archive"></i>
-                                            </a>
-                                            <button class="btn btn-primary share-btn" data-id="${classlist.id}" data-share_code="${classlist.id}" data-toggle="tooltip" data-placement="top" title="Share Class">
-                                                <i class="fas fa-fw fa-share"></i>
-                                            </button>
+                                            <p class="card-text text-muted">${classlist.section.name} | ${classlist.academic_year}</p>
+                                            <p class="card-text text-muted"><b>Room:</b> ${classlist.room}</p>
+                                            <div class="mt-auto d-flex justify-content-between">
+                                                <!-- Vertical Ellipsis Menu -->
+                                                <div>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-light " type="button" id="dropdownMenu${classlist.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="fas fa-ellipsis-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu${classlist.id}">
+                                                        <li>
+                                                            <a class="dropdown-item share-btn" data-id="${classlist.id}" data-share_code="${classlist.id}" data-toggle="tooltip" data-placement="top" title="Share Class">
+                                                                Copy invite link
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item edit-btn" data-id="${classlist.id}" data-name="${classlist.name}" data-section_id="${classlist.section_id}" data-academic_year="${classlist.academic_year}" data-room="${classlist.room}">
+                                                                Edit
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item copy-btn" data-id="${classlist.id}" href="#">
+                                                                Copy
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item archive-btn text-danger" data-id="${classlist.id}" href="#">
+                                                                Archive
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>`;
+                                </div>`;
                             });
                         }
                         $('#classCards').html(classCards);
                     }
                 });
-            }
+}
+
             $('#addClassForm').submit(function(e) {
                 e.preventDefault();
                 let id = $('#classlist_id').val();
