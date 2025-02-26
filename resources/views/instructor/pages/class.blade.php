@@ -17,13 +17,7 @@
                 <a class="nav-link active" data-bs-toggle="tab" href="#stream">Stream</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#classwork">Classwork</a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#people">People</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#grades">Grades</a>
             </li>
         </ul>
         {{-- Stream Tab --}}
@@ -86,7 +80,7 @@
         <div class="tab-content mt-3">
             <!-- Stream Tab -->
             <div class="tab-pane fade show" id="people">
-                <h1>People</h1>
+                @include('instructor.pages.people')
             </div>
         </div>
         {{-- Close People Tab --}}
