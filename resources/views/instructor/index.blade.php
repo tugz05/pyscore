@@ -184,7 +184,36 @@
                     }
                 });
 }
+$(document).on('click', '.archive-btn', function (e) {
+            e.preventDefault();
 
+            let id = $(this).data('id');
+
+            if (!confirm("Are you sure you want to archive this class?")) {
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('archive.data') }}",
+                type: "POST",
+                data: {
+                    id: id,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        loadClasses(); // Reload only the class list
+                    } else {
+                        alert(response.message + id);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert('Something went wrong. Please try again.');
+                }
+            });
+        });
             $('#addClassForm').submit(function(e) {
                 e.preventDefault();
                 let id = $('#classlist_id').val();

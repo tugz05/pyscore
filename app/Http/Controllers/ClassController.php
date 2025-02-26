@@ -27,6 +27,7 @@ class ClassController extends Controller
         ]);
     }
 
+
     public function index()
     {
         return view('instructor.pages.class');
@@ -48,12 +49,14 @@ class ClassController extends Controller
             ->get();
 
         // Fetch the classlist details separately
-        $classlist = Classlist::with('section', 'user')->where('id', $id)->first();
+        $classlist = Classlist::with('section', 'user')
+        ->where('id', $id)->first();
         return view('instructor.pages.class', compact('activities', 'classlist'));
     }
     public function list($id)
     {
-        $classlist = Classlist::with(['section', 'user'])->find($id);
+        $classlist = Classlist::where('is_archive', false)
+        ->with(['section', 'user'])->find($id);
         $activities = Activity::where('classlist_id', $id)
             ->with(['classlist', 'section','user']) // Load relationships
             ->orderBy('created_at', 'desc') // Sort by latest time

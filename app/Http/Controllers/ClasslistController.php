@@ -22,6 +22,7 @@ class ClasslistController extends Controller
 
         $classes = Classlist::with('section')
                     ->where('user_id', $userId) // Filter classes by creator
+                    ->where('is_archive', false) // Filter classes by creator
                     ->get();
 
         return response()->json(["data" => $classes]);

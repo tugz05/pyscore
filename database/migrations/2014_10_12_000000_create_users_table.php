@@ -24,7 +24,7 @@ return new class extends Migration
             $table->longText('password');
             $table->rememberToken();
             $table->timestamps();
-            $table->boolean('isRequested')->nullable();
+
 
         });
     }

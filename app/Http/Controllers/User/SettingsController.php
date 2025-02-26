@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
+
 
 class SettingsController extends Controller
 {
@@ -64,19 +63,5 @@ class SettingsController extends Controller
     {
         //
     }
-    public function requestUpgrade()
-{
-    $user = auth()->user();
-
-    if (!$user) {
-        return response()->json(['success' => false, 'message' => 'User not found'], 404);
-    }
-
-    $user->isRequested = true;
-    $user->request_status = 'pending'; // Mark request as pending
-    $user->save();
-
-    return response()->json(['success' => true]);
 }
 
-}
