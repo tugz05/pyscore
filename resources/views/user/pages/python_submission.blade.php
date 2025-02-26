@@ -154,7 +154,7 @@
                         // Display score and feedback
                         $("h1#page-title").html(
                             '<i class="fa-solid fa-code text-primary"></i> Submitted Python Code');
-                        $("#feedback-text").html("<strong>Feedback:</strong> " + response.feedback);
+                        $("#feedback-text").html(response.feedback);
                         $("#score-text").html("Score: " + response.score + "/" + response.assigned_score);
 
                         // Disable submit button

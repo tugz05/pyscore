@@ -16,7 +16,7 @@ class ActivitiesTableSeeder extends Seeder
     {
         $activities = [
             [
-                'classlist_id' => 'yry-semc-mxs',
+                'classlist_id' => 'arc-ry3x-jxg',
                 'section_id' => 1,
                 'user_id' => 1,
                 'title' => 'Introduction to Programming',
@@ -28,7 +28,7 @@ class ActivitiesTableSeeder extends Seeder
                 'accessible_time' => '08:00:00',
             ],
             [
-                'classlist_id' => 'yry-semc-mxs',
+                'classlist_id' => 'arc-ry3x-jxg',
                 'section_id' => 1,
                 'user_id' => 1,
                 'title' => 'Python Basics',
@@ -40,7 +40,7 @@ class ActivitiesTableSeeder extends Seeder
                 'accessible_time' => '08:00:00',
             ],
             [
-                'classlist_id' => 'yry-semc-mxs',
+                'classlist_id' => 'arc-ry3x-jxg',
                 'section_id' => 1,
                 'user_id' => 1,
                 'title' => 'Conditional Statements',
@@ -52,7 +52,7 @@ class ActivitiesTableSeeder extends Seeder
                 'accessible_time' => '08:00:00',
             ],
             [
-                'classlist_id' => 'yry-semc-mxs',
+                'classlist_id' => 'arc-ry3x-jxg',
                 'section_id' => 1,
                 'user_id' => 1,
                 'title' => 'Loops and Iterations',
@@ -64,7 +64,7 @@ class ActivitiesTableSeeder extends Seeder
                 'accessible_time' => '08:00:00',
             ],
             [
-                'classlist_id' => 'yry-semc-mxs',
+                'classlist_id' => 'arc-ry3x-jxg',
                 'section_id' => 1,
                 'user_id' => 1,
                 'title' => 'Functions in Python',

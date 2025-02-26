@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\PythonEvaluationService;
 use App\Models\Output;
-use App\Models\Activity; // Import the Activity model to fetch instructions
+use App\Models\Activity;
+use Illuminate\Support\Facades\Log;
 
 class PythonEvaluationController extends Controller {
     protected $evaluationService;
@@ -23,22 +24,49 @@ class PythonEvaluationController extends Controller {
             'section_id' => 'required|integer',
         ]);
 
-        // Retrieve instruction from database
+        // Retrieve activity details
         $activity = Activity::find($request->activity_id);
-        $instruction = $activity ? $activity->instruction : 'Evaluate the code based on correctness, efficiency, and best practices.';
-        $assigned_score = $activity->points;
-        // Evaluate the Python code with instructions
+        if (!$activity) {
+            return response()->json(['error' => 'Activity not found.'], 404);
+        }
+
+        // Retrieve existing submission
+        $output = Output::where('activity_id', $request->activity_id)
+                        ->where('user_id', $request->user_id)
+                        ->first();
+
+        // Calculate time consumed if submission exists
+        if ($output) {
+            $total_seconds = $activity->created_at->diffInSeconds($output->created_at);
+            $minutes = floor($total_seconds / 60);
+            $seconds = $total_seconds % 60;
+            $time_consumed = sprintf("%d minutes %d seconds", $minutes, $seconds);
+        } else {
+            $time_consumed = "N/A"; // If output is missing
+        }
+
+        // Get instruction and assigned score
+        $instruction = $activity->instruction ?? 'Evaluate the code based on correctness, efficiency, and best practices.';
+        $assigned_score = $activity->points ?? 100;
+
+        // Evaluate the Python code
         $evaluation = $this->evaluationService->evaluatePythonCode(
             $request->python_code,
             $instruction,
             $request->user_id,
             $request->activity_id,
             $request->section_id,
-            $assigned_score
+            $assigned_score,
+            $time_consumed
         );
+
+        if (!$evaluation) {
+            return response()->json(['error' => 'Evaluation failed. Please try again.'], 500);
+        }
 
         return response()->json([
             'message' => 'Python code evaluated successfully.',
+            'evaluation' => $evaluation
         ]);
     }
 
@@ -46,25 +74,44 @@ class PythonEvaluationController extends Controller {
         // Retrieve all evaluations
         return response()->json(Output::all());
     }
-    public function checkSubmission(Request $request)
-{
-    $submission = Output::where('user_id', $request->user_id)
+
+    public function checkSubmission(Request $request) {
+        // Validate required fields
+        $request->validate([
+            'user_id' => 'required|integer',
+            'activity_id' => 'required|integer',
+        ]);
+
+        $activity = Activity::find($request->activity_id);
+        if (!$activity) {
+            return response()->json(['error' => 'Activity not found.'], 404);
+        }
+
+        $submission = Output::where('user_id', $request->user_id)
                             ->where('activity_id', $request->activity_id)
                             ->first();
-    $assigned_score = Activity::find($request->activity_id)->points;
 
-    if ($submission) {
+        if (!$submission) {
+            return response()->json(['submitted' => false]);
+        }
+
+        $assigned_score = $activity->points ?? 100;
+
+        // Convert feedback to HTML format
         $formattedFeedback = nl2br(e($submission->feedback));
 
-        // Convert **bold** text to <strong>bold</strong>
+        // Convert markdown **bold** to <strong>bold</strong>
         $formattedFeedback = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $formattedFeedback);
 
-        // Convert *italic* text to <em>italic</em>
+        // Convert markdown *italic* to <em>italic</em>
         $formattedFeedback = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $formattedFeedback);
 
-        // Convert markdown-style bullet points (- item) into proper <ul><li>...</li></ul>
-        $formattedFeedback = preg_replace('/- (.*?)<br>/', '<li>$1</li>', $formattedFeedback);
-        $formattedFeedback = "<ul>" . $formattedFeedback . "</ul>"; // Wrap in <ul>
+        // Convert markdown bullet points (- item) to <ul><li>...</li></ul>
+        if (preg_match('/- (.*?)<br>/', $formattedFeedback)) {
+            $formattedFeedback = preg_replace('/- (.*?)<br>/', '<li>$1</li>', $formattedFeedback);
+            $formattedFeedback = "<ul>" . $formattedFeedback . "</ul>";
+        }
+
         return response()->json([
             'submitted' => true,
             'score' => $submission->score,
@@ -72,9 +119,6 @@ class PythonEvaluationController extends Controller {
             'feedback' => $formattedFeedback,
             'python_code' => $submission->code
         ]);
-    } else {
-        return response()->json(['submitted' => false]);
     }
-}
 }
 ?>
