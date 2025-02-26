@@ -187,7 +187,7 @@
                     <div class="d-flex align-items-center justify-content-center w-100" style="height: 75vh;">
                         <div class="text-center">
                             <img src="/assets/img/undraw_posting_photo.svg" style="max-width: 50%; height: auto; padding: 20px;">
-                            <h1>No classes available</h1>
+                            <h1>No activity available</h1>
                         </div>
                     </div>
                 `;
@@ -208,7 +208,7 @@
                     let statusClass = submissionStatus === 'Submitted' ? 'text-success' : 'text-danger';
                     let statusClassBadge = submissionStatus === 'Submitted' ? 'bg-success' : 'bg-danger';
                     let submissionAssignedScore = submissionResponse.assigned_score;
-                    console.log(submissionResponse);
+                    console.log(submissionResponse.total_score);
 
                     classCards += `
                         <div class="card shadow-sm border-0 rounded-3 p-2 mb-3 activity-card" data-url="/student/activity/${activity.id}" style="cursor: pointer;">

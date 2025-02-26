@@ -16,7 +16,9 @@ class ClassController extends Controller
                             ->where('activity_id', $activityId)
                             ->exists();
         $total_score = Activity::find($activityId)->points;
-        $assigned_score = $submission ? $total_score : 0;
+        $output = Output::where('user_id', $userId)
+        ->where('activity_id', $activityId);
+        $assigned_score = $output->exists() ? $output->first()->score : 0;
         return response()->json([
             'submission_status' => $submission,
             'assigned_score' => $assigned_score,

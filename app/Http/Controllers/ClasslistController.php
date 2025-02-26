@@ -17,8 +17,16 @@ class ClasslistController extends Controller
 
     public function getClasslists()
     {
-        return response()->json(["data" => Classlist::with('section')->get()]);
+        // Assuming the class creator is stored as `user_id`
+        $userId = auth()->id(); // Get the logged-in user's ID
+
+        $classes = Classlist::with('section')
+                    ->where('user_id', $userId) // Filter classes by creator
+                    ->get();
+
+        return response()->json(["data" => $classes]);
     }
+
 
     public function store(Request $request)
     {
