@@ -70,7 +70,18 @@ class ClassController extends Controller
 
         // Fetch the classlist details separately
         $classlist = Classlist::with('section', 'user')->where('id', $id)->first();
-        return view('instructor.pages.class', compact('activities', 'classlist'));
+        $instructor = User::whereHas('classlists', function ($query) use ($id) {
+            $query->where('id', $id)->where('account_type', 'instructor');
+        })->first();
+
+        // Fetch students who have joined the class and are not deleted
+        $students = DB::table('joined_classes')
+            ->join('users', 'joined_classes.user_id', '=', 'users.id')
+            ->where('joined_classes.classlist_id', $id)
+            ->whereNull('joined_classes.deleted_at') // Ensures only active students
+            ->select('users.id', 'users.name', 'users.avatar', 'users.email')
+            ->get();
+        return view('instructor.pages.class', compact('activities', 'classlist','instructor', 'students'));
     }
     public function list($id)
     {

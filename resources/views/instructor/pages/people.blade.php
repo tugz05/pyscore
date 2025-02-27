@@ -5,7 +5,7 @@
         <div class="d-flex align-items-center justify-content-between">
             @if($instructor)
                 <div class="d-flex align-items-center">
-                    <img src="{{ asset($instructor->avatar) }}" alt="Teacher Image" class="rounded-circle me-2" width="40" height="40">
+                    <img src="{{ $instructor->avatar}}" alt="Teacher Image" class="rounded-circle me-2" width="40" height="40">
                     <span class="fw-bold">{{ $instructor->name }}</span>
                 </div>
             @endif
