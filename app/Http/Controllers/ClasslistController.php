@@ -15,7 +15,7 @@ class ClasslistController extends Controller
         return view('instructor.index', compact('sections'));
     }
 
-    public function getClasslists()
+     public function getClasslists()
     {
         // Assuming the class creator is stored as `user_id`
         $userId = auth()->id(); // Get the logged-in user's ID
@@ -27,6 +27,7 @@ class ClasslistController extends Controller
 
         return response()->json(["data" => $classes]);
     }
+
 
 
     public function store(Request $request)

@@ -42,6 +42,12 @@ Route::get('/activity/{id}', [ClassController::class, 'viewActivity'])->name('ac
 
 Route::resource('archives', ArchiveController::class);
 Route::post('/archive-data', [ArchiveController::class, 'archiveData'])->name('archive.data');
+Route::resource('archives', ArchiveController::class);
+Route::post('/archive-data', [ArchiveController::class, 'archiveData'])->name('archive.data');
+Route::get('/archived-classlist', [ArchiveController::class, 'getArchivelists'])->name('archive.list');
+Route::post('/restore-class', [ArchiveController::class, 'restoreClass'])->name('archive.restore');
+
+
 
 
 });
