@@ -22,17 +22,15 @@ class GoogleController extends Controller
             $finduser = User::where('google_id', $googleUser->id)->first();
 
             if ($finduser) {
+                // ✅ Update user data to reflect changes in Google account
+                $finduser->name = $googleUser->name;
+                $finduser->avatar = $googleUser->avatar;
+                $finduser->save();
+
                 Auth::login($finduser);
-
-                if (is_null($finduser->avatar)) {
-                    $finduser->avatar = $googleUser->avatar;
-                    $finduser->save();
-                }
-
-                // Redirect based on account type stored in database
                 return $this->redirectUser($finduser->account_type);
             } else {
-                // Create new user with a default account type
+                // Create new user if not exists
                 $newUser = User::create([
                     'google_id' => $googleUser->id,
                     'email' =>  $googleUser->email,
@@ -45,8 +43,6 @@ class GoogleController extends Controller
                 ]);
 
                 Auth::login($newUser);
-
-                // Redirect based on stored account type (default: student)
                 return $this->redirectUser($newUser->account_type);
             }
 
