@@ -9,7 +9,7 @@
                     <h2 class="fw-bold">{{ $classlist->name }}</h2>
                     <p class="mb-0">{{ $classlist->section->name }}</p>
                 </div>
-                <button class="btn btn-light">Customize</button>
+
             </div>
         </div>
         <ul class="nav nav-tabs mt-3">

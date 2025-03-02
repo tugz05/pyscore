@@ -1,0 +1,249 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Nunito", sans-serif;
+    overflow-x: hidden;
+}
+
+/* Desktop Design */
+.section {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.section img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    opacity: 0.8;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+.section .content {
+    position: relative;
+    z-index: 1;
+    color: #2d3845;
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: -50px;
+    /* Adjust this value to reduce the space above "PYSCORE" */
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 24px;
+    border-radius: 15px;
+    font-weight: bold;
+    background-color: #17a2b8;
+    /* Keeps the original button color */
+    color: white;
+    border: none;
+    position: relative;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Adding the shadow effect */
+.btn::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 10px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(23, 162, 184, 0.5);
+    /* Lighter shade for shadow effect */
+    border-radius: 15px;
+    z-index: -1;
+    transition: all 0.2s ease-in-out;
+}
+
+.container {
+    max-width: 1200px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    padding: 50px;
+}
+
+.left-content {
+    flex: 1;
+    min-width: 300px;
+    text-align: left;
+    padding-right: 50px;
+    font-family: "Montserrat", sans-serif;
+}
+
+.right-content {
+    flex: 1;
+    min-width: 300px;
+}
+
+.features-list {
+    list-style: none;
+    padding: 0;
+}
+
+.features-list li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+    font-size: 1.7rem;
+    line-height: 2.2;
+}
+
+.features-list i {
+    color: #4caf50;
+    margin-right: 10px;
+}
+.stepper-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+}
+
+.stepper-section {
+    flex: 1;
+    text-align: left;
+}
+
+.stepper-title {
+    font-weight: bold;
+    color: #1e293b;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.stepper-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    background-color: #4a90e2;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 20px;
+}
+.step-text {
+    flex: 1;
+}
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 20px;
+}
+
+.google-btn img {
+    width: 24px;
+    height: 24px;
+}
+
+
+/* Mobile Design */
+@media (max-width: 768px) {
+    .section {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        padding: 30px;
+    }
+
+    .section img {
+        height: 300px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    .section .content h1 {
+        font-size: 2rem !important;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+
+    .container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .left-content {
+        text-align: center;
+        padding: 0;
+    }
+
+    .left-content h1 {
+        font-size: 1.5rem !important;
+    }
+
+    .features-list li {
+        font-size: 1.2rem;
+    }
+    .stepper-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .stepper-section {
+        text-align: center;
+        width: 100%;
+    }
+
+    .stepper-content {
+        align-items: center;
+    }
+
+    .step {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+        width: 90%;
+    }
+
+
+    .step-number {
+        margin-bottom: 10px;
+    }
+
+
+
+
+}
