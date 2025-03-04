@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Instructor;
 use App\Http\Controllers\Controller;
 use App\Models\Section;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SectionController extends Controller
 {
@@ -14,7 +15,8 @@ class SectionController extends Controller
     }
     public function index()
     {
-        $sections = Section::all();
+        $id = Auth::id();
+        $sections = Section::where('user_id', $id)->get();
         return view('instructor.pages.sections', compact('sections'));
     }
 
