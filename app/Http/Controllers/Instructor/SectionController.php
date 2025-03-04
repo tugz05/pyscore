@@ -13,7 +13,7 @@ class SectionController extends Controller
     {
         $id = Auth::id();
         $sections = Section::where('user_id', $id)->get();
-        return response()->json(["data" => Section::all()]);
+        return response()->json(["data" => $sections]);
     }
     public function index()
     {
