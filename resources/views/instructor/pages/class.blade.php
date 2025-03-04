@@ -173,13 +173,16 @@
         }
         function copyLink() {
             let copyText = document.getElementById("shareCode");
-            copyText.select();
-            navigator.clipboard.writeText("http://127.0.0.1:8000/student/join/class/s/" + copyText.value).then(() => {
-                alert("Share code copied: " + copyText.value);
+            let baseUrl = window.location.origin; // Dynamically gets the base URL
+            let fullUrl = `${baseUrl}/student/join/class/s/${copyText.value}`;
+
+            navigator.clipboard.writeText(fullUrl).then(() => {
+                alert("Share code copied: " + fullUrl);
             }).catch(err => {
                 console.error("Error copying text:", err);
             });
         }
+
 
         $(document).ready(function() {
             $(document).on("click", ".dropdown-menu", function(event) {
