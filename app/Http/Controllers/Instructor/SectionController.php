@@ -27,6 +27,8 @@ class SectionController extends Controller
 
     public function store(Request $request)
     {
+        $id = Auth::id();
+        $request->merge(['user_id' => $id]);
         $request->validate([
             'name' => 'required|string|max:255',
             'schedule_from' => 'required',

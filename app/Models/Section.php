@@ -10,6 +10,7 @@ class Section extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'user_id',
         'name',
         'schedule_from',
         'schedule_to',
