@@ -20,6 +20,8 @@ class Activity extends Model
         'due_time',
         'accessible_date',
         'accessible_time',
+        'is_missing',
+        'is_submitted'
     ];
     /**
      * Get the classlist that owns the Activity

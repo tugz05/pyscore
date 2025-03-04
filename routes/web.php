@@ -41,6 +41,7 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
     Route::put('/class/i/activity/update/{id}', [ClassController::class, 'update'])->name('activity.update');
     Route::delete('/class/i/activity/{id}', [ClassController::class, 'destroy'])->name('activity.destroy');
     Route::get('/activity/{id}', [ClassController::class, 'viewActivity'])->name('activity.view');
+    Route::get('/get-classes', [ClassController::class, 'getAllClasses']);
 
 
 

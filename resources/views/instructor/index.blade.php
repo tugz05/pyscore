@@ -149,7 +149,7 @@
                                             <div class="mt-auto d-flex justify-content-between">
                                                 <!-- Vertical Ellipsis Menu -->
                                                 <div>
-                                                <div class="dropdown">
+                                                <div class="dropup">
                                                     <button class="btn btn-light " type="button" id="dropdownMenu${classlist.id}" data-bs-toggle="dropdown" aria-expanded="false">
                                                         <i class="fas fa-ellipsis-vertical"></i>
                                                     </button>

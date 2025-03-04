@@ -5,23 +5,25 @@ namespace App\Http\Controllers;
 use App\Models\Activity;
 use App\Models\Classlist;
 use App\Models\JoinedClass;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class JoinedClassController extends Controller
 {
-    public function joinClass($classId){
+    public function joinClass($classId)
+    {
         $class = Classlist::find($classId);
-        if(!$class){
+        if (!$class) {
             return response()->json(['error' => 'Class not found!'], 404);
         }
-        return view('user.pages.join_class',compact('class'), ['id' => $classId]);
+        return view('user.pages.join_class', compact('class'), ['id' => $classId]);
     }
     public function list($id)
     {
         $classlist = Classlist::with(['section', 'user'])->find($id);
         $activities = Activity::where('classlist_id', $id)
-            ->with(['classlist', 'section','user']) // Load relationships
+            ->with(['classlist', 'section', 'user']) // Load relationships
             ->orderBy('created_at', 'desc') // Sort by latest time
             ->get();
         // return response()->json(["data" => $activities]);
@@ -48,12 +50,20 @@ class JoinedClassController extends Controller
         $activity = Activity::where('id', $id)
             ->with(['user']) // Load relationships
             ->first();
-            // dd($activity);
+        // dd($activity);
         return view('user.pages.activity', compact('activity'));
     }
     public function viewClass($id)
     {
         $activity = Activity::where('classlist_id', $id)
+            ->where(function ($query) {
+                $query->whereNull('accessible_date') // Include activities where accessible_date is NULL
+                    ->orWhere('accessible_date', '>', Carbon::now()); // Or where it's greater than the current date
+            })
+            ->where(function ($query) {
+                $query->whereNull('accessible_time') // Include activities where accessible_time is NULL
+                    ->orWhere('accessible_time', '>', Carbon::now()->format('H:i:s')); // Or where it's greater than the current time
+            })
             ->with(['classlist', 'section', 'user']) // Load relationships
             ->get();
 
@@ -80,34 +90,34 @@ class JoinedClassController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-{
-    try {
-        $validated = $request->validate([
-            'classlist_id' => 'required|string|max:255',
-        ]);
+    {
+        try {
+            $validated = $request->validate([
+                'classlist_id' => 'required|string|max:255',
+            ]);
 
-        $user = Auth::user()->id;
+            $user = Auth::user()->id;
 
-        // Check if the user has already joined the class
-        $existingClass = JoinedClass::where('user_id', $user)
-            ->where('classlist_id', $validated['classlist_id'])
-            ->exists();
+            // Check if the user has already joined the class
+            $existingClass = JoinedClass::where('user_id', $user)
+                ->where('classlist_id', $validated['classlist_id'])
+                ->exists();
 
-        if ($existingClass) {
-            return response()->json(['error' => 'You have already joined this class!'], 400);
+            if ($existingClass) {
+                return response()->json(['error' => 'You have already joined this class!'], 400);
+            }
+
+            $classlist = new JoinedClass();
+            $classlist->user_id = $user;
+            $classlist->classlist_id = $validated['classlist_id'];
+            $classlist->date_joined = now();
+            $classlist->save(); // Save manually
+
+            return response()->json(['success' => 'Class joined successfully!']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        $classlist = new JoinedClass();
-        $classlist->user_id = $user;
-        $classlist->classlist_id = $validated['classlist_id'];
-        $classlist->date_joined = now();
-        $classlist->save(); // Save manually
-
-        return response()->json(['success' => 'Class joined successfully!']);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
     }
-}
 
     /**
      * Display the specified resource.

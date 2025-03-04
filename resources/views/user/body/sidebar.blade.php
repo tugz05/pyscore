@@ -48,10 +48,11 @@
         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Subjects:</h6>
+
                 @if(count($classlists) > 0)
                     @foreach ($classlists as $class)
-                    <a class="collapse-item truncate-text" href="{{ route('user.class.view', $class->id) }}" title="{{ $class->name }}">
-                        {{ $class->name }}
+                    <a class="collapse-item truncate-text" href="{{ route('user.class.view', $class->id) }}" title="{{ $class->classlist->name }}">
+                        {{$class->classlist->name }}
                     </a>
                     @endforeach
                 @else
