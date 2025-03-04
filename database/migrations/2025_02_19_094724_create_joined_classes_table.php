@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('joined_classes', function (Blueprint $table) {
             $table->id();
-            $table->string('classlist_id')->unique();
+            $table->string('classlist_id');
             $table->string('user_id');
             $table->date('date_joined');
             $table->date('deleted_at')->nullable();
