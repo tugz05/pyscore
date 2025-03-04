@@ -34,13 +34,18 @@
     Role updated successfully!
 </div>
 
-
-
 @endsection
 
 @push('script')
 <script>
     $(document).ready(function() {
+        // Set up CSRF token for AJAX requests
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            }
+        });
+
         let table = $('#studentsTable').DataTable({
             "processing": true,
             "serverSide": false,
@@ -50,22 +55,24 @@
                 { "data": "name" },
                 { "data": "email" },
                 { "data": "account_type" },
-                { "data": null, "orderable": false, "searchable": false, "render": function(data, type, row) {
-                    return
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenu${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
-                                Change Role
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu${row.id}">
-
-                                <li><a class="dropdown-item role-change" data-id="${row.id}" data-role="instructor">Instructor</a></li>
-                                <li><a class="dropdown-item role-change" data-id="${row.id}" data-role="student">Student</a></li>
-                            </ul>
-
-                        </div>
-
-                    ;
-                }}
+                {
+                    "data": null,
+                    "orderable": false,
+                    "searchable": false,
+                    "render": function(data, type, row) {
+                        return `
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenu${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Change Role
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu${row.id}">
+                                    <li><a class="dropdown-item role-change" data-id="${row.id}" data-role="instructor">Instructor</a></li>
+                                    <li><a class="dropdown-item role-change" data-id="${row.id}" data-role="student">Student</a></li>
+                                </ul>
+                            </div>
+                        `;
+                    }
+                }
             ]
         });
 
@@ -78,8 +85,7 @@
                 method: "POST",
                 data: {
                     id: userId,
-                    account_type: newRole,
-                    _token: "{{ csrf_token() }}"
+                    account_type: newRole
                 },
                 success: function(response) {
                     if (response.success) {

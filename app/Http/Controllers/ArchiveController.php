@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Auth;
 
 class ArchiveController extends Controller
 {
+    public function index()
+    {
+        $id = Auth::id();
+        $archives = Archive::where('user_id', $id)->get();
+        return view('instructor.pages.archive', compact('archives'));
+    }
+
     public function archiveData(Request $request)
     {
         try {
@@ -30,13 +37,31 @@ class ArchiveController extends Controller
     }
     public function getArchivelists()
     {
+        $userId = auth()->id();
 
+        // Get archived classes from the Archive table
+        $archivedClasses = Archive::with('classlist.section')
+            ->where('user_id', $userId)
+            ->get();
+
+        return response()->json(["data" => $archivedClasses]);
     }
-    public function index()
+
+    public function restoreClass(Request $request)
     {
-        $id = Auth::id();
-        $archives = Archive::where('user_id', $id)->get();
-        return view('instructor.pages.archive', compact('archives'));
+        try {
+            $archive = Archive::where('classlist_id', $request->id)->where('user_id', Auth::id())->first();
+
+            if ($archive) {
+                $archive->delete(); // Remove from archive
+                Classlist::where('id', $request->id)->update(['is_archive' => false]); // Mark as active
+                return response()->json(['success' => true, 'message' => 'Class restored successfully']);
+            }
+
+            return response()->json(['success' => false, 'message' => 'Class not found in archive']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to restore class']);
+        }
     }
 
     /**

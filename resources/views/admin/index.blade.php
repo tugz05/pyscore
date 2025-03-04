@@ -54,16 +54,7 @@
 
                 <!-- Requests Chart -->
                 <div class="col-12">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Requests</h6>
-                        </div>
-                        <div class="card-body text-center">
-                            <canvas id="requestsChart" width="200" height="200"></canvas>
-                            <div class="mt-3">
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -102,24 +93,6 @@
 
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var ctx = document.getElementById('requestsChart').getContext('2d');
-        var requestsChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Pending', 'Approved'],
-                datasets: [{
-                    data: [13, 5],
-                    backgroundColor: ['#4e73df', '#1cc88a'], // Blue for Pending, Green for Approved
-                    hoverBackgroundColor: ['#2e59d9', '#17a673'],
-                    borderWidth: 1
-                }]
-            },
-
-        });
-    });
-</script>
 
 
 
