@@ -11,6 +11,8 @@ class SectionController extends Controller
 {
     public function getSections()
     {
+        $id = Auth::id();
+        $sections = Section::where('user_id', $id)->get();
         return response()->json(["data" => Section::all()]);
     }
     public function index()
