@@ -205,8 +205,18 @@
                     dataType: 'json'
                 }).then(submissionResponse => {
                     let submissionStatus = submissionResponse.status;
-                    let statusClass = submissionStatus === 'Submitted' ? 'text-success' : 'text-danger';
-                    let statusClassBadge = submissionStatus === 'Submitted' ? 'bg-success' : 'bg-danger';
+                    let statusClass, statusClassBadge;
+
+                    if (submissionStatus === 'Submitted') {
+                        statusClass = 'text-success';
+                        statusClassBadge = 'bg-success';
+                    } else if (submissionStatus === 'Missing') {
+                        statusClass = 'text-danger';
+                        statusClassBadge = 'bg-danger';
+                    } else { // Pending status
+                        statusClass = 'text-warning';
+                        statusClassBadge = 'bg-warning';
+                    }
                     let submissionAssignedScore = submissionResponse.assigned_score;
                     console.log(submissionResponse.total_score);
 

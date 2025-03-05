@@ -50,7 +50,8 @@
                     <div class="col-md-9">
                         <div class="card shadow-sm border-0 mb-3">
                             <div class="card-body d-flex align-items-center justify-content-between">
-                                <img src="{{ $classlist->user->avatar }}" class="rounded-circle me-3" alt="User" style="width: 50px; height: 50px; border: 1; border-color: black; border-style: ;">
+                                <img src="{{ $classlist->user->avatar }}" class="rounded-circle me-3" alt="User"
+                                    style="width: 50px; height: 50px; border: 1; border-color: black; border-style: ;">
                                 {{-- <input type="text" class="form-control" placeholder="Announce something to your class"> --}}
                                 <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addActivityModal">
                                     <i class="fas fa-fw fa-plus mr-3"></i>
@@ -99,7 +100,7 @@
                 </div>
                 <form id="addActivityForm">
                     @csrf
-                    <input type="hidden" name="user_id" id="user_id" value="{{ Auth::id()}}">
+                    <input type="hidden" name="user_id" id="user_id" value="{{ Auth::id() }}">
                     <input type="hidden" name="classlist_id" id="classlist_id" value="{{ $classlist->id }}">
                     <input type="hidden" name="section_id" id="section_id" value="{{ $classlist->section->id }}">
                     <input type="hidden" name="activity_id" id="activity_id">
@@ -133,19 +134,36 @@
                                 <input type="time" name="due_time" id="due_time" class="form-control" required>
                             </div>
                         </div>
-
                         <div class="row">
-                            <!-- Accessible Date -->
-                            <div class="col-md-6 mb-3">
-                                <label for="accessible_date" class="form-label fw-bold">Accessible Date</label>
-                                <input type="date" name="accessible_date" id="accessible_date" class="form-control"
-                                    required>
-                            </div>
-                            <!-- Accessible Time -->
-                            <div class="col-md-6 mb-3">
-                                <label for="accessible_time" class="form-label fw-bold">Accessible Time</label>
-                                <input type="time" name="accessible_time" id="accessible_time" class="form-control"
-                                    required>
+                            <div class="container">
+                                <div class="row mb-3 ml-2">
+                                    <div class="col-md-4">
+                                        <input type="checkbox" name="schedule_activity" id="schedule_activity" class="form-check-input">
+                                        <label for="schedule_activity" class="form-check-label">Schedule Activity</label>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="checkbox" name="share_activity" id="share_activity" class="form-check-input" value="0">
+                                        <label for="share_activity" class="form-check-label fw-bold"> Share Activity</label>
+                                    </div>
+                                </div>
+                                <div class="row" id="schedule_fields" style="display: none;">
+                                    <!-- Accessible Date -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="accessible_date" class="form-label fw-bold">Accessible Date</label>
+                                        <input type="date" name="accessible_date" id="accessible_date" class="form-control">
+                                    </div>
+                                    <!-- Accessible Time -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="accessible_time" class="form-label fw-bold">Accessible Time</label>
+                                        <input type="time" name="accessible_time" id="accessible_time" class="form-control">
+                                    </div>
+                                </div>
+
+                                <!-- Container for dynamically loaded class checkboxes -->
+                                <div id="classlist_container" class="mt-4 mb-4 border rounded p-4" style="display: none;">
+                                    <label class="form-label fw-bold">Select Classes to Share</label>
+                                    <div id="classlist_checkboxes" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -161,6 +179,65 @@
 @endsection
 @push('script')
     <script>
+            document.getElementById('share_activity').addEventListener('change', function () {
+                let hiddenInput = document.getElementById('share_activity_hidden');
+                hiddenInput.value = this.checked ? "1" : "0";
+            });
+            document.getElementById('share_activity').addEventListener('change', function () {
+            let classlistContainer = document.getElementById('classlist_container');
+            let classlistCheckboxes = document.getElementById('classlist_checkboxes');
+
+            if (this.checked) {
+                classlistContainer.style.display = 'block'; // Show checkboxes
+
+                // Fetch classes dynamically from the backend
+                fetch('/instructor/get-classes')
+                    .then(response => response.json())
+                    .then(data => {
+                        classlistCheckboxes.innerHTML = ''; // Clear previous checkboxes
+
+                        data.forEach(classItem => {
+                            console.log(classItem);
+
+                            let div = document.createElement('div');
+                            div.classList.add('col'); // Responsive column
+
+                            let checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.name = 'selected_classes[]';
+                            checkbox.value = classItem.id;
+                            checkbox.id = 'class_' + classItem.id;
+                            checkbox.classList.add('form-check-input');
+
+                            let label = document.createElement('label');
+                            label.htmlFor = 'class_' + classItem.id;
+                            label.textContent = classItem.name + ' | ' + classItem.section.name;
+                            label.classList.add('form-check-label');
+
+                            let checkContainer = document.createElement('div');
+                            checkContainer.classList.add('form-check');
+                            checkContainer.appendChild(checkbox);
+                            checkContainer.appendChild(label);
+
+                            div.appendChild(checkContainer);
+                            classlistCheckboxes.appendChild(div);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching class list:', error));
+            } else {
+                classlistContainer.style.display = 'none'; // Hide checkboxes
+            }
+        });
+
+        document.getElementById('schedule_activity').addEventListener('change', function() {
+            let scheduleFields = document.getElementById('schedule_fields');
+
+            if (this.checked) {
+                scheduleFields.style.display = 'flex'; // Show fields
+            } else {
+                scheduleFields.style.display = 'none'; // Hide fields
+            }
+        });
         /** Copy Share Code Functionality **/
         function copyShareCode() {
             let copyText = document.getElementById("shareCode");
@@ -171,6 +248,7 @@
                 console.error("Error copying text:", err);
             });
         }
+
         function copyLink() {
             let copyText = document.getElementById("shareCode");
             let baseUrl = window.location.origin; // Dynamically gets the base URL
@@ -290,7 +368,7 @@
                         $('#addActivityModal').modal('hide');
                         // Clear all fields except hidden ones
                         $('#addActivityForm').find('input:not([type=hidden]), textarea').val(
-                        '');
+                            '');
 
                         // Reassign hidden field values
                         $('#classlist_id').val("{{ $classlist->id }}");
@@ -298,11 +376,10 @@
                         $('#classlist_id').val(classlistId); // Restore classlist_id after reset
                         $('#section_id').val(sectionId); // Restore section_id after reset
                         Swal.fire({
-                        icon: "success",
-                        title: "Submission Failed!",
-                        text: "Activity saved successfully!",
-                        confirmButtonColor: "#d33"
-                    });
+                            icon: "success",
+                            title: "Submission Successful",
+                            text: "Activity saved successfully!",
+                        });
                         loadActivities(classlistId);
 
                     },
