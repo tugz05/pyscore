@@ -45,6 +45,8 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
     Route::delete('/class/i/activity/{id}', [ClassController::class, 'destroy'])->name('activity.destroy');
     Route::get('/activity/{id}', [ClassController::class, 'viewActivity'])->name('activity.view');
     Route::get('/get-classes', [ClassController::class, 'getAllClasses']);
+    Route::get('/get-student-output/{userId}/{activityId}', [ClassController::class, 'getStudentOutput']);
+
 
 
     Route::resource('archives', ArchiveController::class);
