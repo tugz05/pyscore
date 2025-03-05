@@ -21,6 +21,7 @@ class Classlist extends Model
         'section_id',
         'name',
         'academic_year',
+        'room',
     ];
 
     // Automatically generate Google Classroom-style ID when creating a section

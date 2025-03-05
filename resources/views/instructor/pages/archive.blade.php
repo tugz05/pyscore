@@ -36,22 +36,20 @@
 
     </div>
     <!-- Add/Edit Class Modal -->
-
-
 @endsection
 @push('script')
-<script>
-    $(document).ready(function () {
-        loadArchives();
+    <script>
+        $(document).ready(function() {
+            loadArchives();
 
-        function loadArchives() {
-            $.ajax({
-                url: "{{ route('archive.list') }}",
-                type: "GET",
-                success: function (response) {
-                    let classCards = '';
-                    if (response.data.length === 0) {
-                        classCards = `
+            function loadArchives() {
+                $.ajax({
+                    url: "{{ route('archive.list') }}",
+                    type: "GET",
+                    success: function(response) {
+                        let classCards = '';
+                        if (response.data.length === 0) {
+                            classCards = `
                             <div class="d-flex align-items-center justify-content-center w-100" style="height: 75vh;">
                                 <div class="text-center">
                                     <img src="{{ asset('assets/img/undraw_posting_photo.svg') }}" style="max-width: 50%; height: auto; padding: 20px;">
@@ -59,11 +57,11 @@
                                 </div>
                             </div>
                         `;
-                    } else {
-                        $.each(response.data, function (index, archive) {
-                            let classlist = archive.classlist; // Get the actual class
+                        } else {
+                            $.each(response.data, function(index, archive) {
+                                let classlist = archive.classlist; // Get the actual class
 
-                            classCards += `
+                                classCards += `
                             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                                 <div class="card shadow-lg rounded-4 border-1 hover-effect h-100">
                                     <img src="https://picsum.photos/300/120" class="card-img-top rounded-top-4" alt="Course Image">
@@ -95,43 +93,71 @@
                                     </div>
                                 </div>
                             </div>`;
-                        });
+                            });
+                        }
+                        $('#classCards').html(classCards);
                     }
-                    $('#classCards').html(classCards);
-                }
-            });
-        }
-    });
-
-    $(document).on('click', '.restore-btn', function (e) {
-        e.preventDefault();
-
-        let id = $(this).data('id');
-
-        if (!confirm("Are you sure you want to restore this class?")) {
-            return;
-        }
-
-        $.ajax({
-            url: "{{ route('archive.restore') }}",
-            type: "POST",
-            data: {
-                id: id,
-                _token: "{{ csrf_token() }}"
-            },
-            success: function (response) {
-                if (response.success) {
-                    alert(response.message);
-                    loadArchives(); // Reload the archive list
-                } else {
-                    alert(response.message);
-                }
-            },
-            error: function () {
-                alert('Something went wrong. Please try again.');
+                });
             }
         });
-    });
-</script>
 
+        $(document).on('click', '.delete-btn', function(e) {
+            e.preventDefault();
+
+            let id = $(this).data('id');
+
+            if (!confirm("Are you sure you want to permanently delete this class? This action cannot be undone!")) {
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('archive.destroy', '') }}/" + id,
+                type: "DELETE",
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        loadArchives(); // Reload the archive list
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert('Something went wrong. Please try again.');
+                }
+            });
+        });
+
+        $(document).on('click', '.restore-btn', function(e) {
+            e.preventDefault();
+
+            let id = $(this).data('id');
+
+            if (!confirm("Are you sure you want to restore this class?")) {
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('archive.restore') }}",
+                type: "POST",
+                data: {
+                    id: id,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        loadArchives(); // Reload the archive list
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert('Something went wrong. Please try again.');
+                }
+            });
+        });
+    </script>
 @endpush

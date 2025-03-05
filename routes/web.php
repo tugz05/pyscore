@@ -47,11 +47,12 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
     Route::get('/get-classes', [ClassController::class, 'getAllClasses']);
 
 
-
     Route::resource('archives', ArchiveController::class);
     Route::post('/archive-data', [ArchiveController::class, 'archiveData'])->name('archive.data');
     Route::get('/archived-classlist', [ArchiveController::class, 'getArchivelists'])->name('archive.list');
     Route::post('/restore-class', [ArchiveController::class, 'restoreClass'])->name('archive.restore');
+    Route::delete('/archive/{id}', [ArchiveController::class, 'destroy'])->name('archive.destroy');
+
 });
 
 Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(function () {

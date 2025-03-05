@@ -22,16 +22,22 @@
     <div class="container-fluid bg-gray-100 mx-2">
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">
-                <i class="fa-brands fa-python text-primary"></i> Welcome Instructor
-            </h1>
+            <!-- Search Input Field -->
+            <div class="input-group w-50">
+                <input type="text" id="searchClass" class="form-control" placeholder="Search class..."
+                    onkeyup="filterClasses()">
+
+            </div>
+            <!-- Create Class Button -->
             <h1 class="h3 mb-0 text-gray-800">
                 <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addClassModal">
                     <i class="fa-brands fa-plus mr-3"></i>
                     Create Class
-                    </a>
+                </a>
             </h1>
         </div>
+
+
 
         <!-- Content Row -->
 
@@ -56,13 +62,17 @@
                         @csrf
                         <x-input type="text" name="name" id="name" label="Class Name" required />
                         <x-select name="section_id" id="section_id" label="Select Section" :options="$sections->pluck('name', 'id')->toArray()" required />
-                            <x-select name="academic_year" id="academic_year" label="Academic Year"
-                            :options="$academic_year->mapWithKeys(fn($year) => [
-                                $year->semester . ' ' . $year->start_year . '-' . $year->end_year =>
-                                $year->semester . ' ' . $year->start_year . '-' . $year->end_year
-                            ])->toArray()" required />
+                        <x-select name="academic_year" id="academic_year" label="Academic Year" :options="$academic_year
+                            ->mapWithKeys(
+                                fn($year) => [
+                                    $year->semester . ' ' . $year->start_year . '-' . $year->end_year =>
+                                        $year->semester . ' ' . $year->start_year . '-' . $year->end_year,
+                                ],
+                            )
+                            ->toArray()"
+                            required />
 
-                            <x-select name="room" id="room" label="Room" :options="$rooms->pluck('room_number', 'room_number')->toArray()" required />
+                        <x-select name="room" id="room" label="Room" :options="$rooms->pluck('room_number', 'room_number')->toArray()" required />
 
                     </div>
                     <div class="modal-footer">
@@ -98,6 +108,32 @@
             </div>
         </div>
     </div>
+    <!-- Archive Confirmation Modal -->
+    <div class="modal fade" id="archiveConfirmModal" tabindex="-1" aria-labelledby="archiveConfirmLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="archiveConfirmLabel">Archive Class</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to archive this class?</p>
+                    <p class="text-muted">Archived classes can only be <b>viewed</b> by teachers or students and cannot be
+                        <b>modified</b>
+                        unless they are restored.
+                    </p>
+                    <input type="hidden" id="archiveClassId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmArchive">Archive</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @push('script')
     <script>
@@ -108,6 +144,7 @@
             document.execCommand("copy");
             alert("Share code copied: " + copyText.value);
         }
+
         function copyLink() {
             let copyText = document.getElementById("shareCode");
             let baseUrl = window.location.origin; // Dynamically gets the base URL
@@ -191,37 +228,38 @@
                         $('#classCards').html(classCards);
                     }
                 });
-}
-$(document).on('click', '.archive-btn', function (e) {
-            e.preventDefault();
-
-            let id = $(this).data('id');
-
-            if (!confirm("Are you sure you want to archive this class?")) {
-                return;
             }
+            $(document).on('click', '.archive-btn', function(e) {
+                e.preventDefault();
 
-            $.ajax({
-                url: "{{ route('archive.data') }}",
-                type: "POST",
-                data: {
-                    id: id,
-                    _token: "{{ csrf_token() }}"
-                },
-                success: function (response) {
-                    if (response.success) {
-                        alert(response.message);
-                        loadClasses(); // Reload only the class list
-                    } else {
-                        alert(response.message + id);
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error(xhr.responseText);
-                    alert('Something went wrong. Please try again.');
-                }
+                let id = $(this).data('id');
+                $('#archiveClassId').val(id);
+                $('#archiveConfirmModal').modal('show'); // Show the modal
+                $('#confirmArchive').click(function() {
+                    let id = $('#archiveClassId').val();
+
+                    $.ajax({
+                        url: "{{ route('archive.data') }}",
+                        type: "POST",
+                        data: {
+                            id: id,
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            $('#archiveConfirmModal').modal(
+                                'hide'); // Hide the modal after successful archive
+                            loadClasses(); // Reload class list
+
+                            alert(response.message); // Display success message
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(xhr.responseText);
+                            alert('Something went wrong. Please try again.');
+                        }
+                    });
+                });
+
             });
-        });
             $('#addClassForm').submit(function(e) {
                 e.preventDefault();
                 let id = $('#classlist_id').val();
@@ -264,22 +302,24 @@ $(document).on('click', '.archive-btn', function (e) {
                 $('#addClassModal').modal('show');
             });
 
-            $(document).on('click', '.delete-btn', function() {
-                let id = $(this).data('id');
-                if (confirm('Delete this class?')) {
-                    $.ajax({
-                        url: `classlist/${id}`,
-                        type: "DELETE",
-                        data: {
-                            _token: $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            loadClasses();
-                            alert(response.success);
-                        }
-                    });
+            
+        });
+
+        function filterClasses() {
+            let input = document.getElementById("searchClass").value.toLowerCase();
+            let classCards = document.querySelectorAll("#classCards .col-lg-3");
+
+            classCards.forEach(card => {
+                let className = card.querySelector(".card-title").innerText.toLowerCase();
+                let section = card.querySelector(".card-text:nth-child(2)").innerText.toLowerCase(); // Section
+                let room = card.querySelector(".card-text:nth-child(3)").innerText.toLowerCase(); // Room
+
+                if (className.includes(input) || section.includes(input) || room.includes(input)) {
+                    card.style.display = "block"; // Show matching cards
+                } else {
+                    card.style.display = "none"; // Hide non-matching cards
                 }
             });
-        });
+        }
     </script>
 @endpush

@@ -107,8 +107,22 @@ class ArchiveController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Archive $archive)
+    public function destroy($id)
     {
-        //
+        try {
+            // Find the archived record
+            $archive = Archive::where('classlist_id', $id)->where('user_id', Auth::id())->first();
+
+            if ($archive) {
+                $archive->delete(); // Remove from archives
+                Classlist::where('id', $id)->delete(); // Permanently delete classlist
+
+                return response()->json(['success' => true, 'message' => 'Class deleted successfully']);
+            }
+
+            return response()->json(['success' => false, 'message' => 'Class not found in archive']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to delete class']);
+        }
     }
 }
