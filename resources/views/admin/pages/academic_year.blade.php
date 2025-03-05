@@ -137,7 +137,7 @@
 
             let url, method;
             if (id) {
-                url = `/academic_year/${id}/update`;
+                url = `/admin/academic_year/${id}/update`;
                 method = "PUT";
             } else {
                 url = "{{ route('academic_year.store') }}";

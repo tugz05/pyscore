@@ -41,10 +41,11 @@ class AppServiceProvider extends ServiceProvider
         } else {
             // If user is not logged in, set classlists as an empty collection
             $classlists = collect();
+            // Share data with all views
+        $view->with('classlists', $classlists);
         }
 
-        // Share data with all views
-        $view->with('classlists', $classlists);
+
     });
 }
 }
