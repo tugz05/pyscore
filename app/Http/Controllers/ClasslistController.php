@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Classlist;
 use App\Models\Section;
 use App\Models\Room;
+use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,8 +17,8 @@ class ClasslistController extends Controller
         $sections = Section::where('user_id', $userId)->get();
         $classlists = Classlist::where('user_id', $userId)->where('is_archive', 0)->get();
         $rooms = Room::all(); // Fetch all rooms
-
-        return view('instructor.index', compact('sections', 'classlists', 'rooms'));
+        $academic_year = AcademicYear::all(); // Fetch all academic years
+        return view('instructor.index', compact('sections', 'classlists', 'rooms', 'academic_year'));
     }
 
 

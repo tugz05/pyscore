@@ -56,8 +56,12 @@
                         @csrf
                         <x-input type="text" name="name" id="name" label="Class Name" required />
                         <x-select name="section_id" id="section_id" label="Select Section" :options="$sections->pluck('name', 'id')->toArray()" required />
-                        <x-select name="academic_year" id="academic_year" label="Academic Year" :options="['2024-2025' => '2024-2025', '2025-2026' => '2025-2026']"
-                            required />
+                            <x-select name="academic_year" id="academic_year" label="Academic Year"
+                            :options="$academic_year->mapWithKeys(fn($year) => [
+                                $year->semester . ' ' . $year->start_year . '-' . $year->end_year =>
+                                $year->semester . ' ' . $year->start_year . '-' . $year->end_year
+                            ])->toArray()" required />
+
                             <x-select name="room" id="room" label="Room" :options="$rooms->pluck('room_number', 'room_number')->toArray()" required />
 
                     </div>
