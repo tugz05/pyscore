@@ -40,7 +40,7 @@
                     </div>
                     <!-- Description Content -->
 
-                    <p style="margin-top: 50px;" class="align-items-center"><b>Instructions: </b>{{ $activity->instruction }}
+                    <p style="margin-top: 50px;" class="align-items-center"><b>Instructions: </b><br>{!! $activity->instruction !!}
                     </p>
                         <hr>
                     <!-- Points and Due Date -->

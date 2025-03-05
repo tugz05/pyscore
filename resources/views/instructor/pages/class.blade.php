@@ -113,8 +113,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="instruction" class="form-label fw-bold">Instructions</label>
-                            <textarea name="instruction" id="instruction" class="form-control" placeholder="Enter detailed instructions..."
-                                rows="5"></textarea>
+                            <textarea name="instruction" id="instruction" class="form-control summernote" placeholder="Enter detailed instructions..."></textarea>
                         </div>
                         <div class="row">
                             <div class="col-sm-2 mb-3">
@@ -179,6 +178,25 @@
 @endsection
 @push('script')
     <script>
+             $(document).ready(function() {
+            // Initialize Summernote
+            $('.summernote').summernote({
+                height: 200,  // Set height
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview']]
+                ]
+            });
+
+            // Ensure content is passed correctly on form submission
+            $('#addActivityForm').on('submit', function() {
+                let instructionContent = $('.summernote').summernote('code');
+                $('#instruction').val(instructionContent);
+            });
+        });
+
             document.getElementById('share_activity').addEventListener('change', function () {
                 let hiddenInput = document.getElementById('share_activity_hidden');
                 hiddenInput.value = this.checked ? "1" : "0";
@@ -377,7 +395,7 @@
                         $('#section_id').val(sectionId); // Restore section_id after reset
                         Swal.fire({
                             icon: "success",
-                            title: "Submission Successful",
+                            title: "Activity Created",
                             text: "Activity saved successfully!",
                         });
                         loadActivities(classlistId);

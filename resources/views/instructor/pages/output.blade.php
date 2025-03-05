@@ -7,17 +7,21 @@
                     <h6 class="m-0 font-weight-bold text-primary">Student List</h6>
                 </div>
                 <div class="card-body">
-                    <ul class="list-group">
-                        <li class="list-group-item mb-3">Jesa Blasquez</li>
-                        <li class="list-group-item mb-3">Kurt Venjo Cagande</li>
-                        <li class="list-group-item mb-3">Wendelmar Coldora</li>
-                        <li class="list-group-item mb-3">Lovely Dela Vega</li>
-                        <li class="list-group-item mb-3">Alexis Dumpa</li>
-                        <li class="list-group-item mb-3">J' Karl Vince Meniano</li>
-                        <li class="list-group-item mb-3">Glen Mark Plaza</li>
-                        <li class="list-group-item mb-3">John Ivan Regaspi</li>
-                        <li class="list-group-item mb-3">Charline Santos</li>
-                    </ul>
+                    <div class="list-group">
+                        <div class="list-group-item d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+
+
+                                    <img src="https://lh3.googleusercontent.com/a/ACg8ocKNKTvrz2fP4RztwTPdXtZhl5Ok3NokhZBwK49ZSsXQ7kMsu45K=s96-c" alt="Profile" class="rounded-circle m-4" width="40" height="40">
+                                @
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                                        Virgilio Tuga
+                                    </div>
+                                <span class="fw-bold">Virgilio Tuga</span>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -50,7 +50,6 @@
                         <div class="card shadow-sm border-0 mb-3">
                             <div class="card-body d-flex align-items-center justify-content-between">
                                 <img src="{{ Auth::user()->avatar }}" class="rounded-circle me-3" alt="User" style="width: 50px; height: 50px;">
-
                             </div>
                         </div>
                         <div id="classCards">

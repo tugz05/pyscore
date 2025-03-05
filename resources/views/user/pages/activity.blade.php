@@ -40,7 +40,7 @@
                     </div>
 
                     <!-- Description Content -->
-                    <p style="margin-top: 50px;"><b>Instructions: </b>{{ $activity->instruction }}</p>
+                    <p style="margin-top: 50px;"><b>Instructions: </b><br>{!! $activity->instruction !!}
                     <hr>
 
                     <!-- Points and Due Date -->
@@ -49,7 +49,7 @@
                         <p class="text-danger">
                             <b>Due:</b>
                             {{ $activity->due_date ? \Carbon\Carbon::parse($activity->due_date)->format('F d, Y') : 'No date available' }}
-                            at 
+                            at
                             {{ $activity->due_time ? \Carbon\Carbon::parse($activity->due_time)->format('h:i A') : 'No time available' }}
                         </p>
                     </div>

@@ -38,6 +38,9 @@ class AppServiceProvider extends ServiceProvider
                 ->with(('classlist'))
                 ->get();
             }
+            else {
+                $classlists = collect();
+            }
         } else {
             // If user is not logged in, set classlists as an empty collection
             $classlists = collect();
