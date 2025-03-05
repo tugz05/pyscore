@@ -16,40 +16,45 @@ class GoogleController extends Controller
         return Socialite::driver('google')->redirect();
     }
     public function callback()
-    {
-        try {
-            $googleUser = Socialite::driver('google')->user();
-            $finduser = User::where('google_id', $googleUser->id)->first();
+{
+    try {
+        $googleUser = Socialite::driver('google')->user();
+        $existingUser = User::where('email', $googleUser->email)->first();
 
-            if ($finduser) {
-                // ✅ Update user data to reflect changes in Google account
-                $finduser->name = $googleUser->name;
-                $finduser->avatar = $googleUser->avatar;
-                $finduser->save();
+        if ($existingUser) {
+            // ✅ Update missing fields, but keep the existing account_type
+            $existingUser->google_id = $googleUser->id;
+            $existingUser->name = $googleUser->name;
+            $existingUser->avatar = $googleUser->avatar;
+            $existingUser->email_verified_at = now();
+            $existingUser->password = bcrypt('nemsu2024');
+            $existingUser->status = $existingUser->status ?? 'active'; // Keep existing status, default to 'active'
+            $existingUser->save();
 
-                Auth::login($finduser);
-                return $this->redirectUser($finduser->account_type);
-            } else {
-                // Create new user if not exists
-                $newUser = User::create([
-                    'google_id' => $googleUser->id,
-                    'email' =>  $googleUser->email,
-                    'name' =>  $googleUser->name,
-                    'avatar' =>  $googleUser->avatar,
-                    'account_type' => 'student', // Default account type
-                    'email_verified_at' => now(),
-                    'password' =>  bcrypt('nemsu2024'),
-                    'status' => 'active',
-                ]);
+            Auth::login($existingUser);
+            return $this->redirectUser($existingUser->account_type);
+        } else {
+            // Create new user with default values
+            $newUser = User::create([
+                'google_id' => $googleUser->id,
+                'email' => $googleUser->email,
+                'name' => $googleUser->name,
+                'avatar' => $googleUser->avatar,
+                'account_type' => 'student', // Default only for new users
+                'email_verified_at' => now(),
+                'password' => bcrypt('nemsu2024'),
+                'status' => 'active',
+            ]);
 
-                Auth::login($newUser);
-                return $this->redirectUser($newUser->account_type);
-            }
-
-        } catch (Exception $e) {
-            return redirect()->route('home')->with('error', 'Something went wrong: ' . $e->getMessage());
+            Auth::login($newUser);
+            return $this->redirectUser($newUser->account_type);
         }
+
+    } catch (Exception $e) {
+        return redirect()->route('login')->with('error', 'Something went wrong: ' . $e->getMessage());
     }
+}
+
 
     /**
      * Redirects user based on account type stored in the database.
