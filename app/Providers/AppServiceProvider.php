@@ -42,8 +42,8 @@ class AppServiceProvider extends ServiceProvider
             // If user is not logged in, set classlists as an empty collection
             $classlists = collect();
             // Share data with all views
-        $view->with('classlists', $classlists);
         }
+        $view->with('classlists', $classlists);
 
 
     });
