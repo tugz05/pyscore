@@ -100,4 +100,9 @@ class AcademicYearController extends Controller
 
         return response()->json(['message' => 'Academic Year updated successfully!', 'data' => $academic_year], 200);
     }
+    public function destroy($id)
+    {
+        AcademicYear::findOrFail($id)->delete();
+        return response()->json(['success' => 'Section deleted successfully!']);
+    }
 }

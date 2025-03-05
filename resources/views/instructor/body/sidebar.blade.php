@@ -53,7 +53,7 @@
             <div class="bg-white py-2 collapse-inner rounded">
 
                 <h6 class="collapse-header">Subjects:</h6>
-                @if ($classlists->where('is_archive', 0)->count() > 0)
+                @if (isset($classlists) && $classlists->where('is_archive', 0)->count() > 0)
                     @foreach ($classlists->where('is_archive', 0) as $class)
                         <a class="collapse-item truncate-text" href="{{ route('class.view', $class->id) }}"
                             title="{{ $class->name }}">
@@ -63,6 +63,7 @@
                 @else
                     <p class="collapse-item text-muted">No classes available</p>
                 @endif
+
 
             </div>
         </div>

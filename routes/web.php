@@ -67,25 +67,31 @@ Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(fu
     Route::get('/check-submission', [PythonEvaluationController::class, 'checkSubmission'])->name('check.submission');
     Route::get('/settings', [SettingsController::class, 'index'])->name('user.settings');
 });
-Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');
-    Route::get('/instructors/data', [InstructorController::class, 'getInstructors'])->name('instructor.data');
-    Route::get('/instructors', [InstructorController::class, 'index'])->name('admin.instructor');
-    Route::get('/students', [StudentController::class, 'index'])->name('admin.student');
-    Route::get('/dashboard', [HomeController::class, 'index'])->name('admin.index');
-    Route::post('/admin/students/update-role', [StudentController::class, 'update'])->name('admin.student.update');
-    Route::post('/admin/instructors/update-role', [InstructorController::class, 'update'])->name('admin.instructor.update');
+    Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');
+        Route::get('/instructors/data', [InstructorController::class, 'getInstructors'])->name('instructor.data');
+        Route::get('/instructors', [InstructorController::class, 'index'])->name('admin.instructor');
+        Route::get('/students', [StudentController::class, 'index'])->name('admin.student');
+        Route::get('/dashboard', [HomeController::class, 'index'])->name('admin.index');
+        Route::post('/admin/students/update-role', [StudentController::class, 'update'])->name('admin.student.update');
+        Route::post('/admin/instructors/update-role', [InstructorController::class, 'update'])->name('admin.instructor.update');
 
-    Route::get('/academic_year', [AcademicYearController::class, 'index'])->name('admin.academic_year');
-    Route::post('/academic_year/store', [AcademicYearController::class, 'store'])->name('academic_year.store');
-    Route::get('/academic_year/list', [AcademicYearController::class, 'list'])->name('academic_year.list');
-    Route::put('/academic_year/{id}/update', [AcademicYearController::class, 'update'])->name('academic_year.update');
+        Route::get('/academic_year', [AcademicYearController::class, 'index'])->name('admin.academic_year');
+        Route::post('/academic_year/store', [AcademicYearController::class, 'store'])->name('academic_year.store');
+        Route::get('/academic_year/list', [AcademicYearController::class, 'list'])->name('academic_year.list');
+        Route::put('/academic_year/{id}/update', [AcademicYearController::class, 'update'])->name('academic_year.update');
+        Route::delete('/academic_year/{id}/delete', [AcademicYearController::class, 'destroy'])->name('academic_year.destroy');
 
-    Route::get('/rooms', [RoomController::class, 'index'])->name('admin.room');
-    Route::get('/rooms/list', [RoomController::class, 'list'])->name('room.list');
-    Route::post('/rooms/store', [RoomController::class, 'store'])->name('room.store');
+        Route::get('/rooms', [RoomController::class, 'index'])->name('admin.room');
+        Route::get('/rooms/list', [RoomController::class, 'list'])->name('room.list');
+        Route::post('/rooms/store', [RoomController::class, 'store'])->name('room.store');
+        Route::put('/rooms/{id}/update', [RoomController::class, 'update'])->name('room.update');
+        Route::delete('/rooms/{id}/delete', [RoomController::class, 'destroy'])->name('room.destroy');
 
-    Route::get('/days', [DayController::class, 'index'])->name('admin.day');
-    Route::get('/days/list', [DayController::class, 'list'])->name('day.list');
-    Route::post('/days/store', [DayController::class, 'store'])->name('day.store');
+
+        Route::get('/days', [DayController::class, 'index'])->name('admin.day');
+        Route::get('/days/list', [DayController::class, 'list'])->name('day.list');
+        Route::post('/days/store', [DayController::class, 'store'])->name('day.store');
+        Route::put('/days/{id}/update', [DayController::class, 'update'])->name('day.update');
+        Route::delete('/days/{id}/delete', [DayController::class, 'destroy'])->name('day.destroy');
 });

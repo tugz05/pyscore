@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Classlist;
 use App\Models\Section;
+use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,9 +12,14 @@ class ClasslistController extends Controller
 {
     public function index()
     {
-        $sections = Section::all();
-        return view('instructor.index', compact('sections'));
+        $userId = auth()->id();
+        $sections = Section::where('user_id', $userId)->get();
+        $classlists = Classlist::where('user_id', $userId)->where('is_archive', 0)->get();
+        $rooms = Room::all(); // Fetch all rooms
+
+        return view('instructor.index', compact('sections', 'classlists', 'rooms'));
     }
+
 
      public function getClasslists()
     {
@@ -37,7 +43,8 @@ class ClasslistController extends Controller
                 'name' => 'required|string|max:255',
                 'section_id' => 'required|exists:sections,id',
                 'academic_year' => 'required|string',
-                'room' => 'required|string|max:50',
+                'room' => 'required|exists:rooms,room_number', // Ensure valid room
+
             ]);
             $user = Auth::user()->id;
             $classlist = new Classlist();

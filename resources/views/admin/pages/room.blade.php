@@ -18,6 +18,7 @@
                                 <tr>
                                     <th class="text-center">ID</th>
                                     <th class="text-center">Room Number</th>
+                                    <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody></tbody> <!-- DataTables will load data dynamically -->
@@ -29,7 +30,7 @@
     </div>
 </div>
 
-<!-- Add Room Modal -->
+<!-- Add/Edit Room Modal -->
 <div class="modal fade" id="addRoomModal" tabindex="-1" aria-labelledby="addRoomModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -41,6 +42,7 @@
             </div>
             <form id="roomForm">
                 @csrf
+                <input type="hidden" id="room_id">
                 <div class="modal-body">
                     <x-input type="text" name="room_number" id="room_number" placeholder="Enter Room Number" required />
                 </div>
@@ -70,50 +72,98 @@
             "ajax": "{{ route('room.list') }}",
             "columns": [
                 { "data": "id", "className": "text-center" },
-                { "data": "room_number", "className": "text-center" }
+                { "data": "room_number", "className": "text-center" },
+                {
+                    "data": "id",
+                    "className": "text-center",
+                    "render": function(data, type, row) {
+                        return `
+                            <button class="btn btn-sm btn-warning editRoom" data-id="${data}" data-room_number="${row.room_number}">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger deleteRoom" data-id="${data}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        `;
+                    }
+                }
             ]
         });
 
-        // Handle Add New button click
+        // Handle Add New Room button click
         $("#addNewRoom").click(function() {
             $("#roomForm")[0].reset();
+            $("#room_id").val("");
+            $("#roomModalTitle").text("Add Room Number");
         });
 
-        // Handle form submission via AJAX
+        // Handle Edit button click
+        $(document).on("click", ".editRoom", function() {
+            let id = $(this).data("id");
+            let roomNumber = $(this).data("room_number");
+
+            // Populate form fields
+            $("#room_id").val(id);
+            $("#room_number").val(roomNumber);
+
+            // Change modal title
+            $("#roomModalTitle").text("Edit Room Number");
+
+            // Open modal
+            $("#addRoomModal").modal("show");
+        });
+
+        // Handle form submission via AJAX for both Add and Edit
         $("#roomForm").submit(function(e) {
             e.preventDefault();
 
+            let id = $("#room_id").val();
             let roomNumber = $("#room_number").val();
             let _token = $("input[name='_token']").val();
 
+            let url, method;
+            if (id) {
+                url = `/admin/rooms/${id}/update`;
+                method = "PUT";
+            } else {
+                url = "{{ route('room.store') }}";
+                method = "POST";
+            }
+
             $.ajax({
-                url: "{{ route('room.store') }}",
-                type: "POST",
-                data: {
-                    room_number: roomNumber,
-                    _token: _token
-                },
+                url: url,
+                type: method,
+                data: { room_number: roomNumber, _token: _token },
                 success: function(response) {
-                    if (response.success) {
-                        alert(response.message);
-                        $('#addRoomModal').modal('hide');
-                        $("#roomForm")[0].reset();
-                        table.ajax.reload(); // Reload DataTable
-                    }
+                    $("#addRoomModal").modal('hide');
+                    $("#roomForm")[0].reset();
+                    table.ajax.reload();
+                    alert(response.message);
                 },
                 error: function(xhr) {
-                    if (xhr.status === 422) {
-                        let errors = xhr.responseJSON.errors;
-                        let errorMessage = "";
-                        $.each(errors, function(key, value) {
-                            errorMessage += value[0] + "\n";
-                        });
-                        alert(errorMessage);
-                    } else {
-                        alert("Something went wrong. Please try again.");
-                    }
+                    alert("Something went wrong. Please try again.");
                 }
             });
+        });
+
+        // Handle Delete button click
+        $(document).on("click", ".deleteRoom", function() {
+            let id = $(this).data("id");
+
+            if (confirm("Are you sure you want to delete this room?")) {
+                $.ajax({
+                    url: `/admin/rooms/${id}/delete`,
+                    type: "DELETE",
+                    data: { _token: "{{ csrf_token() }}" },
+                    success: function(response) {
+                        alert(response.message);
+                        table.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        alert("Something went wrong. Please try again.");
+                    }
+                });
+            }
         });
     });
 </script>

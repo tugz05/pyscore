@@ -87,8 +87,11 @@
                     "className": "text-center",
                     "render": function(data, type, row) {
                         return `
-                            <button class="btn btn-sm btn-primary editAcademicYear" data-id="${data}" data-semester="${row.semester}" data-start_year="${row.start_year}" data-end_year="${row.end_year}">
-                                <i class="fas fa-edit"></i> Edit
+                            <button class="btn btn-sm btn-warning editAcademicYear" data-id="${data}" data-semester="${row.semester}" data-start_year="${row.start_year}" data-end_year="${row.end_year}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger deleteAcademicYear" data-id="${data}">
+                                <i class="fas fa-trash"></i>
                             </button>
                         `;
                     }
@@ -121,6 +124,25 @@
 
             // Open modal
             $("#addAcademicYearModal").modal("show");
+        });
+
+        // Handle Delete button click
+        $(document).on("click", ".deleteAcademicYear", function() {
+            let id = $(this).data("id");
+            if (confirm("Are you sure you want to delete this academic year?")) {
+                $.ajax({
+                    url: `/admin/academic_year/${id}/delete`,
+                    type: "DELETE",
+                    data: { _token: "{{ csrf_token() }}" },
+                    success: function(response) {
+                        alert(response.success);
+                        table.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        alert("Something went wrong. Please try again.");
+                    }
+                });
+            }
         });
 
         // Handle form submission via AJAX for both Add and Edit
@@ -168,6 +190,7 @@
                 }
             });
         });
+
     });
 </script>
 @endpush
