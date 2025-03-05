@@ -51,7 +51,7 @@
 
                 @if(count($classlists) > 0)
                     @foreach ($classlists as $class)
-                    <a class="collapse-item truncate-text" href="{{ route('user.class.view', $class->id) }}" title="{{ $class->classlist->name }}">
+                    <a class="collapse-item truncate-text" href="{{ route('user.class.view', $class->classlist->id) }}" title="{{ $class->classlist->name }}">
                         {{$class->classlist->name }}
                     </a>
                     @endforeach

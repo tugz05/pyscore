@@ -63,8 +63,14 @@ class PythonEvaluationController extends Controller {
         if (!$evaluation) {
             return response()->json(['error' => 'Evaluation failed. Please try again.'], 500);
         }
-        $submitted = Activity::findOrFail($request->user_id); // Ensure the correct ID is used
-        $submitted->update(['is_submitted' => true]);
+        $submitted = Activity::where('id', $request->activity_id)->first(); // Ensure correct ID is used
+
+        if ($submitted) {
+            $submitted->update(['is_submitted' => true]);
+        } else {
+            return response()->json(['error' => 'Activity not found'], 404);
+        }
+
 
         return response()->json([
             'message' => 'Python code evaluated successfully.',

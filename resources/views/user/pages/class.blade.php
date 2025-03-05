@@ -203,6 +203,8 @@
                     method: 'GET',
                     dataType: 'json'
                 }).then(submissionResponse => {
+                    console.log(submissionResponse);
+
                     let submissionStatus = submissionResponse.status;
                     let statusClass, statusClassBadge;
 

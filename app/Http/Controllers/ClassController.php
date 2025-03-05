@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\Classlist;
+use App\Models\JoinedClass;
 use App\Models\Output;
 use App\Models\User;
 use Carbon\Carbon;
@@ -87,10 +88,45 @@ public function getSubmissionStatus($userId, $activityId)
     public function viewActivity($id)
     {
         $activity = Activity::where('id', $id)
-            ->with(['user']) // Load relationships
+            ->with(['user']) // Load activity creator details
             ->first();
-        // dd($activity);
-        return view('instructor.pages.activity', compact('activity'));
+
+        if (!$activity) {
+            return abort(404, 'Activity not found.');
+        }
+
+        // Retrieve the classlist associated with the activity
+        $classlist = Classlist::where('id', $activity->classlist_id)
+            ->with(['user']) // Load enrolled students and their user info
+            ->first();
+
+        // Get the students who are enrolled in the class
+        $students = JoinedClass::where('classlist_id',$activity->classlist_id)
+                    ->with('user')
+                    ->get();
+    //   return $students->user->id;
+
+        return view('instructor.pages.activity', compact('activity', 'students'));
+    }
+
+    public function getStudentOutput($userId, $activityId)
+    {
+        $output = Output::where('user_id', $userId)
+            ->where('activity_id', $activityId)
+            ->first();
+
+        if ($output) {
+            return response()->json([
+                'success' => true,
+                'output' => [
+                    'code' => $output->code,
+                    'score' => $output->score,
+                    'feedback' => $output->feedback,
+                ]
+            ]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'No output found']);
+        }
     }
     public function getAllClasses()
     {

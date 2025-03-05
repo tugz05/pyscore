@@ -345,7 +345,7 @@
                                                     data-id="${activity.id || ''}"
                                                     data-title="${activity.title || ''}"
                                                     data-points="${activity.points || ''}"
-                                                    data-instruction="${activity.instruction || ''}"
+                                                    data-instruction="${encodeURIComponent(activity.instruction) || ''}"
                                                     data-due_date="${activity.due_date || ''}"
                                                     data-due_time="${activity.due_time || ''}"
                                                     data-accessible_date="${activity.accessible_date || ''}"
@@ -394,8 +394,7 @@
                         $('#classlist_id').val(classlistId); // Restore classlist_id after reset
                         $('#section_id').val(sectionId); // Restore section_id after reset
                         Swal.fire({
-                            icon: "success",
-                            title: "Activity Created",
+                            icon: "success", 
                             text: "Activity saved successfully!",
                         });
                         loadActivities(classlistId);
@@ -409,16 +408,24 @@
             });
             /** Edit Activity **/
             $(document).on("click", ".edit-btn", function() {
-                $("#activity_id").val($(this).data('id'));
-                $("#title").val($(this).data('title'));
-                $("#points").val($(this).data('points'));
-                $("#instruction").val($(this).data('instruction'));
-                $("#due_date").val($(this).data('due_date'));
-                $("#due_time").val($(this).data('due_time'));
-                $("#accessible_date").val($(this).data('accessible_date'));
-                $("#accessible_time").val($(this).data('accessible_time'));
-                $("#addActivityModal").modal("show");
-            });
+    $("#activity_id").val($(this).data('id'));
+    $("#title").val($(this).data('title'));
+    $("#points").val($(this).data('points'));
+
+    // Retrieve and decode HTML content
+    let instructionHtml = decodeURIComponent($(this).data('instruction'));
+
+    // Set HTML content inside Summernote
+    $('#instruction').summernote('code', instructionHtml);
+
+    $("#due_date").val($(this).data('due_date'));
+    $("#due_time").val($(this).data('due_time'));
+    $("#accessible_date").val($(this).data('accessible_date'));
+    $("#accessible_time").val($(this).data('accessible_time'));
+
+    $("#addActivityModal").modal("show");
+});
+
 
             /** Delete Activity **/
             $(document).on('click', '.delete-btn', function() {
