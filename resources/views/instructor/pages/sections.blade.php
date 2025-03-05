@@ -20,7 +20,7 @@
                                     <th class="text-center">ID</th>
                                     <th class="text-center">Section Name</th>
                                     <th class="text-center">Schedule</th>
-                                    <th class="text-center">Action</th>
+                                  <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody></tbody> <!-- DataTables will load data dynamically -->

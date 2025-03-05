@@ -15,6 +15,9 @@ use App\Http\Controllers\JoinedClassController;
 use App\Http\Controllers\PythonEvaluationController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\SettingsController;
+use App\Http\Controllers\Admin\AcademicYearController;
+use App\Http\Controllers\Admin\DayController;
+use App\Http\Controllers\Admin\RoomController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('auth/redirect', action: [GoogleController::class, 'redirect'])->name('google.redirect');
@@ -44,13 +47,10 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
 
 
 
-        Route::resource('archives', ArchiveController::class);
-        Route::post('/archive-data', [ArchiveController::class, 'archiveData'])->name('archive.data');
-        Route::get('/archived-classlist', [ArchiveController::class, 'getArchivelists'])->name('archive.list');
-        Route::post('/restore-class', [ArchiveController::class, 'restoreClass'])->name('archive.restore');
-
-
-
+    Route::resource('archives', ArchiveController::class);
+    Route::post('/archive-data', [ArchiveController::class, 'archiveData'])->name('archive.data');
+    Route::get('/archived-classlist', [ArchiveController::class, 'getArchivelists'])->name('archive.list');
+    Route::post('/restore-class', [ArchiveController::class, 'restoreClass'])->name('archive.restore');
 });
 
 Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(function () {
@@ -74,4 +74,17 @@ Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(functi
     Route::get('/dashboard', [HomeController::class, 'index'])->name('admin.index');
     Route::post('/admin/students/update-role', [StudentController::class, 'update'])->name('admin.student.update');
     Route::post('/admin/instructors/update-role', [InstructorController::class, 'update'])->name('admin.instructor.update');
+
+    Route::get('/academic_year', [AcademicYearController::class, 'index'])->name('admin.academic_year');
+    Route::post('/academic_year/store', [AcademicYearController::class, 'store'])->name('academic_year.store');
+    Route::get('/academic_year/list', [AcademicYearController::class, 'list'])->name('academic_year.list');
+    Route::put('/academic_year/{id}/update', [AcademicYearController::class, 'update'])->name('academic_year.update');
+
+    Route::get('/rooms', [RoomController::class, 'index'])->name('admin.room');
+    Route::get('/rooms/list', [RoomController::class, 'list'])->name('room.list');
+    Route::post('/rooms/store', [RoomController::class, 'store'])->name('room.store');
+
+    Route::get('/days', [DayController::class, 'index'])->name('admin.day');
+    Route::get('/days/list', [DayController::class, 'list'])->name('day.list');
+    Route::post('/days/store', [DayController::class, 'store'])->name('day.store');
 });

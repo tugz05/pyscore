@@ -54,14 +54,15 @@
 
                 <h6 class="collapse-header">Subjects:</h6>
                 @if ($classlists->where('is_archive', 0)->count() > 0)
-    @foreach ($classlists->where('is_archive', 0) as $class)
-        <a class="collapse-item truncate-text" href="{{ route('class.view', $class->id) }}" title="{{ $class->name }}">
-            {{ $class->name }}
-        </a>
-    @endforeach
-@else
-    <p class="collapse-item text-muted">No classes available</p>
-@endif
+                    @foreach ($classlists->where('is_archive', 0) as $class)
+                        <a class="collapse-item truncate-text" href="{{ route('class.view', $class->id) }}"
+                            title="{{ $class->name }}">
+                            {{ $class->name }}
+                        </a>
+                    @endforeach
+                @else
+                    <p class="collapse-item text-muted">No classes available</p>
+                @endif
 
             </div>
         </div>
@@ -69,23 +70,12 @@
     </li>
 
     <!-- Nav Item - Utilities Collapse Menu -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
-            aria-expanded="true" aria-controls="collapseUtilities">
-            <i class="fas fa-fw fa-folder"></i>
-            <span>Classroom</span>
-        </a>
-        <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Manage Class:</h6>
-                <a class="collapse-item" href="{{ route('sections.index') }}">Sections</a>
-                <a class="collapse-item" href="">Grades</a>
-                {{-- <a class="collapse-item" href="utilities-animation.html">Animations</a>
-                <a class="collapse-item" href="utilities-other.html">Other</a> --}}
-            </div>
-        </div>
-    </li>
 
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('sections.index') }}">
+            <i class="fas fa-fw fa-archive"></i>
+            <span>Sections</span></a>
+    </li>
     <!-- Divider -->
     <hr class="sidebar-divider">
     <!-- Nav Item - Dashboard -->
@@ -94,11 +84,7 @@
             <i class="fas fa-fw fa-archive"></i>
             <span>Archived Classes </span></a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="">
-            <i class="fas fa-fw fa-cog"></i>
-            <span>Settings</span></a>
-    </li>
+
     <!-- Heading -->
     {{-- <div class="sidebar-heading">
         Addons
