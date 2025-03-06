@@ -43,7 +43,7 @@ public function getSubmissionStatus($userId, $activityId)
     $assigned_score = $submission ? $submission->score : 0;
 
     // Determine submission status:
-    if ($isSubmitted) {
+    if ($activity->is_submitted == true) {
         $status = 'Submitted'; // User has submitted
     } elseif ($activity->is_missing == true) {
         $status = 'Missing'; // Due date has passed, no submission
