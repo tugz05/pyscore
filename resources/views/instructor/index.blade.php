@@ -179,56 +179,64 @@
                         } else {
                             $.each(response.data, function(index, classlist) {
                                 classCards += `
-                                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                    <div class="card shadow-lg rounded-4 border-1 hover-effect h-100">
-                                        <img src="https://picsum.photos/300/120" class="card-img-top rounded-top-4" alt="Course Image">
-                                        <div class="card-body p-3 d-flex flex-column">
-                                            <a href="{{ route('class.view', '') }}/${classlist.id}" class="text-decoration-none">
-                                                <h5 class="card-title text-primary fw-bold">${classlist.name}</h5>
-                                            </a>
-                                            <p class="card-text text-muted">${classlist.section.name} | ${classlist.academic_year}</p>
-                                            <p class="card-text text-muted"><b>Room:</b> ${classlist.room}</p>
-                                            <div class="mt-auto d-flex justify-content-between">
-                                                <!-- Vertical Ellipsis Menu -->
-                                                <div>
-                                                <div class="dropup">
-                                                    <button class="btn btn-light " type="button" id="dropdownMenu${classlist.id}" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-vertical"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu${classlist.id}">
-                                                        <li>
-                                                            <a class="dropdown-item share-btn" data-id="${classlist.id}" data-share_code="${classlist.id}" data-toggle="tooltip" data-placement="top" title="Share Class">
-                                                                Copy invite link
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item edit-btn" data-id="${classlist.id}" data-name="${classlist.name}" data-section_id="${classlist.section_id}" data-academic_year="${classlist.academic_year}" data-room="${classlist.room}">
-                                                                Edit
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item copy-btn" data-id="${classlist.id}" href="#">
-                                                                Copy
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item archive-btn text-danger" data-id="${classlist.id}" href="#">
-                                                                Archive
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>`;
+    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+        <div class="card shadow-lg rounded-4 border-1 hover-effect h-100 class-card"
+            data-url="{{ route('class.view', '') }}/${classlist.id}">
+
+            <img src="https://picsum.photos/300/120" class="card-img-top rounded-top-4" alt="Course Image">
+
+            <div class="card-body p-3 d-flex flex-column">
+                <h5 class="card-title text-primary fw-bold">${classlist.name}</h5>
+                <p class="card-text text-muted">${classlist.section.name} | ${classlist.academic_year}</p>
+                <p class="card-text text-muted"><b>Room:</b> ${classlist.room}</p>
+
+                <div class="mt-auto d-flex justify-content-between">
+                    <div>
+                        <div class="dropup">
+                            <button class="btn btn-light" type="button" id="dropdownMenu${classlist.id}"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu${classlist.id}">
+                                <li>
+                                    <a class="dropdown-item share-btn" data-id="${classlist.id}"
+                                        data-share_code="${classlist.id}">
+                                        Copy invite link
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item edit-btn" data-id="${classlist.id}"
+                                        data-name="${classlist.name}" data-section_id="${classlist.section_id}"
+                                        data-academic_year="${classlist.academic_year}" data-room="${classlist.room}">
+                                        Edit
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item archive-btn text-danger" data-id="${classlist.id}">
+                                        Archive
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
                             });
+
                         }
                         $('#classCards').html(classCards);
                     }
                 });
             }
+            $(document).on('click', '.class-card', function(e) {
+                // Prevent click event when clicking on buttons or dropdown menu inside the card
+                if (!$(e.target).closest('.dropup, .btn, .dropdown-item').length) {
+                    window.location.href = $(this).data('url'); // Redirect to class view page
+                }
+            });
+
             $(document).on('click', '.archive-btn', function(e) {
                 e.preventDefault();
 
@@ -302,7 +310,7 @@
                 $('#addClassModal').modal('show');
             });
 
-            
+
         });
 
         function filterClasses() {

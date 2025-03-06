@@ -137,7 +137,7 @@
                                     <div class="card shadow-lg rounded-4 border-1 hover-effect h-100">
                                         <a href="{{ url('student/class/i') }}/${classlist.id}">
                                             <img src="https://picsum.photos/300/120" class="card-img-top rounded-top-4" alt="Course Image">
-                                        </a>
+
                                         <div class="card-body p-3 d-flex flex-column">
                                             <h5 class="card-title text-primary fw-bold">${classlist.name}</h5>
                                             <p class="card-text text-muted">${classlist.section?.name || 'No Section'} | ${classlist.academic_year || 'N/A'}</p>
@@ -155,6 +155,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        </a>
                                     </div>
                                 </div>`;
                             });

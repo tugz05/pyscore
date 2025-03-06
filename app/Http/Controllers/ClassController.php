@@ -25,7 +25,7 @@ public function getSubmissionStatus($userId, $activityId)
     }
 
     // Get the current timestamp
-    $now = Carbon::now();
+    $now = Carbon::now('Asia/Manila');
 
     // Check if the user has submitted the activity
     $submission = Activity::where('user_id', $userId)
@@ -45,7 +45,7 @@ public function getSubmissionStatus($userId, $activityId)
     // Determine submission status:
     if ($isSubmitted) {
         $status = 'Submitted'; // User has submitted
-    } elseif (!$activity->is_submitted) {
+    } elseif ($activity->is_missing == true) {
         $status = 'Missing'; // Due date has passed, no submission
     } else {
         $status = 'Pending'; // Due date not yet passed, submission still possible
@@ -68,7 +68,7 @@ public function getSubmissionStatus($userId, $activityId)
         return view('instructor.pages.class');
     }
     public function viewStudentsAndTeacher($classlist_id)
-    {
+    {-
         // Fetch the teacher assigned to the class (modify this as needed based on your DB structure)
         $instructor = User::whereHas('classlist', function ($query) use ($classlist_id) {
             $query->where('id', $classlist_id)->where('account_type', 'instructor');

@@ -1,17 +1,15 @@
 <div class="container">
     <!-- Teachers Section -->
     <div class="mb-4">
-        <h3 class="fw-bold">Teachers</h3>
+        <h3 class="fw-bold">Instructor</h3>
         <div class="d-flex align-items-center justify-content-between">
             @if($instructor)
                 <div class="d-flex align-items-center">
                     <img src="{{ $instructor->avatar}}" alt="Teacher Image" class="rounded-circle me-2" width="40" height="40">
-                    <span class="fw-bold">{{ $instructor->name }}</span>
+                    <span class="fw-bold">&nbsp;&nbsp;{{ $instructor->name }}</span>
                 </div>
             @endif
-            <a class="btn btn-light rounded-circle m-2">
-                <i class="fas fa-user-plus"></i>
-            </a>
+
         </div>
     </div>
 
@@ -21,9 +19,7 @@
             <h3 class="fw-bold">Students</h3>
             <div class="d-flex align-items-center">
                 <span class="text-muted me-2">{{ count($students) }} students</span>
-                <a class="btn btn-light rounded-circle m-2">
-                    <i class="fas fa-user-plus"></i>
-                </a>
+
             </div>
         </div>
 
@@ -31,7 +27,7 @@
             @foreach($students as $student)
             <div class="list-group-item d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
-                    <input type="checkbox" class="m-4">
+
                     @if($student->avatar)
                         <img src="{{ asset($student->avatar) }}" alt="Profile" class="rounded-circle m-4" width="40" height="40">
                     @else
