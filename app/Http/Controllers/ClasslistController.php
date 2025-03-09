@@ -70,6 +70,16 @@ class ClasslistController extends Controller
             'course_image3.png',
             'course_image4.png',
             'course_image5.png',
+            'course_image6.png',
+            'course_image7.png',
+            'course_image8.png',
+            'course_image9.png',
+            'course_image10.png',
+            'course_image11.png',
+            'course_image12.png',
+            'course_image13.png',
+            'course_image14.png',
+            'course_image15.png',
         ];
 
         // Shuffle the array to get a new random order
@@ -101,6 +111,6 @@ class ClasslistController extends Controller
         return response()->json(['success' => 'Class deleted successfully!']);
     }
 
-    
+
 
 }

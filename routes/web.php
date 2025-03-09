@@ -69,7 +69,7 @@ Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(fu
     Route::post('/submit', [PythonEvaluationController::class, 'evaluate'])->name('submit.python.code');
     Route::get('/submission-status/{userId}/{activityId}', [ClassController::class, 'getSubmissionStatus']);
     Route::get('/check-submission', [PythonEvaluationController::class, 'checkSubmission'])->name('check.submission');
-    Route::get('/settings', [SezttingsController::class, 'index'])->name('user.settings');
+    Route::get('/settings', [SettingsController::class, 'index'])->name('user.settings');
 });
     Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');
