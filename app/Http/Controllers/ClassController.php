@@ -14,53 +14,50 @@ use Illuminate\Support\Facades\DB;
 class ClassController extends Controller
 {
 
-public function getSubmissionStatus($userId, $activityId)
-{
-    // Fetch the activity details in one query
-    $activity = Activity::find($activityId);
+    public function getSubmissionStatus($userId, $activityId)
+    {
+        // Fetch the activity details in one query
+        $activity = Activity::find($activityId);
 
-    // Ensure the activity exists
-    if (!$activity) {
-        return response()->json(['error' => 'Activity not found'], 404);
+        // Ensure the activity exists
+        if (!$activity) {
+            return response()->json(['error' => 'Activity not found'], 404);
+        }
+
+        // Get the current timestamp
+        $now = Carbon::now('Asia/Manila');
+
+        // Check if the user has submitted the activity
+        $submission = Activity::where('user_id', $userId)
+            ->where('id', $activityId)
+            ->where('is_submitted', true)
+            ->first();
+
+        // Check if the activity is marked as submitted (is_submitted)
+        $isSubmitted = $submission ? $submission->is_submitted : false;
+
+        // Get total score from the activity
+        $total_score = $activity->points;
+
+        // Get assigned score if submission exists, otherwise 0
+        $assigned_score = $submission ? $submission->score : 0;
+
+        // Determine submission status:
+        if ($activity->is_submitted == true) {
+            $status = 'Submitted'; // User has submitted
+        } elseif ($activity->is_missing == true) {
+            $status = 'Missing'; // Due date has passed, no submission
+        } else {
+            $status = 'Pending'; // Due date not yet passed, submission still possible
+        }
+
+        return response()->json([
+            'submission_status' => $isSubmitted, // Returns true if submitted
+            'assigned_score' => $assigned_score,
+            'total_score' => $total_score,
+            'status' => $status
+        ]);
     }
-
-    // Get the current timestamp
-    $now = Carbon::now('Asia/Manila');
-
-    // Check if the user has submitted the activity
-    $submission = Activity::where('user_id', $userId)
-                        ->where('id', $activityId)
-                        ->where('is_submitted', true)
-                        ->first();
-
-    // Check if the activity is marked as submitted (is_submitted)
-    $isSubmitted = $submission ? $submission->is_submitted : false;
-
-    // Get total score from the activity
-    $total_score = $activity->points;
-
-    // Get assigned score if submission exists, otherwise 0
-    $assigned_score = $submission ? $submission->score : 0;
-
-    // Determine submission status:
-    if ($activity->is_submitted == true) {
-        $status = 'Submitted'; // User has submitted
-    } elseif ($activity->is_missing == true) {
-        $status = 'Missing'; // Due date has passed, no submission
-    } else {
-        $status = 'Pending'; // Due date not yet passed, submission still possible
-    }
-
-    return response()->json([
-        'submission_status' => $isSubmitted, // Returns true if submitted
-        'assigned_score' => $assigned_score,
-        'total_score' => $total_score,
-        'status' => $status
-    ]);
-}
-
-
-
 
 
     public function index()
@@ -68,7 +65,8 @@ public function getSubmissionStatus($userId, $activityId)
         return view('instructor.pages.class');
     }
     public function viewStudentsAndTeacher($classlist_id)
-    {-
+    {
+        -
         // Fetch the teacher assigned to the class (modify this as needed based on your DB structure)
         $instructor = User::whereHas('classlist', function ($query) use ($classlist_id) {
             $query->where('id', $classlist_id)->where('account_type', 'instructor');
@@ -86,28 +84,31 @@ public function getSubmissionStatus($userId, $activityId)
     }
 
     public function viewActivity($id)
-    {
-        $activity = Activity::where('id', $id)
-            ->with(['user']) // Load activity creator details
-            ->first();
+{
+    $activity = Activity::where('id', $id)->with(['user'])->first();
 
-        if (!$activity) {
-            return abort(404, 'Activity not found.');
-        }
-
-        // Retrieve the classlist associated with the activity
-        $classlist = Classlist::where('id', $activity->classlist_id)
-            ->with(['user']) // Load enrolled students and their user info
-            ->first();
-
-        // Get the students who are enrolled in the class
-        $students = JoinedClass::where('classlist_id',$activity->classlist_id)
-                    ->with('user')
-                    ->get();
-    //   return $students->user->id;
-
-        return view('instructor.pages.activity', compact('activity', 'students'));
+    if (!$activity) {
+        return abort(404, 'Activity not found.');
     }
+
+    $classlist = Classlist::where('id', $activity->classlist_id)->with(['user'])->first();
+
+    $students = JoinedClass::where('classlist_id', $activity->classlist_id)
+        ->with('user')
+        ->get();
+
+    // Fetch student scores
+    foreach ($students as $student) {
+        $output = Output::where('user_id', $student->user->id)
+            ->where('activity_id', $id)
+            ->first();
+
+        $student->score = $output ? $output->score : '--'; // Assign score or "--" if not found
+    }
+
+    return view('instructor.pages.activity', compact('activity', 'students'));
+}
+
 
     public function getStudentOutput($userId, $activityId)
     {
@@ -128,15 +129,18 @@ public function getSubmissionStatus($userId, $activityId)
             return response()->json(['success' => false, 'message' => 'No output found']);
         }
     }
-    public function getAllClasses()
+    public function getAllClasses($excludeClassId)
     {
         $classes = Classlist::where('is_archive', false)
             ->where('user_id', auth()->user()->id)
+            ->where('id', '!=', $excludeClassId) // Exclude the currently opened class
             ->with(['section', 'user']) // Load relationships
             ->orderBy('created_at', 'desc') // Sort by latest time
             ->get();
+
         return response()->json($classes);
     }
+
 
     public function viewClass($id)
     {

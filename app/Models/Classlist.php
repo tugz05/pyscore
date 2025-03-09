@@ -22,6 +22,8 @@ class Classlist extends Model
         'name',
         'academic_year',
         'room',
+        'is_archive',
+        'course_image'
     ];
 
     // Automatically generate Google Classroom-style ID when creating a section
@@ -29,11 +31,12 @@ class Classlist extends Model
     {
         parent::boot();
 
-        static::creating(function ($section) {
-            $section->id = self::generateClassroomCode(); // Generate Google Classroom-style ID
+        static::creating(function ($classlist) {
+            $classlist->id = self::generateClassroomCode(); // Generate unique class ID
+
         });
     }
-
+    
     // Generate a Google Classroom-style code (e.g., abc-defg-hij)
     public static function generateClassroomCode()
     {
@@ -78,8 +81,8 @@ class Classlist extends Model
     }
 
 
-public function instructor()
-{
-    return $this->belongsTo(User::class, 'user_id',); // User who created the class
-}
+    public function instructor()
+    {
+        return $this->belongsTo(User::class, 'user_id',); // User who created the class
+    }
 }

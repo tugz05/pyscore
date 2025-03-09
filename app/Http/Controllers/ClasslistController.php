@@ -22,20 +22,18 @@ class ClasslistController extends Controller
     }
 
 
-     public function getClasslists()
+    public function getClasslists()
     {
         // Assuming the class creator is stored as `user_id`
         $userId = auth()->id(); // Get the logged-in user's ID
 
         $classes = Classlist::with('section')
-                    ->where('user_id', $userId) // Filter classes by creator
-                    ->where('is_archive', false) // Filter classes by creator
-                    ->get();
+            ->where('user_id', $userId) // Filter classes by creator
+            ->where('is_archive', false) // Filter classes by creator
+            ->get();
 
         return response()->json(["data" => $classes]);
     }
-
-
 
     public function store(Request $request)
     {
@@ -44,9 +42,9 @@ class ClasslistController extends Controller
                 'name' => 'required|string|max:255',
                 'section_id' => 'required|exists:sections,id',
                 'academic_year' => 'required|string',
-                'room' => 'required|exists:rooms,room_number', // Ensure valid room
-
+                'room' => 'required|exists:rooms,room_number',
             ]);
+
             $user = Auth::user()->id;
             $classlist = new Classlist();
             $classlist->user_id = $user;
@@ -54,13 +52,34 @@ class ClasslistController extends Controller
             $classlist->section_id = $validated['section_id'];
             $classlist->academic_year = $validated['academic_year'];
             $classlist->room = $validated['room'];
-            $classlist->save(); // Save manually
+            $classlist->course_image = $this->getUniqueRandomCourseImage(); // Use this function
+            $classlist->save();
 
             return response()->json(['success' => 'Class added successfully!']);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    // Function to ensure different images are picked each time
+    private function getUniqueRandomCourseImage()
+    {
+        $images = [
+            'course_image1.png',
+            'course_image2.png',
+            'course_image3.png',
+            'course_image4.png',
+            'course_image5.png',
+        ];
+
+        // Shuffle the array to get a new random order
+        shuffle($images);
+
+        // Return a random image
+        return $images[array_rand($images)];
+    }
+
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -81,4 +100,7 @@ class ClasslistController extends Controller
         Classlist::findOrFail($id)->delete();
         return response()->json(['success' => 'Class deleted successfully!']);
     }
+
+    
+
 }

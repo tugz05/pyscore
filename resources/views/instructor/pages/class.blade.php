@@ -4,14 +4,18 @@
     <div class="container-fluid">
         <!-- Class Header -->
         <div class="card shadow-lg rounded border-0">
-            <div class="card-body bg-primary text-white d-flex align-items-center justify-content-between">
-                <div>
+            <div class="card-body text-white d-flex align-items-center justify-content-between"
+                style="background: url('{{ asset('assets/course_images') }}/{{ $classlist->course_image }}') no-repeat center center;
+                       background-size: cover; min-height: 200px;">
+
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 10px;">
                     <h2 class="fw-bold">{{ $classlist->name }}</h2>
                     <p class="mb-0">{{ $classlist->section->name }}</p>
                 </div>
 
             </div>
         </div>
+
         <ul class="nav nav-tabs mt-3">
             <li class="nav-item">
                 <a class="nav-link active" data-bs-toggle="tab" href="#stream">Stream</a>
@@ -34,14 +38,6 @@
                                     value="{{ $classlist->id }}" readonly>
                                 <button class="btn btn-success w-100 m-2" onclick="copyShareCode()">Copy Code</button>
                                 <button class="btn btn-primary w-100 m-2" onclick="copyLink()">Copy Link</button>
-                            </div>
-                        </div>
-
-                        <div class="card shadow-sm border-0">
-                            <div class="card-body">
-                                <h6 class="fw-bold">Upcoming</h6>
-                                <p class="text-muted">No work due soon</p>
-                                <a href="#" class="text-primary fw-bold">View all</a>
                             </div>
                         </div>
                     </div>
@@ -113,7 +109,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="instruction" class="form-label fw-bold">Instructions</label>
-                            <textarea name="instruction" id="instruction" class="form-control summernote" placeholder="Enter detailed instructions..."></textarea>
+                            <textarea name="instruction" id="instruction" class="form-control summernote"
+                                placeholder="Enter detailed instructions..."></textarea>
                         </div>
                         <div class="row">
                             <div class="col-sm-2 mb-3">
@@ -137,31 +134,38 @@
                             <div class="container">
                                 <div class="row mb-3 ml-2">
                                     <div class="col-md-4">
-                                        <input type="checkbox" name="schedule_activity" id="schedule_activity" class="form-check-input">
+                                        <input type="checkbox" name="schedule_activity" id="schedule_activity"
+                                            class="form-check-input">
                                         <label for="schedule_activity" class="form-check-label">Schedule Activity</label>
                                     </div>
                                     <div class="col-md-4">
-                                        <input type="checkbox" name="share_activity" id="share_activity" class="form-check-input" value="0">
-                                        <label for="share_activity" class="form-check-label fw-bold"> Share Activity</label>
+                                        <input type="checkbox" name="share_activity" id="share_activity"
+                                            class="form-check-input" value="0">
+                                        <label for="share_activity" class="form-check-label fw-bold"> Share
+                                            Activity</label>
                                     </div>
                                 </div>
                                 <div class="row" id="schedule_fields" style="display: none;">
                                     <!-- Accessible Date -->
                                     <div class="col-md-6 mb-3">
                                         <label for="accessible_date" class="form-label fw-bold">Accessible Date</label>
-                                        <input type="date" name="accessible_date" id="accessible_date" class="form-control">
+                                        <input type="date" name="accessible_date" id="accessible_date"
+                                            class="form-control">
                                     </div>
                                     <!-- Accessible Time -->
                                     <div class="col-md-6 mb-3">
                                         <label for="accessible_time" class="form-label fw-bold">Accessible Time</label>
-                                        <input type="time" name="accessible_time" id="accessible_time" class="form-control">
+                                        <input type="time" name="accessible_time" id="accessible_time"
+                                            class="form-control">
                                     </div>
                                 </div>
 
                                 <!-- Container for dynamically loaded class checkboxes -->
-                                <div id="classlist_container" class="mt-4 mb-4 border rounded p-4" style="display: none;">
+                                <div id="classlist_container" class="mt-4 mb-4 border rounded p-4"
+                                    style="display: none;">
                                     <label class="form-label fw-bold">Select Classes to Share</label>
-                                    <div id="classlist_checkboxes" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3"></div>
+                                    <div id="classlist_checkboxes" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -178,15 +182,14 @@
 @endsection
 @push('script')
     <script>
-             $(document).ready(function() {
+        $(document).ready(function() {
             // Initialize Summernote
             $('.summernote').summernote({
-                height: 200,  // Set height
+                height: 200, // Set height
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
                     ['para', ['ul', 'ol', 'paragraph']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview']]
+                   
                 ]
             });
 
@@ -197,55 +200,55 @@
             });
         });
 
-            document.getElementById('share_activity').addEventListener('change', function () {
-                let hiddenInput = document.getElementById('share_activity_hidden');
-                hiddenInput.value = this.checked ? "1" : "0";
-            });
-            document.getElementById('share_activity').addEventListener('change', function () {
-            let classlistContainer = document.getElementById('classlist_container');
-            let classlistCheckboxes = document.getElementById('classlist_checkboxes');
-
-            if (this.checked) {
-                classlistContainer.style.display = 'block'; // Show checkboxes
-
-                // Fetch classes dynamically from the backend
-                fetch('/instructor/get-classes')
-                    .then(response => response.json())
-                    .then(data => {
-                        classlistCheckboxes.innerHTML = ''; // Clear previous checkboxes
-
-                        data.forEach(classItem => {
-                            console.log(classItem);
-
-                            let div = document.createElement('div');
-                            div.classList.add('col'); // Responsive column
-
-                            let checkbox = document.createElement('input');
-                            checkbox.type = 'checkbox';
-                            checkbox.name = 'selected_classes[]';
-                            checkbox.value = classItem.id;
-                            checkbox.id = 'class_' + classItem.id;
-                            checkbox.classList.add('form-check-input');
-
-                            let label = document.createElement('label');
-                            label.htmlFor = 'class_' + classItem.id;
-                            label.textContent = classItem.name + ' | ' + classItem.section.name;
-                            label.classList.add('form-check-label');
-
-                            let checkContainer = document.createElement('div');
-                            checkContainer.classList.add('form-check');
-                            checkContainer.appendChild(checkbox);
-                            checkContainer.appendChild(label);
-
-                            div.appendChild(checkContainer);
-                            classlistCheckboxes.appendChild(div);
-                        });
-                    })
-                    .catch(error => console.error('Error fetching class list:', error));
-            } else {
-                classlistContainer.style.display = 'none'; // Hide checkboxes
-            }
+        document.getElementById('share_activity').addEventListener('change', function() {
+            let hiddenInput = document.getElementById('share_activity_hidden');
+            hiddenInput.value = this.checked ? "1" : "0";
         });
+        document.getElementById('share_activity').addEventListener('change', function() {
+    let classlistContainer = document.getElementById('classlist_container');
+    let classlistCheckboxes = document.getElementById('classlist_checkboxes');
+    let classlistId = "{{ $classlist->id }}"; // Get the current class ID
+
+    if (this.checked) {
+        classlistContainer.style.display = 'block'; // Show checkboxes
+
+        // Fetch classes dynamically from the backend
+        fetch(`/instructor/get-classes/${classlistId}`) // Pass current class ID
+            .then(response => response.json())
+            .then(data => {
+                classlistCheckboxes.innerHTML = ''; // Clear previous checkboxes
+
+                data.forEach(classItem => {
+                    let div = document.createElement('div');
+                    div.classList.add('col'); // Responsive column
+
+                    let checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.name = 'selected_classes[]';
+                    checkbox.value = classItem.id;
+                    checkbox.id = 'class_' + classItem.id;
+                    checkbox.classList.add('form-check-input');
+
+                    let label = document.createElement('label');
+                    label.htmlFor = 'class_' + classItem.id;
+                    label.textContent = classItem.name + ' | ' + classItem.section.name;
+                    label.classList.add('form-check-label');
+
+                    let checkContainer = document.createElement('div');
+                    checkContainer.classList.add('form-check');
+                    checkContainer.appendChild(checkbox);
+                    checkContainer.appendChild(label);
+
+                    div.appendChild(checkContainer);
+                    classlistCheckboxes.appendChild(div);
+                });
+            })
+            .catch(error => console.error('Error fetching class list:', error));
+    } else {
+        classlistContainer.style.display = 'none'; // Hide checkboxes
+    }
+});
+
 
         document.getElementById('schedule_activity').addEventListener('change', function() {
             let scheduleFields = document.getElementById('schedule_fields');
@@ -387,14 +390,14 @@
                         // Clear all fields except hidden ones
                         $('#addActivityForm').find('input:not([type=hidden]), textarea').val(
                             '');
-
+                        $('#addActivityForm').find('.summernote').summernote('code', '');
                         // Reassign hidden field values
                         $('#classlist_id').val("{{ $classlist->id }}");
                         $('#section_id').val("{{ $classlist->section->id }}");
                         $('#classlist_id').val(classlistId); // Restore classlist_id after reset
                         $('#section_id').val(sectionId); // Restore section_id after reset
                         Swal.fire({
-                            icon: "success", 
+                            icon: "success",
                             text: "Activity saved successfully!",
                         });
                         loadActivities(classlistId);
@@ -408,23 +411,23 @@
             });
             /** Edit Activity **/
             $(document).on("click", ".edit-btn", function() {
-    $("#activity_id").val($(this).data('id'));
-    $("#title").val($(this).data('title'));
-    $("#points").val($(this).data('points'));
+                $("#activity_id").val($(this).data('id'));
+                $("#title").val($(this).data('title'));
+                $("#points").val($(this).data('points'));
 
-    // Retrieve and decode HTML content
-    let instructionHtml = decodeURIComponent($(this).data('instruction'));
+                // Retrieve and decode HTML content
+                let instructionHtml = decodeURIComponent($(this).data('instruction'));
 
-    // Set HTML content inside Summernote
-    $('#instruction').summernote('code', instructionHtml);
+                // Set HTML content inside Summernote
+                $('#instruction').summernote('code', instructionHtml);
 
-    $("#due_date").val($(this).data('due_date'));
-    $("#due_time").val($(this).data('due_time'));
-    $("#accessible_date").val($(this).data('accessible_date'));
-    $("#accessible_time").val($(this).data('accessible_time'));
+                $("#due_date").val($(this).data('due_date'));
+                $("#due_time").val($(this).data('due_time'));
+                $("#accessible_date").val($(this).data('accessible_date'));
+                $("#accessible_time").val($(this).data('accessible_time'));
 
-    $("#addActivityModal").modal("show");
-});
+                $("#addActivityModal").modal("show");
+            });
 
 
             /** Delete Activity **/

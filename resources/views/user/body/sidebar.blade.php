@@ -50,11 +50,13 @@
                 <h6 class="collapse-header">Subjects:</h6>
                 {{-- <h1>{{$classlists}}</h1> --}}
                 @if(count($classlists) > 0)
-                    @foreach ($classlists as $class)
+                    @forelse ($classlists as $class)
                     <a class="collapse-item truncate-text" href="{{ route('user.class.view', $class->classlist->id) }}" title="{{ $class->classlist->name }}">
                         {{$class->classlist->name }}
                     </a>
-                    @endforeach
+                    @empty
+                        <p class="collapse-item text-muted">No classes available</p>
+                    @endforelse
                 @else
                     <p class="collapse-item text-muted">No classes available</p>
                 @endif

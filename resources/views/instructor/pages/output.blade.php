@@ -33,19 +33,30 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white py-3 d-flex align-items-center justify-content-between">
                     <h6 class="m-0 fw-bold">Student List</h6>
-                    <i class="fas fa-users"></i>
+
+                    <!-- Score Filtering Dropdown -->
+                    <select id="scoreFilter" class="form-select form-select-sm text-dark" style="width: 150px;">
+                        <option value="default">Sort by Score</option>
+                        <option value="asc">Lowest to Highest</option>
+                        <option value="desc">Highest to Lowest</option>
+                    </select>
                 </div>
+
                 <div class="card-body p-0 student-list">
-                    <ul class="list-group list-group-flush">
+                    <ul id="studentList" class="list-group list-group-flush">
                         <!-- Dynamic Student List -->
                         @forelse ($students as $student)
                         <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3"
-                            data-user-id="{{ $student->user->id }}" data-activity-id="{{ $activity->id }}">
+                            data-user-id="{{ $student->user->id }}"
+                            data-activity-id="{{ $activity->id }}"
+                            data-score="{{ $student->score == '--' ? 0 : $student->score }}">
+
                             <div class="d-flex align-items-center">
                                 <img src="{{ $student->user->avatar ?? 'https://via.placeholder.com/45' }}"
                                     alt="Profile" class="rounded-circle me-3 ml-3" width="45" height="45">
                                 <div class="ml-3">
                                     <span class="fw-bold">{{ $student->user->name }}</span>
+                                    <span class="fw-bold text-success">{{ $student->score }}/{{ $activity->points }}</span>
                                     <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
                                 </div>
                             </div>
@@ -77,7 +88,7 @@
                             <div class="card bg-success text-white shadow">
                                 <div class="card-body">
                                     Score
-                                    <div id="score" class="h5 mb-0 font-weight-bold">--/100</div>
+                                    <div id="score" class="h5 mb-0 font-weight-bold">--/{{ $activity->points }}</div>
                                 </div>
                             </div>
                         </div>
@@ -105,6 +116,7 @@
         let editor = ace.edit("editor");
         editor.setTheme("ace/theme/monokai");
         editor.session.setMode("ace/mode/python");
+        editor.setReadOnly(true);
 
         $(".student-item").on("click", function () {
             let userId = $(this).data("user-id");
@@ -116,17 +128,40 @@
                 success: function (response) {
                     if (response.success) {
                         editor.setValue(response.output.code);
-                        $("#score").text(response.output.score + "/100");
+                        $("#score").text(response.output.score + "/{{ $activity->points }}");
                         $("#feedback").text(response.output.feedback);
                     } else {
                         editor.setValue("");
-                        $("#score").text("--/100");
+                        $("#score").text("/{{ $activity->points }}");
                         $("#feedback").text("No feedback available.");
                     }
                 },
                 error: function () {
                     alert("Error fetching student output.");
                 }
+            });
+        });
+
+        // Score Filtering Logic
+        $("#scoreFilter").on("change", function () {
+            let order = $(this).val();
+            let studentList = $("#studentList");
+
+            let students = $(".student-item").get();
+            students.sort(function (a, b) {
+                let scoreA = parseInt($(a).data("score"));
+                let scoreB = parseInt($(b).data("score"));
+
+                if (order === "asc") {
+                    return scoreA - scoreB; // Sort Lowest to Highest
+                } else if (order === "desc") {
+                    return scoreB - scoreA; // Sort Highest to Lowest
+                }
+                return 0; // Default Order
+            });
+
+            $.each(students, function (index, student) {
+                studentList.append(student);
             });
         });
     });

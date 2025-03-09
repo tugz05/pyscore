@@ -29,7 +29,44 @@
 
 
 </head>
+<style>
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        /* Prevents double scrolling */
+    }
 
+    #wrapper {
+        display: flex;
+        height: 100vh;
+        /* Full height */
+        overflow: hidden;
+        /* Prevents page overflow */
+    }
+
+    #content-wrapper {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow-y: auto;
+        /* Makes the main content scrollable */
+    }
+
+    #topbar {
+        position: sticky;
+        top: 0;
+        width: 100%;
+        z-index: 1030;
+        /* Ensures it stays above content */
+        background: white;
+        /* Adjust based on your design */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        /* Optional shadow */
+    }
+</style>
 <body id="page-top">
 
     <!-- Page Wrapper -->
@@ -45,9 +82,9 @@
             <!-- Main Content -->
             <div id="content">
 
-                <!-- Topbar -->
+                <div id="topbar">
                 @include('admin.body.topbar')
-                <!-- End of Topbar -->
+            </div>
 
                 <!-- Begin Page Content -->
                     @yield('content')

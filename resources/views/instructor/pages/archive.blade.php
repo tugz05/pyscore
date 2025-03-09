@@ -64,7 +64,7 @@
                                 classCards += `
                             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                                 <div class="card shadow-lg rounded-4 border-1 hover-effect h-100">
-                                    <img src="https://picsum.photos/300/120" class="card-img-top rounded-top-4" alt="Course Image">
+                                         <img src="{{ asset('assets/course_images') }}/${classlist.course_image}" class="card-img-top rounded-top-4" alt="Course Image">
                                     <div class="card-body p-3 d-flex flex-column">
                                         <a href="{{ route('class.view', '') }}/${classlist.id}" class="text-decoration-none">
                                             <h5 class="card-title text-primary fw-bold">${classlist.name}</h5>

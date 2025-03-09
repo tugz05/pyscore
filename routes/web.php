@@ -44,7 +44,8 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
     Route::put('/class/i/activity/update/{id}', [ClassController::class, 'update'])->name('activity.update');
     Route::delete('/class/i/activity/{id}', [ClassController::class, 'destroy'])->name('activity.destroy');
     Route::get('/activity/{id}', [ClassController::class, 'viewActivity'])->name('activity.view');
-    Route::get('/get-classes', [ClassController::class, 'getAllClasses']);
+    Route::get('/get-classes/{excludeClassId}', [ClassController::class, 'getAllClasses']);
+
     Route::get('/get-student-output/{userId}/{activityId}', [ClassController::class, 'getStudentOutput']);
 
 
@@ -68,7 +69,7 @@ Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(fu
     Route::post('/submit', [PythonEvaluationController::class, 'evaluate'])->name('submit.python.code');
     Route::get('/submission-status/{userId}/{activityId}', [ClassController::class, 'getSubmissionStatus']);
     Route::get('/check-submission', [PythonEvaluationController::class, 'checkSubmission'])->name('check.submission');
-    Route::get('/settings', [SettingsController::class, 'index'])->name('user.settings');
+    Route::get('/settings', [SezttingsController::class, 'index'])->name('user.settings');
 });
     Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');

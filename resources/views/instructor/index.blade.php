@@ -26,7 +26,17 @@
             <div class="input-group w-50">
                 <input type="text" id="searchClass" class="form-control" placeholder="Search class..."
                     onkeyup="filterClasses()">
-
+            </div>
+            <!-- Academic Year Filter -->
+            <div class="ml-3">
+                <select id="filterAcademicYear" class="form-control" onchange="filterClasses()">
+                    <option value="">All Academic Years</option>
+                    @foreach ($academic_year as $year)
+                        <option value="{{ $year->semester . ' ' . $year->start_year . '-' . $year->end_year }}">
+                            {{ $year->semester . ' ' . $year->start_year . '-' . $year->end_year }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
             <!-- Create Class Button -->
             <h1 class="h3 mb-0 text-gray-800">
@@ -183,7 +193,7 @@
         <div class="card shadow-lg rounded-4 border-1 hover-effect h-100 class-card"
             data-url="{{ route('class.view', '') }}/${classlist.id}">
 
-            <img src="https://picsum.photos/300/120" class="card-img-top rounded-top-4" alt="Course Image">
+           <img src="{{ asset('assets/course_images') }}/${classlist.course_image}" class="card-img-top rounded-top-4" alt="Course Image">
 
             <div class="card-body p-3 d-flex flex-column">
                 <h5 class="card-title text-primary fw-bold">${classlist.name}</h5>
@@ -256,13 +266,22 @@
                         success: function(response) {
                             $('#archiveConfirmModal').modal(
                                 'hide'); // Hide the modal after successful archive
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: 'Class archived successfully',
+                                });
                             loadClasses(); // Reload class list
 
-                            alert(response.message); // Display success message
                         },
                         error: function(xhr, status, error) {
                             console.error(xhr.responseText);
-                            alert('Something went wrong. Please try again.');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Something went wrong. Please try again.',
+                            });
+
                         }
                     });
                 });
@@ -285,8 +304,13 @@
                         $('#addClassModal').modal('hide');
                         $('#addClassForm')[0].reset();
                         $('#classlist_id').val('');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.success,
+                        });
                         loadClasses();
-                        alert(response.success);
+
                     },
                     error: function(xhr) {
                         console.log("AJAX Error:", xhr.responseText);
@@ -315,14 +339,20 @@
 
         function filterClasses() {
             let input = document.getElementById("searchClass").value.toLowerCase();
+            let selectedYear = document.getElementById("filterAcademicYear").value.toLowerCase();
             let classCards = document.querySelectorAll("#classCards .col-lg-3");
 
             classCards.forEach(card => {
                 let className = card.querySelector(".card-title").innerText.toLowerCase();
                 let section = card.querySelector(".card-text:nth-child(2)").innerText.toLowerCase(); // Section
+                let academicYear = card.querySelector(".card-text:nth-child(2)").innerText
+            .toLowerCase(); // Academic Year
                 let room = card.querySelector(".card-text:nth-child(3)").innerText.toLowerCase(); // Room
 
-                if (className.includes(input) || section.includes(input) || room.includes(input)) {
+                let matchesSearch = className.includes(input) || section.includes(input) || room.includes(input);
+                let matchesYear = selectedYear === "" || academicYear.includes(selectedYear);
+
+                if (matchesSearch && matchesYear) {
                     card.style.display = "block"; // Show matching cards
                 } else {
                     card.style.display = "none"; // Hide non-matching cards

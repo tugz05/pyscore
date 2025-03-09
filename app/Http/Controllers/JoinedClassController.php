@@ -55,23 +55,29 @@ class JoinedClassController extends Controller
     }
     public function viewClass($id)
     {
+        $currentDate = Carbon::now()->toDateString(); // Get the current date (YYYY-MM-DD)
+        $currentTime = Carbon::now()->toTimeString(); // Get the current time (HH:MM:SS)
+
         $activity = Activity::where('classlist_id', $id)
-            ->where(function ($query) {
-                $query->whereNull('accessible_date') // Include activities where accessible_date is NULL
-                    ->orWhere('accessible_date', '>', Carbon::now()); // Or where it's greater than the current date
-            })
-            ->where(function ($query) {
-                $query->whereNull('accessible_time') // Include activities where accessible_time is NULL
-                    ->orWhere('accessible_time', '>', Carbon::now()->format('H:i:s')); // Or where it's greater than the current time
+            ->where(function ($query) use ($currentDate, $currentTime) {
+                $query->whereNull('accessible_date') // Activities without an accessible_date
+                    ->orWhere(function ($subQuery) use ($currentDate, $currentTime) {
+                        $subQuery->where('accessible_date', $currentDate) // Check if date matches today
+                            ->where(function ($timeQuery) use ($currentTime) {
+                                $timeQuery->whereNull('accessible_time') // If time is null, show it
+                                    ->orWhere('accessible_time', '<=', $currentTime); // Time should be past or equal
+                            });
+                    });
             })
             ->with(['classlist', 'section', 'user']) // Load relationships
             ->get();
 
-        // Fetch the classlist details separately
+        // Fetch classlist details
         $classlist = Classlist::with('section', 'user')->where('id', $id)->first();
-        // dd($classlist);
+
         return view('user.pages.class', compact('activity', 'classlist'));
     }
+
     public function index()
     {
         $user = auth()->user();
@@ -102,18 +108,20 @@ class JoinedClassController extends Controller
             $existingClass = JoinedClass::where('user_id', $user)
                 ->where('classlist_id', $validated['classlist_id'])
                 ->exists();
-
+            $class = Classlist::find($validated['classlist_id']);
             if ($existingClass) {
                 return response()->json(['error' => 'You have already joined this class!'], 400);
+            } else if (!$class) {
+                return response()->json(['error' => 'Class not found!'], 404);
+            } else {
+                $classlist = new JoinedClass();
+                $classlist->user_id = $user;
+                $classlist->classlist_id = $validated['classlist_id'];
+                $classlist->date_joined = now();
+                $classlist->save(); // Save manually
+
+                return response()->json(['success' => 'Class joined successfully!']);
             }
-
-            $classlist = new JoinedClass();
-            $classlist->user_id = $user;
-            $classlist->classlist_id = $validated['classlist_id'];
-            $classlist->date_joined = now();
-            $classlist->save(); // Save manually
-
-            return response()->json(['success' => 'Class joined successfully!']);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

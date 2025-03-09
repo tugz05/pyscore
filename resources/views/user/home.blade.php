@@ -1,6 +1,5 @@
 @extends('user.dashboard')
 @section('content')
-
     <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -17,7 +16,7 @@
             }
         </style>
     </head>
-
+<div class="container-fluid">
     <div class="container-fluid bg-gray-100 mx-2">
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -37,7 +36,7 @@
             <!-- AJAX-loaded class cards will appear here -->
         </div>
     </div>
-
+</div>
     <!-- Join Class Modal -->
     <div class="modal fade" id="joinClassModal" tabindex="-1" role="dialog" aria-labelledby="joinClassModalLabel"
         aria-hidden="true">
@@ -134,9 +133,9 @@
                             $.each(response.data, function(index, classlist) {
                                 classCards += `
                                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                    <div class="card shadow-lg rounded-4 border-1 hover-effect h-100">
+                                    <div class="card shadow-lg rounded-4 border-1 hover-effect h-100" >
                                         <a href="{{ url('student/class/i') }}/${classlist.id}">
-                                            <img src="https://picsum.photos/300/120" class="card-img-top rounded-top-4" alt="Course Image">
+                                          <img src="{{ asset('assets/course_images') }}/${classlist.course_image}" class="card-img-top rounded-top-4" alt="Course Image">
 
                                         <div class="card-body p-3 d-flex flex-column">
                                             <h5 class="card-title text-primary fw-bold">${classlist.name}</h5>
@@ -190,7 +189,12 @@
                     },
                     error: function(xhr) {
                         console.log("AJAX Error:", xhr.responseText);
-                        alert("Error: " + xhr.responseJSON.error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed to join class',
+                            text: "Error: " + xhr.responseJSON.error,
+                        });
+
                     }
                 });
             });
