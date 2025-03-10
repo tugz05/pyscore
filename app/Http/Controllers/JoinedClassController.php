@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Activity;
 use App\Models\Classlist;
 use App\Models\JoinedClass;
+use App\Models\Output;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,18 +21,28 @@ class JoinedClassController extends Controller
         return view('user.pages.join_class', compact('class'), ['id' => $classId]);
     }
     public function list($id)
-    {
-        $classlist = Classlist::with(['section', 'user'])->find($id);
-        $activities = Activity::where('classlist_id', $id)
-            ->with(['classlist', 'section', 'user']) // Load relationships
-            ->orderBy('created_at', 'desc') // Sort by latest time
-            ->get();
-        // return response()->json(["data" => $activities]);
-        return response()->json([
-            'data' => $activities,
-            'classlist' => $classlist
-        ]);
-    }
+{
+    $classlist = Classlist::with(['section', 'user'])->find($id);
+    $activities = Activity::where('classlist_id', $id)
+        ->with(['classlist', 'section', 'user']) // Load relationships
+        ->orderBy('created_at', 'desc') // Sort by latest time
+        ->get()
+        ->map(function ($activity) {
+            // Check if the logged-in user has an output for this activity
+            $output = Output::where('user_id', auth()->id())
+                ->where('activity_id', $activity->id)
+                ->first();
+
+            $activity->user_score = $output ? $output->score : null; // Store score or null
+            return $activity;
+        });
+
+    return response()->json([
+        'data' => $activities,
+        'classlist' => $classlist
+    ]);
+}
+
     public function getClasslists(Request $request)
     {
         // Get the classlist IDs that the authenticated user has joined
@@ -54,29 +65,39 @@ class JoinedClassController extends Controller
         return view('user.pages.activity', compact('activity'));
     }
     public function viewClass($id)
-    {
-        $currentDate = Carbon::now()->toDateString(); // Get the current date (YYYY-MM-DD)
-        $currentTime = Carbon::now()->toTimeString(); // Get the current time (HH:MM:SS)
+{
+    $currentDate = Carbon::now()->toDateString();
+    $currentTime = Carbon::now()->toTimeString();
 
-        $activity = Activity::where('classlist_id', $id)
-            ->where(function ($query) use ($currentDate, $currentTime) {
-                $query->whereNull('accessible_date') // Activities without an accessible_date
-                    ->orWhere(function ($subQuery) use ($currentDate, $currentTime) {
-                        $subQuery->where('accessible_date', $currentDate) // Check if date matches today
-                            ->where(function ($timeQuery) use ($currentTime) {
-                                $timeQuery->whereNull('accessible_time') // If time is null, show it
-                                    ->orWhere('accessible_time', '<=', $currentTime); // Time should be past or equal
-                            });
-                    });
-            })
-            ->with(['classlist', 'section', 'user']) // Load relationships
-            ->get();
+    $activity = Activity::where('classlist_id', $id)
+        ->where(function ($query) use ($currentDate, $currentTime) {
+            $query->whereNull('accessible_date')
+                ->orWhere(function ($subQuery) use ($currentDate, $currentTime) {
+                    $subQuery->where('accessible_date', $currentDate)
+                        ->where(function ($timeQuery) use ($currentTime) {
+                            $timeQuery->whereNull('accessible_time')
+                                ->orWhere('accessible_time', '<=', $currentTime);
+                        });
+                });
+        })
+        ->with(['classlist', 'section', 'user'])
+        ->get();
 
-        // Fetch classlist details
-        $classlist = Classlist::with('section', 'user')->where('id', $id)->first();
+    // Fetch class details
+    $classlist = Classlist::with('section', 'user')->where('id', $id)->first();
 
-        return view('user.pages.class', compact('activity', 'classlist'));
-    }
+    // Ensure $instructor is defined
+    $instructor = $classlist->user ?? null;
+
+    // Fetch students who joined the class
+    $students = JoinedClass::where('classlist_id', $id)
+        ->with('user')
+        ->get()
+        ->pluck('user');
+
+    return view('user.pages.class', compact('activity', 'classlist', 'instructor', 'students'));
+}
+
 
     public function index()
     {

@@ -18,11 +18,9 @@
             <li class="nav-item">
                 <a class="nav-link active" data-toggle="tab" href="#stream">Stream</a>
             </li>
-
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#people">People</a>
             </li>
-
         </ul>
 
         <div class="tab-content mt-3">
@@ -31,20 +29,17 @@
                 <div class="row mt-4">
                     <!-- Left Sidebar -->
                     <div class="col-md-3">
-
-
                         <div class="card shadow-sm border-0">
                             <div class="card-body">
                                 <h6 class="fw-bold">Upcoming</h6>
                                 <p class="text-muted">No work due soon</p>
-                                <a href="#" class="text-primary fw-bold">View all</a>
+
                             </div>
                         </div>
                     </div>
 
                     <!-- Main Content -->
                     <div class="col-md-9">
-
                         <div id="classCards">
                             <!-- AJAX-loaded class cards will appear here -->
                         </div>
@@ -52,11 +47,9 @@
                 </div>
             </div>
 
-
-
-            <!-- People Tab -->
-            <div class="tab-pane fade show" id="people">
-                <h1>People</h1>
+            <!-- People Tab (Should only show instructor & classmates) -->
+            <div class="tab-pane fade" id="people">
+                @include('user.pages.people')
             </div>
         </div>
     </div>
@@ -75,7 +68,8 @@
                     window.location.href = url; // Redirect to the activity details page
                 }
             });
-            let classlistId = "{{ $classlist->id }}"; // Pass classlist_id from Blade to JavaScript
+
+            let classlistId = "{{ $classlist->id }}"; // Get classlist_id from Blade
 
             loadActivities(classlistId); // Load activities dynamically
 
@@ -91,13 +85,13 @@
 
                         if (response.data.length === 0) {
                             classCards = `
-                    <div class="d-flex align-items-center justify-content-center w-100" style="height: 75vh;">
-                        <div class="text-center">
-                            <img src="/assets/img/undraw_posting_photo.svg" style="max-width: 50%; height: auto; padding: 20px;">
-                            <h1>No activity available</h1>
-                        </div>
-                    </div>
-                `;
+                                <div class="d-flex align-items-center justify-content-center w-100" style="height: 75vh;">
+                                    <div class="text-center">
+                                        <img src="/assets/img/undraw_posting_photo.svg" style="max-width: 50%; height: auto; padding: 20px;">
+                                        <h1>No activity available</h1>
+                                    </div>
+                                </div>
+                            `;
                             $('#classCards').html(classCards);
                             return;
                         }
@@ -108,17 +102,16 @@
                         $.each(response.data, function(index, activity) {
                             let activityDate = activity.accessible_date;
                             let activityTime = activity.accessible_time;
+                            let shouldDisplay = false;
 
-                            // Conditions to determine whether to display the activity
-                            let shouldDisplay =
-                                (!activityDate && !activityTime) ||
-                                // Show activities without date & time
-                                (activityDate === currentDate && (!activityTime ||
-                                    activityTime <= currentTime
-                                    )); // Show only if date matches & time is past
-
-                            if (!shouldDisplay)
-                        return; // Skip this activity if it shouldn't be displayed
+                            if (!activityDate && !activityTime) {
+                                shouldDisplay = true;
+                            } else if (activityDate) {
+                                let activityDateTime = new Date(`${activityDate} ${activityTime || "00:00:00"}`);
+                                let currentDateTime = new Date();
+                                shouldDisplay = currentDateTime >= activityDateTime;
+                            }
+                            if (!shouldDisplay) return;
 
                             let user_id = {{ Auth::id() }};
                             let submissionPromise = $.ajax({
@@ -135,35 +128,34 @@
                                 } else if (submissionStatus === 'Missing') {
                                     statusClass = 'text-danger';
                                     statusClassBadge = 'bg-danger';
-                                } else { // Pending status
+                                } else {
                                     statusClass = 'text-warning';
                                     statusClassBadge = 'bg-warning';
                                 }
 
-                                let submissionAssignedScore = submissionResponse
-                                    .assigned_score;
+                                let submissionAssignedScore = activity.user_score !== null ? activity.user_score : '--';
 
                                 classCards += `
-                        <div class="card shadow-sm border-0 rounded-3 p-2 mb-3 activity-card" data-url="/student/activity/${activity.id}" style="cursor: pointer;">
-                            <div class="card-body d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3 mr-3" style="width: 40px; height: 40px;">
-                                        <i class="fas fa-clipboard-list text-white"></i>
+                                    <div class="card shadow-sm border-0 rounded-3 p-2 mb-3 activity-card" data-url="/student/activity/${activity.id}" style="cursor: pointer;">
+                                        <div class="card-body d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3 mr-3" style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-clipboard-list text-white"></i>
+                                                </div>
+                                                <div class="col">
+                                                    <p class="fw-bold mb-0">${classlist.user.name} posted a new assignment:
+                                                        <span class="text-dark">${activity.title}</span>
+                                                    </p>
+                                                    ${new Date(activity.created_at).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}
+                                                    <span class="badge ${statusClassBadge} ml-3 text-white">${submissionAssignedScore} / ${activity.points}</span>
+                                                </div>
+                                            </div>
+                                            <span class="fw-bold ${statusClass} float-end">
+                                                ${submissionStatus}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div class="col">
-                                        <p class="fw-bold mb-0">${classlist.user.name} posted a new assignment:
-                                            <span class="text-dark">${activity.title}</span>
-                                        </p>
-                                        ${new Date(activity.created_at).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}
-                                        <span class="badge ${statusClassBadge} ml-3 text-white">${submissionAssignedScore} / ${activity.points}</span>
-                                    </div>
-                                </div>
-                                <span class="fw-bold ${statusClass} float-end">
-                                    ${submissionStatus}
-                                </span>
-                            </div>
-                        </div>
-                    `;
+                                `;
                             });
 
                             activityPromises.push(submissionPromise);
@@ -177,10 +169,9 @@
                 });
             }
 
-
-
             /** Fix Bootstrap Dropdown **/
             $(".dropdown-toggle").dropdown();
         });
     </script>
 @endpush
+
