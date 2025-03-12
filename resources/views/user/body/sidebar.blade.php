@@ -10,7 +10,7 @@
 </style>
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('admin.index') }}">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('user.index') }}">
         <img src="{{ asset('assets/png/pyscore_logo2.png') }}" alt="PyScore Logo"
             style="height: 30px; width: 30px; display: inline-block; ">
         <div class="sidebar-brand-text mx-3">PyScore</div>

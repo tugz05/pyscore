@@ -151,61 +151,66 @@
             loadClasses();
 
             function loadClasses() {
-                $.ajax({
-                    url: "{{ route('user.classlist.data') }}",
-                    type: "GET",
-                    success: function(response) {
-                        console.log("Class Data:", response);
-                        let classCards = '';
-                        if (!response.data || response.data.length === 0) {
-                            classCards = `
-                            <div class="d-flex align-items-center justify-content-center w-100" style="height: 75vh;">
-                                <div class="text-center">
-                                    <img src="{{ asset('assets/img/undraw_posting_photo.svg') }}" style="max-width: 50%; height: auto; padding: 20px;">
-                                    <h1>No classes available</h1>
+        $.ajax({
+            url: "{{ route('user.classlist.data') }}",
+            type: "GET",
+            success: function(response) {
+                console.log("Class Data:", response);
+                let classCards = '';
+                if (!response.data || response.data.length === 0) {
+                    classCards = `
+                    <div class="d-flex align-items-center justify-content-center w-100" style="height: 75vh;">
+                        <div class="text-center">
+                            <img src="{{ asset('assets/img/undraw_posting_photo.svg') }}" style="max-width: 50%; height: auto; padding: 20px;">
+                            <h1>No classes available</h1>
+                        </div>
+                    </div>
+                    `;
+                } else {
+                    $.each(response.data, function(index, classlist) {
+                        classCards += `
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                            <div class="card shadow-lg rounded-4 border-1 hover-effect h-100 class-card" data-url="{{ route('user.class.view', '') }}/${classlist.id}">
+                                  <img src="{{ asset('assets/course_images') }}/${classlist.course_image}" class="card-img-top rounded-top-4" alt="Course Image">
+                                <div class="card-body p-3 d-flex flex-column">
+                                    <h5 class="card-title text-primary fw-bold">${classlist.name}</h5>
+                                    <p class="card-text text-muted">${classlist.section?.name || 'No Section'} | ${classlist.academic_year || 'N/A'}</p>
+                                    <p class="card-text text-muted"><b>Room:</b> ${classlist.room || 'N/A'}</p>
+
+                                    <!-- Vertical Ellipsis Dropdown (Placed Below Room) -->
+                                    <div class="dropup">
+                                        <button class="btn btn-light" type="button" id="dropdownMenu${classlist.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu${classlist.id}">
+                                            <a class="dropdown-item" href="#">
+                                                <i class="fa-solid me-2"></i> Unenroll
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        `;
-                        } else {
-                            $.each(response.data, function(index, classlist) {
-                                classCards += `
-                                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                    <div class="card shadow-lg rounded-4 border-1 hover-effect h-100" >
-                                        <a href="{{ url('student/class/i') }}/${classlist.id}">
-                                          <img src="{{ asset('assets/course_images') }}/${classlist.course_image}" class="card-img-top rounded-top-4" alt="Course Image">
+                        </div>`;
+                    });
+                }
+                $('#classCards').html(classCards);
 
-                                        <div class="card-body p-3 d-flex flex-column">
-                                            <h5 class="card-title text-primary fw-bold">${classlist.name}</h5>
-                                            <p class="card-text text-muted">${classlist.section?.name || 'No Section'} | ${classlist.academic_year || 'N/A'}</p>
-                                            <p class="card-text text-muted"><b>Room:</b> ${classlist.room || 'N/A'}</p>
-
-                                            <!-- Vertical Ellipsis Dropdown (Placed Below Room) -->
-                                            <div class="dropup">
-                                                <button class="btn btn-light  " type="button" id="dropdownMenu${classlist.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                                                </button>
-                                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu${classlist.id}">
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="fa-solid  me-2"></i> Unenroll
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        </a>
-                                    </div>
-                                </div>`;
-                            });
-                        }
-                        $('#classCards').html(classCards);
-                    },
-                    error: function(xhr) {
-                        console.log("AJAX Error:", xhr.responseText);
-                        $('#classCards').html(`
-                        <div class="alert alert-danger">Failed to load classes. Please try again later.</div>
-                    `);
+                // Add click event for each card AFTER loading content
+                $(".class-card").click(function() {
+                    let url = $(this).data("url");
+                    if (url) {
+                        window.location.href = url; // Redirect to class page
                     }
                 });
+            },
+            error: function(xhr) {
+                console.log("AJAX Error:", xhr.responseText);
+                $('#classCards').html(`
+                    <div class="alert alert-danger">Failed to load classes. Please try again later.</div>
+                `);
             }
+        });
+    }
 
             $('#joinClassForm').submit(function(e) {
                 e.preventDefault();
