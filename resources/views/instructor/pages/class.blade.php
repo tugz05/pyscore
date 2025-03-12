@@ -1,6 +1,12 @@
 @extends('instructor.dashboard')
 
 @section('content')
+    <style>
+        .swal-share-class {
+            font-size: 17px !important;
+            /* Adjust the size as needed */
+        }
+    </style>
     <div class="container-fluid">
         <!-- Class Header -->
         <div class="card shadow-lg rounded border-0">
@@ -189,7 +195,7 @@
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
                     ['para', ['ul', 'ol', 'paragraph']],
-                   
+
                 ]
             });
 
@@ -205,49 +211,49 @@
             hiddenInput.value = this.checked ? "1" : "0";
         });
         document.getElementById('share_activity').addEventListener('change', function() {
-    let classlistContainer = document.getElementById('classlist_container');
-    let classlistCheckboxes = document.getElementById('classlist_checkboxes');
-    let classlistId = "{{ $classlist->id }}"; // Get the current class ID
+            let classlistContainer = document.getElementById('classlist_container');
+            let classlistCheckboxes = document.getElementById('classlist_checkboxes');
+            let classlistId = "{{ $classlist->id }}"; // Get the current class ID
 
-    if (this.checked) {
-        classlistContainer.style.display = 'block'; // Show checkboxes
+            if (this.checked) {
+                classlistContainer.style.display = 'block'; // Show checkboxes
 
-        // Fetch classes dynamically from the backend
-        fetch(`/instructor/get-classes/${classlistId}`) // Pass current class ID
-            .then(response => response.json())
-            .then(data => {
-                classlistCheckboxes.innerHTML = ''; // Clear previous checkboxes
+                // Fetch classes dynamically from the backend
+                fetch(`/instructor/get-classes/${classlistId}`) // Pass current class ID
+                    .then(response => response.json())
+                    .then(data => {
+                        classlistCheckboxes.innerHTML = ''; // Clear previous checkboxes
 
-                data.forEach(classItem => {
-                    let div = document.createElement('div');
-                    div.classList.add('col'); // Responsive column
+                        data.forEach(classItem => {
+                            let div = document.createElement('div');
+                            div.classList.add('col'); // Responsive column
 
-                    let checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.name = 'selected_classes[]';
-                    checkbox.value = classItem.id;
-                    checkbox.id = 'class_' + classItem.id;
-                    checkbox.classList.add('form-check-input');
+                            let checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.name = 'selected_classes[]';
+                            checkbox.value = classItem.id;
+                            checkbox.id = 'class_' + classItem.id;
+                            checkbox.classList.add('form-check-input');
 
-                    let label = document.createElement('label');
-                    label.htmlFor = 'class_' + classItem.id;
-                    label.textContent = classItem.name + ' | ' + classItem.section.name;
-                    label.classList.add('form-check-label');
+                            let label = document.createElement('label');
+                            label.htmlFor = 'class_' + classItem.id;
+                            label.textContent = classItem.name + ' | ' + classItem.section.name;
+                            label.classList.add('form-check-label');
 
-                    let checkContainer = document.createElement('div');
-                    checkContainer.classList.add('form-check');
-                    checkContainer.appendChild(checkbox);
-                    checkContainer.appendChild(label);
+                            let checkContainer = document.createElement('div');
+                            checkContainer.classList.add('form-check');
+                            checkContainer.appendChild(checkbox);
+                            checkContainer.appendChild(label);
 
-                    div.appendChild(checkContainer);
-                    classlistCheckboxes.appendChild(div);
-                });
-            })
-            .catch(error => console.error('Error fetching class list:', error));
-    } else {
-        classlistContainer.style.display = 'none'; // Hide checkboxes
-    }
-});
+                            div.appendChild(checkContainer);
+                            classlistCheckboxes.appendChild(div);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching class list:', error));
+            } else {
+                classlistContainer.style.display = 'none'; // Hide checkboxes
+            }
+        });
 
 
         document.getElementById('schedule_activity').addEventListener('change', function() {
@@ -264,7 +270,15 @@
             let copyText = document.getElementById("shareCode");
             copyText.select();
             navigator.clipboard.writeText(copyText.value).then(() => {
-                alert("Share code copied: " + copyText.value);
+                Swal.fire({
+                    position: "bottom",
+                    title: "Share code copied: " + copyText.value,
+                    showConfirmButton: false,
+                    timer: 1100,
+                    customClass: {
+                        title: 'swal-share-class' // Assign a CSS class to the title
+                    }
+                });
             }).catch(err => {
                 console.error("Error copying text:", err);
             });
@@ -276,7 +290,15 @@
             let fullUrl = `${baseUrl}/student/join/class/s/${copyText.value}`;
 
             navigator.clipboard.writeText(fullUrl).then(() => {
-                alert("Share code copied: " + fullUrl);
+                Swal.fire({
+                    position: "bottom",
+                    title: "Share code link copied: " + fullUrl,
+                    showConfirmButton: false,
+                    timer: 1100,
+                    customClass: {
+                        title: 'swal-share-class' // Assign a CSS class to the title
+                    }
+                });
             }).catch(err => {
                 console.error("Error copying text:", err);
             });
@@ -434,20 +456,44 @@
             $(document).on('click', '.delete-btn', function() {
                 let classlistId = "{{ $classlist->id }}";
                 let id = $(this).data('id');
-                if (confirm('Delete this Activity?')) {
-                    $.ajax({
-                        url: `activity/${id}`,
-                        type: "DELETE",
-                        data: {
-                            _token: $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            loadActivities(classlistId);
-                            alert("Activity deleted successfully!");
-                        }
-                    });
-                }
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Do you want to delete this Activity?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `activity/${id}`,
+                            type: "DELETE",
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                loadActivities(classlistId);
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Activity has been deleted successfully.',
+                                });
+                            },
+                            error: function() {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Something went wrong!',
+                                });
+                            }
+                        });
+                    }
+                });
             });
+
 
             /** Fix Bootstrap Dropdown **/
             $(".dropdown-toggle").dropdown();

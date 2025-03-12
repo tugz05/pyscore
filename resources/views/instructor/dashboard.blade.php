@@ -11,10 +11,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg"
         type="image/svg+xml">
-        <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.css" rel="stylesheet">
 
 
-        <title>PyScore</title>
+    <title>PyScore</title>
 
     <!-- Custom fonts for this template-->
     <link href="{{ asset('assets/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
@@ -33,35 +33,44 @@
 
 </head>
 <style>
-    html, body {
-    height: 100%;
-    margin: 0;
-    overflow: hidden; /* Prevents double scrolling */
-}
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        /* Prevents double scrolling */
+    }
 
-#wrapper {
-    display: flex;
-    height: 100vh; /* Full height */
-    overflow: hidden; /* Prevents page overflow */
-}
+    #wrapper {
+        display: flex;
+        height: 100vh;
+        /* Full height */
+        overflow: hidden;
+        /* Prevents page overflow */
+    }
 
-#content-wrapper {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow-y: auto; /* Makes the main content scrollable */
-}
-#topbar {
-    position: sticky;
-    top: 0;
-    width: 100%;
-    z-index: 1030; /* Ensures it stays above content */
-    background: white; /* Adjust based on your design */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow */
-}
+    #content-wrapper {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow-y: auto;
+        /* Makes the main content scrollable */
+    }
 
+    #topbar {
+        position: sticky;
+        top: 0;
+        width: 100%;
+        z-index: 1030;
+        /* Ensures it stays above content */
+        background: white;
+        /* Adjust based on your design */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        /* Optional shadow */
+    }
 </style>
+
 <body id="page-top">
 
     <!-- Page Wrapper -->
@@ -79,12 +88,12 @@
 
                 <!-- Topbar -->
                 <div id="topbar">
-                @include('instructor.body.topbar')
+                    @include('instructor.body.topbar')
                 </div>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
-                    @yield('content')
+                @yield('content')
                 <!-- /.container-fluid -->
 
             </div>
@@ -141,11 +150,13 @@
     <!-- Page level custom scripts -->
     <script src="{{ asset('assets/js/demo/chart-area-demo.js') }}"></script>
     <script src="{{ asset('assets/js/demo/chart-pie-demo.js') }}"></script>
-        <!-- jQuery -->
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.js"></script>

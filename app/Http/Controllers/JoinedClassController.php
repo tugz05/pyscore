@@ -6,6 +6,8 @@ use App\Models\Activity;
 use App\Models\Classlist;
 use App\Models\JoinedClass;
 use App\Models\Output;
+use App\Models\AcademicYear;
+
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,24 +26,25 @@ class JoinedClassController extends Controller
 {
     $classlist = Classlist::with(['section', 'user'])->find($id);
     $activities = Activity::where('classlist_id', $id)
-        ->with(['classlist', 'section', 'user']) // Load relationships
-        ->orderBy('created_at', 'desc') // Sort by latest time
+        ->with(['classlist', 'section', 'user'])
+        ->orderBy('created_at', 'desc')
         ->get()
         ->map(function ($activity) {
-            // Check if the logged-in user has an output for this activity
             $output = Output::where('user_id', auth()->id())
                 ->where('activity_id', $activity->id)
                 ->first();
 
-            $activity->user_score = $output ? $output->score : null; // Store score or null
+            $activity->user_score = $output ? $output->score : null;
             return $activity;
         });
 
     return response()->json([
         'data' => $activities,
-        'classlist' => $classlist
+        'classlist' => $classlist,
+       
     ]);
 }
+
 
     public function getClasslists(Request $request)
     {
@@ -65,45 +68,48 @@ class JoinedClassController extends Controller
         return view('user.pages.activity', compact('activity'));
     }
     public function viewClass($id)
-{
-    $currentDate = Carbon::now()->toDateString();
-    $currentTime = Carbon::now()->toTimeString();
+    {
+        $currentDate = Carbon::now()->toDateString();
+        $currentTime = Carbon::now()->toTimeString();
 
-    $activity = Activity::where('classlist_id', $id)
-        ->where(function ($query) use ($currentDate, $currentTime) {
-            $query->whereNull('accessible_date')
-                ->orWhere(function ($subQuery) use ($currentDate, $currentTime) {
-                    $subQuery->where('accessible_date', $currentDate)
-                        ->where(function ($timeQuery) use ($currentTime) {
-                            $timeQuery->whereNull('accessible_time')
-                                ->orWhere('accessible_time', '<=', $currentTime);
-                        });
-                });
-        })
-        ->with(['classlist', 'section', 'user'])
-        ->get();
+        $activity = Activity::where('classlist_id', $id)
+            ->where(function ($query) use ($currentDate, $currentTime) {
+                $query->whereNull('accessible_date')
+                    ->orWhere(function ($subQuery) use ($currentDate, $currentTime) {
+                        $subQuery->where('accessible_date', $currentDate)
+                            ->where(function ($timeQuery) use ($currentTime) {
+                                $timeQuery->whereNull('accessible_time')
+                                    ->orWhere('accessible_time', '<=', $currentTime);
+                            });
+                    });
+            })
+            ->with(['classlist', 'section', 'user'])
+            ->get();
 
-    // Fetch class details
-    $classlist = Classlist::with('section', 'user')->where('id', $id)->first();
+        // Fetch class details
+        $classlist = Classlist::with('section', 'user')->where('id', $id)->first();
 
-    // Ensure $instructor is defined
-    $instructor = $classlist->user ?? null;
+        // Ensure $instructor is defined
+        $instructor = $classlist->user ?? null;
 
-    // Fetch students who joined the class
-    $students = JoinedClass::where('classlist_id', $id)
-        ->with('user')
-        ->get()
-        ->pluck('user');
+        // Fetch students who joined the class
+        $students = JoinedClass::where('classlist_id', $id)
+            ->with('user')
+            ->get()
+            ->pluck('user');
 
-    return view('user.pages.class', compact('activity', 'classlist', 'instructor', 'students'));
-}
+        return view('user.pages.class', compact('activity', 'classlist', 'instructor', 'students'));
+    }
 
 
     public function index()
     {
         $user = auth()->user();
-        return view('user.home', compact('user'));
+        $academic_year = AcademicYear::all(); // Fetch all academic years
+
+        return view('user.home', compact('user', 'academic_year'));
     }
+
 
     /**
      * Show the form for creating a new resource.

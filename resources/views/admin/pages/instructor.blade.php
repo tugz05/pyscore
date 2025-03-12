@@ -86,11 +86,21 @@
                         $('#roleUpdateNotification').fadeIn().delay(3000).fadeOut();
                         table.ajax.reload();
                     } else {
-                        alert('Failed to update role.');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Failed to update role.'
+                        });
+
                     }
                 },
                 error: function() {
-                    alert('An error occurred. Please try again.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred. Please try again.'
+                    });
+
                 }
             });
         });
@@ -98,4 +108,3 @@
     });
 </script>
 @endpush
-    

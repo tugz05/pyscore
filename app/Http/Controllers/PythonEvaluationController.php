@@ -95,26 +95,37 @@ class PythonEvaluationController extends Controller {
             return response()->json(['error' => 'Activity not found.'], 404);
         }
 
+        $assigned_score = $activity->points ?? 100; // Ensure assigned_score is included
+
+        // Check if activity is marked as missing
+        if ($activity->is_missing) {
+            return response()->json([
+                'submitted' => false,
+                'is_missing' => true,
+                'score' => 0,
+                'assigned_score' => $assigned_score, // Include the assigned score
+                'feedback' => 'Activity is missing. Submission is disabled.',
+                'python_code' => ''
+            ]);
+        }
+
         $submission = Output::where('user_id', $request->user_id)
                             ->where('activity_id', $request->activity_id)
                             ->first();
 
         if (!$submission) {
-            return response()->json(['submitted' => false]);
+            return response()->json([
+                'submitted' => false,
+                'is_missing' => false,
+                'assigned_score' => $assigned_score // Ensure assigned_score is always included
+            ]);
         }
-
-        $assigned_score = $activity->points ?? 100;
 
         // Convert feedback to HTML format
         $formattedFeedback = nl2br(e($submission->feedback));
-
-        // Convert markdown **bold** to <strong>bold</strong>
         $formattedFeedback = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $formattedFeedback);
-
-        // Convert markdown *italic* to <em>italic</em>
         $formattedFeedback = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $formattedFeedback);
 
-        // Convert markdown bullet points (- item) to <ul><li>...</li></ul>
         if (preg_match('/- (.*?)<br>/', $formattedFeedback)) {
             $formattedFeedback = preg_replace('/- (.*?)<br>/', '<li>$1</li>', $formattedFeedback);
             $formattedFeedback = "<ul>" . $formattedFeedback . "</ul>";
@@ -125,8 +136,11 @@ class PythonEvaluationController extends Controller {
             'score' => $submission->score,
             'assigned_score' => $assigned_score,
             'feedback' => $formattedFeedback,
-            'python_code' => $submission->code
+            'python_code' => $submission->code,
+            'is_missing' => false
         ]);
     }
+
+
 }
 ?>

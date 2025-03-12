@@ -128,22 +128,41 @@
 
         // Handle Delete button click
         $(document).on("click", ".deleteAcademicYear", function() {
-            let id = $(this).data("id");
-            if (confirm("Are you sure you want to delete this academic year?")) {
-                $.ajax({
-                    url: `/admin/academic_year/${id}/delete`,
-                    type: "DELETE",
-                    data: { _token: "{{ csrf_token() }}" },
-                    success: function(response) {
-                        alert(response.success);
-                        table.ajax.reload();
-                    },
-                    error: function(xhr) {
-                        alert("Something went wrong. Please try again.");
-                    }
-                });
-            }
-        });
+    let id = $(this).data("id");
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/admin/academic_year/${id}/delete`,
+                type: "DELETE",
+                data: { _token: "{{ csrf_token() }}" },
+                success: function(response) {
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: response.success,
+                        icon: "success"
+                    });
+                    table.ajax.reload();
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Something went wrong. Please try again.",
+                        icon: "error"
+                    });
+                }
+            });
+        }
+    });
+});
 
         // Handle form submission via AJAX for both Add and Edit
         $("#academicYearForm").submit(function(e) {
@@ -174,7 +193,10 @@
                     $("#addAcademicYearModal").modal('hide');
                     $("#academicYearForm")[0].reset();
                     table.ajax.reload();
-                    alert(response.message);
+                    Swal.fire({
+                            icon: "success",
+                            text: response.message,
+                        });
                 },
                 error: function(xhr) {
                     if (xhr.status === 422) {
@@ -183,9 +205,17 @@
                         $.each(errors, function(key, value) {
                             errorMessage += value[0] + "\n";
                         });
-                        alert(errorMessage);
+                        Swal.fire({
+                            icon: "error",
+                            text: errorMessage,
+                        });
+
                     } else {
-                        alert("Something went wrong. Please try again.");
+                        Swal.fire({
+                            icon: "error",
+                            text: 'Something went wrong. Please try again.',
+                        });
+
                     }
                 }
             });

@@ -14,7 +14,6 @@ use App\Http\Controllers\Instructor\SectionController;
 use App\Http\Controllers\JoinedClassController;
 use App\Http\Controllers\PythonEvaluationController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
-use App\Http\Controllers\User\SettingsController;
 use App\Http\Controllers\Admin\AcademicYearController;
 use App\Http\Controllers\Admin\DayController;
 use App\Http\Controllers\Admin\RoomController;
@@ -69,7 +68,7 @@ Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(fu
     Route::post('/submit', [PythonEvaluationController::class, 'evaluate'])->name('submit.python.code');
     Route::get('/submission-status/{userId}/{activityId}', [ClassController::class, 'getSubmissionStatus']);
     Route::get('/check-submission', [PythonEvaluationController::class, 'checkSubmission'])->name('check.submission');
-    Route::get('/settings', [SettingsController::class, 'index'])->name('user.settings');
+
 });
     Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');

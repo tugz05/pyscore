@@ -9,7 +9,8 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="joinClassModalLabel">Join Class</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                            onclick="closeModal()">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -29,7 +30,8 @@
                             @csrf
                             <div class="form-group">
                                 <label for="classlist_id">Class code</label>
-                                <input type="text" class="form-control" id="classlist_id" name="classlist_id" placeholder="Enter class code" value="{{ $id ?? '' }}">
+                                <input type="text" class="form-control" id="classlist_id" name="classlist_id"
+                                    placeholder="Enter class code" value="{{ $id ?? '' }}">
                                 <small class="form-text text-muted">
                                     Use a class code with 5-7 letters or numbers, and no spaces or symbols.
                                 </small>
@@ -57,34 +59,46 @@
 @push('script')
     <script>
         function closeModal() {
-    $("#joinClassModal").fadeOut(500, function () {
-        window.location.href = "{{ route('user.index') }}"; // Redirect after fadeOut
-    });
-}
+            $("#joinClassModal").fadeOut(500, function() {
+                window.location.href = "{{ route('user.index') }}"; // Redirect after fadeOut
+            });
+        }
         $(document).ready(function() {
-    $('#joinClassForm').submit(function(e) {
-        e.preventDefault();
-        let classlistId = $('#classlist_id').val();
+            $('#joinClassForm').submit(function(e) {
+                e.preventDefault();
+                let classlistId = $('#classlist_id').val();
 
-        $.ajax({
-            url: "{{ route('joinclass.store') }}",
-            type: "POST",
-            data: {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                classlist_id: classlistId
-            },
-            success: function(response) {
-                $('#joinClassModal').modal('hide');
-                $('#joinClassForm')[0].reset();
-                alert("You have successfully joined the class.");
-                closeModal();
-            },
-            error: function(xhr) {
-                console.log("AJAX Error:", xhr.responseText);
-                alert("Error: " + xhr.responseJSON.error);
-            }
+                $.ajax({
+                    url: "{{ route('joinclass.store') }}",
+                    type: "POST",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        classlist_id: classlistId
+                    },
+                    success: function(response) {
+                        $('#joinClassModal').modal('hide');
+                        $('#joinClassForm')[0].reset();
+                        closeModal();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'You have successfully joined the class.',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    },
+                    error: function(xhr) {
+                        console.log("AJAX Error:", xhr.responseText);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'There was an error joining the class. Please try again.',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                });
+            });
         });
-    });
-});
     </script>
 @endpush

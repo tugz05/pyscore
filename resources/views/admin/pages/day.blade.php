@@ -138,33 +138,60 @@
                     $("#addDayModal").modal('hide');
                     $("#dayForm")[0].reset();
                     table.ajax.reload();
-                    alert(response.message);
+                    Swal.fire({
+                            icon: "success",
+                            text: response.message,
+                        });
+
                 },
                 error: function(xhr) {
-                    alert("Something went wrong. Please try again.");
+                    Swal.fire({
+                            icon: "error",
+                            text: 'Something went wrong. Please try again.',
+                        });
+                  
                 }
             });
         });
 
         // Handle Delete button click
         $(document).on("click", ".deleteDay", function() {
-            let id = $(this).data("id");
+    let id = $(this).data("id");
 
-            if (confirm("Are you sure you want to delete this day?")) {
-                $.ajax({
-                    url: `/admin/days/${id}/delete`,
-                    type: "DELETE",
-                    data: { _token: "{{ csrf_token() }}" },
-                    success: function(response) {
-                        alert(response.message);
-                        table.ajax.reload();
-                    },
-                    error: function(xhr) {
-                        alert("Something went wrong. Please try again.");
-                    }
-                });
-            }
-        });
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/admin/days/${id}/delete`,
+                type: "DELETE",
+                data: { _token: "{{ csrf_token() }}" },
+                success: function(response) {
+                    Swal.fire(
+                        "Deleted!",
+                        response.message,
+                        "success"
+                    );
+                    table.ajax.reload();
+                },
+                error: function(xhr) {
+                    Swal.fire(
+                        "Error!",
+                        "Something went wrong. Please try again.",
+                        "error"
+                    );
+                }
+            });
+        }
+    });
+});
+
     });
 </script>
 @endpush

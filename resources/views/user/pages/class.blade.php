@@ -31,11 +31,17 @@
                     <div class="col-md-3">
                         <div class="card shadow-sm border-0">
                             <div class="card-body">
-                                <h6 class="fw-bold">Upcoming</h6>
-                                <p class="text-muted">No work due soon</p>
-
+                                
+                                <h7 class="fw-bold">Due Today:</h3>
+                                    <div id="upcoming-activities">
+                                        <p class="text-muted">Loading upcoming activities...</p>
+                                    </div>
+                                    <h7 id="due-tomorrow" class="fw-bold">Due Tomorrow:</h3>
+                                        <div id="upcoming-activities-tomorrow">
+                                        </div>
                             </div>
                         </div>
+
                     </div>
 
                     <!-- Main Content -->
@@ -68,36 +74,84 @@
                     window.location.href = url; // Redirect to the activity details page
                 }
             });
-
             let classlistId = "{{ $classlist->id }}"; // Get classlist_id from Blade
 
             loadActivities(classlistId); // Load activities dynamically
-
             function loadActivities(classlistId) {
                 $.ajax({
                     url: `/student/activities/list/${classlistId}`,
                     type: "GET",
                     dataType: "json",
                     success: function(response) {
-                        let classCards = '';
-                        let classlist = response.classlist;
-                        let activityPromises = []; // Store all submission status fetches
+                        let classCards = "";
+                        let upcomingToday = "";
+                        let upcomingTomorrow = "";
+                        let hasToday = false;
 
+                        let classlist = response.classlist;
+                        let activityPromises = [];
+
+                        let todayDate = new Date().toISOString().split('T')[
+                            0]; // Get today's date in YYYY-MM-DD
+                        let tomorrowDate = new Date();
+                        tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+                        tomorrowDate = tomorrowDate.toISOString().split('T')[
+                            0]; // Convert to YYYY-MM-DD
+
+                        // ===========================
+                        // 📌 Handle Upcoming Activities (Due Today)
+                        // ===========================
+                        response.data.forEach(activity => {
+                            let activityDueDate = activity
+                                .due_date; // Ensure format is YYYY-MM-DD
+
+                            console.log(
+                                `Activity: ${activity.title}, Due Date: ${activityDueDate}, Today: ${todayDate}`
+                            ); // Debugging log
+
+                            if (activityDueDate === todayDate) {
+                                hasToday = true;
+                                upcomingToday +=
+                                    `<p class="mb-1">
+                            <strong>${activity.due_time || "No time specified"}</strong> |
+                            <a href="/student/activity/${activity.id}" class="text-primary fw-bold">${activity.title}</a>
+                        </p>`;
+                            } else if (activityDueDate === tomorrowDate) {
+                                upcomingTomorrow +=
+                                    `<p class="mb-2">
+                            <strong>${activity.due_time || "No time specified"}</strong> |
+                            <a href="/student/activity/${activity.id}" class="text-primary fw-bold">${activity.title}</a>
+                        </p>`;
+                            }
+                        });
+
+                        if (!hasToday) {
+                            upcomingToday = `<p class="text-muted">No work due today</p>`;
+                        }
+
+                        $("#upcoming-activities").html(upcomingToday);
+                        if (upcomingTomorrow === "") {
+                            upcomingTomorrow = `<p class="text-muted">No work due tomorrow</p>`;
+                        }
+                        $("#upcoming-activities-tomorrow").html(upcomingTomorrow);
+
+                        // ===========================
+                        // 📌 Handle Activity Listing
+                        // ===========================
                         if (response.data.length === 0) {
-                            classCards = `
-                                <div class="d-flex align-items-center justify-content-center w-100" style="height: 75vh;">
+                            classCards =
+                                `<div class="d-flex align-items-center justify-content-center w-100" style="height: 75vh;">
                                     <div class="text-center">
                                         <img src="/assets/img/undraw_posting_photo.svg" style="max-width: 50%; height: auto; padding: 20px;">
                                         <h1>No activity available</h1>
                                     </div>
-                                </div>
-                            `;
+                                </div>`;
                             $('#classCards').html(classCards);
                             return;
                         }
 
-                        let currentDate = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD
-                        let currentTime = new Date().toTimeString().split(' ')[0]; // Get HH:MM:SS
+                        let currentDate = new Date().toISOString().split('T')[0];
+                        let currentTime = new Date().toTimeString().split(' ')[0];
 
                         $.each(response.data, function(index, activity) {
                             let activityDate = activity.accessible_date;
@@ -107,7 +161,8 @@
                             if (!activityDate && !activityTime) {
                                 shouldDisplay = true;
                             } else if (activityDate) {
-                                let activityDateTime = new Date(`${activityDate} ${activityTime || "00:00:00"}`);
+                                let activityDateTime = new Date(
+                                    `${activityDate} ${activityTime || "00:00:00"}`);
                                 let currentDateTime = new Date();
                                 shouldDisplay = currentDateTime >= activityDateTime;
                             }
@@ -133,35 +188,35 @@
                                     statusClassBadge = 'bg-warning';
                                 }
 
-                                let submissionAssignedScore = activity.user_score !== null ? activity.user_score : '--';
+                                let submissionAssignedScore = submissionStatus ===
+                                    'Missing' ? 0 : (activity.user_score !== null ?
+                                        activity.user_score : '--');
 
-                                classCards += `
-                                    <div class="card shadow-sm border-0 rounded-3 p-2 mb-3 activity-card" data-url="/student/activity/${activity.id}" style="cursor: pointer;">
-                                        <div class="card-body d-flex align-items-center justify-content-between">
-                                            <div class="d-flex align-items-center">
-                                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3 mr-3" style="width: 40px; height: 40px;">
-                                                    <i class="fas fa-clipboard-list text-white"></i>
-                                                </div>
-                                                <div class="col">
-                                                    <p class="fw-bold mb-0">${classlist.user.name} posted a new assignment:
-                                                        <span class="text-dark">${activity.title}</span>
-                                                    </p>
-                                                    ${new Date(activity.created_at).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}
-                                                    <span class="badge ${statusClassBadge} ml-3 text-white">${submissionAssignedScore} / ${activity.points}</span>
-                                                </div>
-                                            </div>
-                                            <span class="fw-bold ${statusClass} float-end">
-                                                ${submissionStatus}
-                                            </span>
-                                        </div>
+                                classCards +=
+                                    `<div class="card shadow-sm border-0 rounded-3 p-2 mb-3 activity-card" data-url="/student/activity/${activity.id}" style="cursor: pointer;">
+                            <div class="card-body d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3 mr-3" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-clipboard-list text-white"></i>
                                     </div>
-                                `;
+                                    <div class="col">
+                                        <p class="fw-bold mb-0">${classlist.user.name} posted a new assignment:
+                                            <span class="text-dark">${activity.title}</span>
+                                        </p>
+                                        ${new Date(activity.created_at).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}
+                                        <span class="badge ${statusClassBadge} ml-3 text-white">${submissionAssignedScore} / ${activity.points}</span>
+                                    </div>
+                                </div>
+                                <span class="fw-bold ${statusClass} float-end">
+                                    ${submissionStatus}
+                                </span>
+                            </div>
+                        </div>`;
                             });
 
                             activityPromises.push(submissionPromise);
                         });
 
-                        // After all AJAX calls finish, update the UI
                         Promise.all(activityPromises).then(() => {
                             $('#classCards').html(classCards);
                         });
@@ -169,9 +224,10 @@
                 });
             }
 
+
+
             /** Fix Bootstrap Dropdown **/
             $(".dropdown-toggle").dropdown();
         });
     </script>
 @endpush
-

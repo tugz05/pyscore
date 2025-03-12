@@ -6,6 +6,11 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
         <style>
             /* Custom CSS for hover effects */
+            .swal-share-class {
+                font-size: 17px !important;
+                /* Adjust the size as needed */
+            }
+
             .hover-effect {
                 transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
                 cursor: pointer;
@@ -152,7 +157,19 @@
             copyText.select();
             copyText.setSelectionRange(0, 99999);
             document.execCommand("copy");
-            alert("Share code copied: " + copyText.value);
+
+            Swal.fire({
+                position: "bottom",
+                title: "Share code copied: " + copyText.value,
+                showConfirmButton: false,
+                timer: 1100,
+
+                customClass: {
+                    title: 'swal-share-class' // Assign a CSS class to the title
+                }
+            });
+
+
         }
 
         function copyLink() {
@@ -161,7 +178,17 @@
             let fullUrl = `${baseUrl}/student/join/class/s/${copyText.value}`;
 
             navigator.clipboard.writeText(fullUrl).then(() => {
-                alert("Share code copied: " + fullUrl);
+
+                Swal.fire({
+                    position: "bottom",
+                    title: "Share code link copied: " + fullUrl,
+                    showConfirmButton: false,
+                    timer: 1100,
+                    customClass: {
+                        title: 'swal-share-class' // Assign a CSS class to the title
+                    }
+                });
+
             }).catch(err => {
                 console.error("Error copying text:", err);
             });
@@ -211,7 +238,7 @@
                                 <li>
                                     <a class="dropdown-item share-btn" data-id="${classlist.id}"
                                         data-share_code="${classlist.id}">
-                                        Copy invite link
+                                        Share class
                                     </a>
                                 </li>
                                 <li>
@@ -266,11 +293,11 @@
                         success: function(response) {
                             $('#archiveConfirmModal').modal(
                                 'hide'); // Hide the modal after successful archive
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Success',
-                                    text: 'Class archived successfully',
-                                });
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Class archived successfully',
+                            });
                             loadClasses(); // Reload class list
 
                         },
@@ -314,7 +341,11 @@
                     },
                     error: function(xhr) {
                         console.log("AJAX Error:", xhr.responseText);
-                        alert("Error: " + xhr.responseJSON.error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Something went wrong. Please try again.',
+                        });
                     }
                 });
             });
@@ -346,7 +377,7 @@
                 let className = card.querySelector(".card-title").innerText.toLowerCase();
                 let section = card.querySelector(".card-text:nth-child(2)").innerText.toLowerCase(); // Section
                 let academicYear = card.querySelector(".card-text:nth-child(2)").innerText
-            .toLowerCase(); // Academic Year
+                    .toLowerCase(); // Academic Year
                 let room = card.querySelector(".card-text:nth-child(3)").innerText.toLowerCase(); // Room
 
                 let matchesSearch = className.includes(input) || section.includes(input) || room.includes(input);

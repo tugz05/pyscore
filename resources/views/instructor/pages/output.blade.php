@@ -1,4 +1,17 @@
 <style>
+    /* Hover effect when selecting */
+.student-item:hover {
+    background-color: #ececec;
+    cursor: pointer;
+}
+
+/* Highlight the selected student */
+.student-item.active {
+    background-color: #dadada;
+    color: black !important;
+
+}
+
     .student-list {
         max-height: 700px;
         overflow-y: auto;
@@ -23,6 +36,35 @@
         border-radius: 8px;
         border: 1px solid #ddd;
     }
+    /* Custom styling for the score filter dropdown */
+#scoreFilter {
+    appearance: none; /* Removes default browser styling */
+    background-color: #e0e0e0;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+
+}
+
+
+
+/* Change background on focus */
+#scoreFilter:focus {
+    outline: none;
+   x
+}
+
+/* Styling for dropdown arrow */
+#scoreFilter::after {
+    content: '▼';
+    font-size: 12px;
+    margin-left: 10px;
+    color: white;
+}
+
 </style>
 
 <div class="container-fluid mt-4">
@@ -46,21 +88,21 @@
                     <ul id="studentList" class="list-group list-group-flush">
                         <!-- Dynamic Student List -->
                         @forelse ($students as $student)
-                        <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3"
-                            data-user-id="{{ $student->user->id }}"
-                            data-activity-id="{{ $activity->id }}"
-                            data-score="{{ $student->score == '--' ? 0 : $student->score }}">
+                            <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3"
+                                data-user-id="{{ $student->user->id }}" data-activity-id="{{ $activity->id }}"
+                                data-score="{{ $student->score == '--' ? 0 : $student->score }}">
 
-                            <div class="d-flex align-items-center">
-                                <img src="{{ $student->user->avatar ?? 'https://via.placeholder.com/45' }}"
-                                    alt="Profile" class="rounded-circle me-3 ml-3" width="45" height="45">
-                                <div class="ml-3">
-                                    <span class="fw-bold">{{ $student->user->name }}</span>
-                                    <span class="fw-bold text-success">{{ $student->score }}/{{ $activity->points }}</span>
-                                    <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ $student->user->avatar ?? 'https://via.placeholder.com/45' }}"
+                                        alt="Profile" class="rounded-circle me-3 ml-3" width="45" height="45">
+                                    <div class="ml-3">
+                                        <span class="fw-bold">{{ $student->user->name }}</span>
+                                        <span
+                                            class="fw-bold text-success">{{ $student->score }}/{{ $activity->points }}</span>
+                                        <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
+                            </li>
                         @empty
                             <div class="d-flex align-items-center">
                                 <h5 class="text-center">No students enrolled</h5>
@@ -88,7 +130,8 @@
                             <div class="card bg-success text-white shadow">
                                 <div class="card-body">
                                     Score
-                                    <div id="score" class="h5 mb-0 font-weight-bold">--/{{ $activity->points }}</div>
+                                    <div id="score" class="h5 mb-0 font-weight-bold">--/{{ $activity->points }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -108,62 +151,81 @@
 </div>
 
 @push('script')
-<!-- Include ACE Editor -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <!-- Include ACE Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
 
-<script>
-    $(document).ready(function () {
-        let editor = ace.edit("editor");
-        editor.setTheme("ace/theme/monokai");
-        editor.session.setMode("ace/mode/python");
-        editor.setReadOnly(true);
+    <script>
+        $(document).ready(function() {
+            let editor = ace.edit("editor");
+            editor.setTheme("ace/theme/monokai");
+            editor.session.setMode("ace/mode/python");
+            editor.setReadOnly(true);
 
-        $(".student-item").on("click", function () {
-            let userId = $(this).data("user-id");
-            let activityId = $(this).data("activity-id");
+            $(document).ready(function() {
+    let editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/python");
+    editor.setReadOnly(true);
 
-            $.ajax({
-                url: `/instructor/get-student-output/${userId}/${activityId}`,
-                type: "GET",
-                success: function (response) {
-                    if (response.success) {
-                        editor.setValue(response.output.code);
-                        $("#score").text(response.output.score + "/{{ $activity->points }}");
-                        $("#feedback").text(response.output.feedback);
-                    } else {
-                        editor.setValue("");
-                        $("#score").text("/{{ $activity->points }}");
-                        $("#feedback").text("No feedback available.");
-                    }
-                },
-                error: function () {
-                    alert("Error fetching student output.");
+    $(".student-item").on("click", function() {
+        let userId = $(this).data("user-id");
+        let activityId = $(this).data("activity-id");
+
+        // Remove active class from all students
+        $(".student-item").removeClass("active");
+
+        // Add active class to the clicked student
+        $(this).addClass("active");
+
+        // Fetch the student's output
+        $.ajax({
+            url: `/instructor/get-student-output/${userId}/${activityId}`,
+            type: "GET",
+            success: function(response) {
+                if (response.success) {
+                    editor.setValue(response.output.code, -1);
+                    $("#score").text(response.output.score + "/{{ $activity->points }}");
+                    $("#feedback").text(response.output.feedback);
+                } else {
+                    editor.setValue("");
+                    $("#score").text("/{{ $activity->points }}");
+                    $("#feedback").text("No feedback available.");
                 }
-            });
-        });
-
-        // Score Filtering Logic
-        $("#scoreFilter").on("change", function () {
-            let order = $(this).val();
-            let studentList = $("#studentList");
-
-            let students = $(".student-item").get();
-            students.sort(function (a, b) {
-                let scoreA = parseInt($(a).data("score"));
-                let scoreB = parseInt($(b).data("score"));
-
-                if (order === "asc") {
-                    return scoreA - scoreB; // Sort Lowest to Highest
-                } else if (order === "desc") {
-                    return scoreB - scoreA; // Sort Highest to Lowest
-                }
-                return 0; // Default Order
-            });
-
-            $.each(students, function (index, student) {
-                studentList.append(student);
-            });
+            },
+            error: function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error fetching student output.',
+                });
+            }
         });
     });
-</script>
+});
+
+
+            // Score Filtering Logic
+            $("#scoreFilter").on("change", function() {
+                let order = $(this).val();
+                let studentList = $("#studentList");
+
+                let students = $(".student-item").get();
+                students.sort(function(a, b) {
+                    let scoreA = parseInt($(a).data("score"));
+                    let scoreB = parseInt($(b).data("score"));
+
+                    if (order === "asc") {
+                        return scoreA - scoreB; // Sort Lowest to Highest
+                    } else if (order === "desc") {
+                        return scoreB - scoreA; // Sort Highest to Lowest
+                    }
+                    return 0; // Default Order
+                });
+
+                $.each(students, function(index, student) {
+                    studentList.append(student);
+                });
+            });
+        });
+    </script>
 @endpush

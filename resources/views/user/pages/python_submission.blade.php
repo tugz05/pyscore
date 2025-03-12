@@ -150,18 +150,27 @@
                     activity_id: $("#activity_id").val()
                 },
                 success: function(response) {
+                    if (response.is_missing) {
+                        // If activity is missing, set score to 0 and display assigned points
+                        $("#feedback-text").html(response.feedback);
+                        $("#score-text").html("Score: 0 / " + (response.assigned_score ||
+                            100)); // Default to 100 if undefined
+                        $("#submitCode").prop("disabled", true).addClass("btn-secondary").removeClass(
+                            "btn-success");
+                        editor.setReadOnly(true); // Make editor read-only
+                        return; // Stop further execution
+                    }
+
                     if (response.submitted) {
-                        // Display score and feedback
                         $("h1#page-title").html(
                             '<i class="fa-solid fa-code text-primary"></i> Submitted Python Code');
                         $("#feedback-text").html(response.feedback);
-                        $("#score-text").html("Score: " + response.score + "/" + response.assigned_score);
+                        $("#score-text").html("Score: " + response.score + " / " + (response.assigned_score ||
+                            100));
 
-                        // Disable submit button
                         $("#submitCode").prop("disabled", true).addClass("btn-secondary").removeClass(
                             "btn-success");
 
-                        // Load the submitted code into the editor
                         editor.setValue(response.python_code, -1);
                         editor.setReadOnly(true);
                     } else {
@@ -175,8 +184,13 @@
             });
         }
 
-        // Call the function on page load
+        // Call function on page load
         checkSubmission();
+
+
+        // Call function on page load
+        checkSubmission();
+
 
         // AJAX Submission
         $('#submitCode').on('click', function() {

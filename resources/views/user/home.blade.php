@@ -1,5 +1,6 @@
 @extends('user.dashboard')
 @section('content')
+
     <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -16,27 +17,41 @@
             }
         </style>
     </head>
-<div class="container-fluid">
-    <div class="container-fluid bg-gray-100 mx-2">
-        <!-- Page Heading -->
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">
-                <i class="fa-brands fa-python text-primary"></i> Welcome {{ Auth::user()->name }}!
-            </h1>
-            <h1 class="h3 mb-0 text-gray-800">
-                <a class="btn btn-success" data-toggle="modal" data-target="#joinClassModal">
-                    <i class="fa-solid fa-plus mr-3"></i>
-                    Join a Class
-                </a>
-            </h1>
-        </div>
+    <div class="container-fluid">
+        <div class="container-fluid bg-gray-100 mx-2">
+            <!-- Page Heading -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <!-- Search Input Field -->
+                <div class="input-group w-50">
+                    <input type="text" id="searchClass" class="form-control" placeholder="Search class..."
+                        onkeyup="filterClasses()">
+                </div>
+                <!-- Academic Year Filter -->
+                <div class="ml-3">
+                    <select id="filterAcademicYear" class="form-control" onchange="filterClasses()">
+                        <option value="">All Academic Years</option>
+                        @foreach ($academic_year as $year)
+                            <option value="{{ $year->semester . ' ' . $year->start_year . '-' . $year->end_year }}">
+                                {{ $year->semester . ' ' . $year->start_year . '-' . $year->end_year }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-        <!-- Content Row -->
-        <div class="row" id="classCards">
-            <!-- AJAX-loaded class cards will appear here -->
+                <h1 class="h3 mb-0 text-gray-800">
+                    <a class="btn btn-success" data-toggle="modal" data-target="#joinClassModal">
+                        <i class="fa-solid fa-plus mr-3"></i>
+                        Join a Class
+                    </a>
+                </h1>
+            </div>
+
+            <!-- Content Row -->
+            <div class="row" id="classCards">
+                <!-- AJAX-loaded class cards will appear here -->
+            </div>
         </div>
     </div>
-</div>
     <!-- Join Class Modal -->
     <div class="modal fade" id="joinClassModal" tabindex="-1" role="dialog" aria-labelledby="joinClassModalLabel"
         aria-hidden="true">
@@ -87,6 +102,28 @@
 
 @push('script')
     <script>
+        function filterClasses() {
+            let input = document.getElementById("searchClass").value.toLowerCase();
+            let selectedYear = document.getElementById("filterAcademicYear").value.toLowerCase();
+            let classCards = document.querySelectorAll("#classCards .col-lg-3");
+
+            classCards.forEach(card => {
+                let className = card.querySelector(".card-title").innerText.toLowerCase();
+                let section = card.querySelector(".card-text:nth-child(2)").innerText.toLowerCase();
+                let academicYear = card.querySelector(".card-text:nth-child(2)").innerText.toLowerCase();
+                let room = card.querySelector(".card-text:nth-child(3)").innerText.toLowerCase();
+
+                let matchesSearch = className.includes(input) || section.includes(input) || room.includes(input);
+                let matchesYear = selectedYear === "" || academicYear.includes(selectedYear);
+
+                if (matchesSearch && matchesYear) {
+                    card.style.display = "block"; // Show matching cards
+                } else {
+                    card.style.display = "none"; // Hide non-matching cards
+                }
+            });
+        }
+
         function validateClassCode(input) {
             let value = input.value.toLowerCase(); // Convert to lowercase automatically
             let formattedValue = value.replace(/[^a-z0-9-]/g, ''); // Remove invalid characters
@@ -185,7 +222,12 @@
                         $('#joinClassModal').modal('hide');
                         $('#joinClassForm')[0].reset();
                         loadClasses();
-                        alert(response.success);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Joined class successfully',
+                            text: response.success,
+                        });
+
                     },
                     error: function(xhr) {
                         console.log("AJAX Error:", xhr.responseText);
