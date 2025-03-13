@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('joined_classes', function (Blueprint $table) {
-            $table->boolean('is_remove');
+            $table->boolean('is_remove')->nullable();
         });
     }
 
