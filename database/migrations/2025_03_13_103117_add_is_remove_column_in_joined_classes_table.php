@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('joined_classes', function (Blueprint $table) {
-            $table->boolean('is_remove')->nullable();
+            $table->boolean('is_remove')->default(0);
         });
     }
 
@@ -22,7 +22,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('joined_classes', function (Blueprint $table) {
-            $table->boolean('is_remove')->nullable();
+            $table->boolean('is_remove')->default(0);
+
         });
     }
 };
