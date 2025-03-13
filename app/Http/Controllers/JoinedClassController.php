@@ -41,7 +41,7 @@ class JoinedClassController extends Controller
     return response()->json([
         'data' => $activities,
         'classlist' => $classlist,
-       
+
     ]);
 }
 
@@ -49,7 +49,8 @@ class JoinedClassController extends Controller
     public function getClasslists(Request $request)
     {
         // Get the classlist IDs that the authenticated user has joined
-        $joined_class_id = JoinedClass::where('user_id', auth()->user()->id)->pluck('classlist_id');
+        $joined_class_id = JoinedClass::where('is_remove', false)
+        ->where('user_id', auth()->user()->id)->pluck('classlist_id');
 
         // Fetch only the classlists the user has joined
         $classlists = Classlist::whereIn('id', $joined_class_id)
@@ -123,36 +124,59 @@ class JoinedClassController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'classlist_id' => 'required|string|max:255',
-            ]);
+{
+    try {
+        // Validate the input
+        $validated = $request->validate([
+            'classlist_id' => 'required|string|max:255',
+        ]);
 
-            $user = Auth::user()->id;
+        $userId = Auth::id();
 
-            // Check if the user has already joined the class
-            $existingClass = JoinedClass::where('user_id', $user)
-                ->where('classlist_id', $validated['classlist_id'])
-                ->exists();
-            $class = Classlist::find($validated['classlist_id']);
-            if ($existingClass) {
-                return response()->json(['error' => 'You have already joined this class!'], 400);
-            } else if (!$class) {
-                return response()->json(['error' => 'Class not found!'], 404);
-            } else {
-                $classlist = new JoinedClass();
-                $classlist->user_id = $user;
-                $classlist->classlist_id = $validated['classlist_id'];
-                $classlist->date_joined = now();
-                $classlist->save(); // Save manually
+        // Check if the user has already joined the class and is active
+        $existingClass = JoinedClass::where('user_id', $userId)
+            ->where('classlist_id', $validated['classlist_id'])
+            ->where('is_remove', false)
+            ->exists();
 
-                return response()->json(['success' => 'Class joined successfully!']);
-            }
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        if ($existingClass) {
+            return response()->json(['error' => 'You have already joined this class!'], 400);
         }
+
+        // Check if the class exists
+        $class = Classlist::find($validated['classlist_id']);
+        if (!$class) {
+            return response()->json(['error' => 'Class not found!'], 404);
+        }
+
+        // Check if the user has previously unenrolled and re-enroll them
+        $unenrolledClass = JoinedClass::where('user_id', $userId)
+            ->where('classlist_id', $validated['classlist_id'])
+            ->where('is_remove', true)
+            ->first();
+
+        if ($unenrolledClass) {
+            $unenrolledClass->is_remove = false;
+            $unenrolledClass->date_joined = now(); // Update join date
+            $unenrolledClass->save();
+
+            return response()->json(['success' => 'Class rejoined successfully!']);
+        }
+
+        // If it's a new join, create a new record
+        JoinedClass::create([
+            'user_id' => $userId,
+            'classlist_id' => $validated['classlist_id'],
+            'date_joined' => now(),
+            'is_remove' => false,
+        ]);
+
+        return response()->json(['success' => 'Class joined successfully!']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
     }
+}
+
 
     /**
      * Display the specified resource.
@@ -181,8 +205,26 @@ class JoinedClassController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(JoinedClass $joinedClass)
-    {
-        //
+    public function destroy(Request $request)
+{
+    try {
+        // Find the class based on id and user_id
+        $class = JoinedClass::where('classlist_id', $request->id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // Update the is_remove field
+        $class->is_remove = 1;
+        $class->save();
+
+        return response()->json(['success' => true, 'message' => 'Class unenrolled successfully']);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to unenroll class',
+            'error' => $e->getMessage() // Optional: for debugging purposes
+        ]);
     }
+}
+
 }

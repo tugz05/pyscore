@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activity;
 use App\Models\Archive;
 use App\Models\Classlist;
+use App\Models\JoinedClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -116,6 +118,8 @@ class ArchiveController extends Controller
             if ($archive) {
                 $archive->delete(); // Remove from archives
                 Classlist::where('id', $id)->delete(); // Permanently delete classlist
+                JoinedClass::where('classlist_id', $id)->delete();
+                Activity::where('classlist_id', $id)->delete();
 
                 return response()->json(['success' => true, 'message' => 'Class deleted successfully']);
             }

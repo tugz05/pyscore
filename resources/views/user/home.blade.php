@@ -98,6 +98,28 @@
             </div>
         </div>
     </div>
+        <!-- Archive Confirmation Modal -->
+        <div class="modal fade" id="removeConfirmModal" tabindex="-1" aria-labelledby="removeConfirmLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="archiveConfirmLabel">Unenroll Class</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to unenroll this class?</p>
+                    <input type="hidden" id="removeClassId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmRemove">Unenroll</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('script')
@@ -170,20 +192,20 @@
                     $.each(response.data, function(index, classlist) {
                         classCards += `
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                            <div class="card shadow-lg rounded-4 border-1 hover-effect h-100 class-card" data-url="{{ route('user.class.view', '') }}/${classlist.id}">
-                                  <img src="{{ asset('assets/course_images') }}/${classlist.course_image}" class="card-img-top rounded-top-4" alt="Course Image">
+                            <div class="card shadow-lg rounded-4 border-1 hover-effect h-100 class-card">
+                                  <img src="{{ asset('assets/course_images') }}/${classlist.course_image}"class="card-img-top rounded-top-4" alt="Course Image">
                                 <div class="card-body p-3 d-flex flex-column">
-                                    <h5 class="card-title text-primary fw-bold">${classlist.name}</h5>
+                                    <a href={{ route('user.class.view', '') }}/${classlist.id}><h5 class="card-title text-primary fw-bold">${classlist.name}</h5></a>
                                     <p class="card-text text-muted">${classlist.section?.name || 'No Section'} | ${classlist.academic_year || 'N/A'}</p>
                                     <p class="card-text text-muted"><b>Room:</b> ${classlist.room || 'N/A'}</p>
 
                                     <!-- Vertical Ellipsis Dropdown (Placed Below Room) -->
                                     <div class="dropup">
-                                        <button class="btn btn-light" type="button" id="dropdownMenu${classlist.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <button class="btn btn-light" type="button" id="${classlist.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-solid fa-ellipsis-vertical"></i>
                                         </button>
-                                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu${classlist.id}">
-                                            <a class="dropdown-item" href="#">
+                                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu">
+                                            <a class="dropdown-item text-danger remove-btn" data-id="${classlist.id}">
                                                 <i class="fa-solid me-2"></i> Unenroll
                                             </a>
                                         </div>
@@ -211,6 +233,48 @@
             }
         });
     }
+    $(document).on('click', '.remove-btn', function(e) {
+                e.preventDefault();
+
+                let id = $(this).data('id');
+                $('#removeClassId').val(id);
+                $('#removeConfirmModal').modal('show'); // Show the modal
+                $('#confirmRemove').click(function() {
+                    let id = $('#removeClassId').val();
+
+                    $.ajax({
+                        url: "{{ route('unenroll.class') }}",
+                        type: "POST",
+                        data: {
+                            id: id,
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            console.log(response);
+
+                            $('#removeConfirmModal').modal(
+                                'hide'); // Hide the modal after successful archive
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Class unenrolled successfully',
+                            });
+                            loadClasses(); // Reload class list
+
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(xhr.responseText);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Something went wrong. Please try again.',
+                            });
+
+                        }
+                    });
+                });
+
+            });
 
             $('#joinClassForm').submit(function(e) {
                 e.preventDefault();
