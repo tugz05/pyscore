@@ -103,26 +103,52 @@
 @push('script')
     <script>
         function filterClasses() {
-            let input = document.getElementById("searchClass").value.toLowerCase();
-            let selectedYear = document.getElementById("filterAcademicYear").value.toLowerCase();
-            let classCards = document.querySelectorAll("#classCards .col-lg-3");
+    let input = document.getElementById("searchClass").value.toLowerCase();
+    let selectedYear = document.getElementById("filterAcademicYear").value.toLowerCase();
+    let classCardsContainer = document.getElementById("classCards");
+    let classCards = classCardsContainer.querySelectorAll(".col-lg-3");
 
-            classCards.forEach(card => {
-                let className = card.querySelector(".card-title").innerText.toLowerCase();
-                let section = card.querySelector(".card-text:nth-child(2)").innerText.toLowerCase();
-                let academicYear = card.querySelector(".card-text:nth-child(2)").innerText.toLowerCase();
-                let room = card.querySelector(".card-text:nth-child(3)").innerText.toLowerCase();
+    let hasVisibleCard = false;
 
-                let matchesSearch = className.includes(input) || section.includes(input) || room.includes(input);
-                let matchesYear = selectedYear === "" || academicYear.includes(selectedYear);
+    classCards.forEach(card => {
+        let className = card.querySelector(".card-title").innerText.toLowerCase();
+        let section = card.querySelector(".card-text:nth-child(2)").innerText.toLowerCase();
+        let academicYear = card.querySelector(".card-text:nth-child(2)").innerText.toLowerCase();
+        let room = card.querySelector(".card-text:nth-child(3)").innerText.toLowerCase();
 
-                if (matchesSearch && matchesYear) {
-                    card.style.display = "block"; // Show matching cards
-                } else {
-                    card.style.display = "none"; // Hide non-matching cards
-                }
-            });
+        let matchesSearch = className.includes(input) || section.includes(input) || room.includes(input);
+        let matchesYear = selectedYear === "" || academicYear.includes(selectedYear);
+
+        if (matchesSearch && matchesYear) {
+            card.style.display = "block"; // Show matching cards
+            hasVisibleCard = true;
+        } else {
+            card.style.display = "none"; // Hide non-matching cards
         }
+    });
+
+    // Remove any existing "No classes available" message
+    let noClassesMessage = document.getElementById("noClassesMessage");
+    if (noClassesMessage) {
+        noClassesMessage.remove();
+    }
+
+    // If no classes are visible, add the "No classes available" message
+    if (!hasVisibleCard) {
+        let noClassesDiv = document.createElement("div");
+        noClassesDiv.id = "noClassesMessage";
+        noClassesDiv.className = "d-flex align-items-center justify-content-center w-100";
+        noClassesDiv.style.height = "75vh";
+        noClassesDiv.innerHTML = `
+            <div class="text-center">
+                <img src="{{ asset('assets/img/undraw_posting_photo.svg') }}" style="max-width: 50%; height: auto; padding: 20px;">
+                <h1>No classes available</h1>
+            </div>
+        `;
+        classCardsContainer.appendChild(noClassesDiv);
+    }
+}
+
 
         function validateClassCode(input) {
             let value = input.value.toLowerCase(); // Convert to lowercase automatically

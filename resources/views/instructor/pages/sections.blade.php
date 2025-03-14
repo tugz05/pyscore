@@ -51,7 +51,7 @@
                             placeholder="Enter Section Name" required />
                         <x-input type="time" name="schedule_from" id="schedule_from" label="From" required />
                         <x-input type="time" name="schedule_to" id="schedule_to" label="To" required />
-                        <x-select name="day" label="Select Day" :options="['mth' => 'Monday, Thursday', 'tf' => 'Tuesday, Friday']" required />
+                        <x-select name="day" label="Select Day" :options="['mth' => 'Monday, Thursday', 'tf' => 'Tuesday, Friday', 's' => 'Satruday']" required />
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
