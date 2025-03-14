@@ -17,6 +17,7 @@ use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\Admin\AcademicYearController;
 use App\Http\Controllers\Admin\DayController;
 use App\Http\Controllers\Admin\RoomController;
+use App\Models\JoinedClass;
 use Illuminate\Support\Facades\Route;
 
 Route::get('auth/redirect', action: [GoogleController::class, 'redirect'])->name('google.redirect');
@@ -68,6 +69,7 @@ Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(fu
     Route::post('/submit', [PythonEvaluationController::class, 'evaluate'])->name('submit.python.code');
     Route::get('/submission-status/{userId}/{activityId}', [ClassController::class, 'getSubmissionStatus']);
     Route::get('/check-submission', [PythonEvaluationController::class, 'checkSubmission'])->name('check.submission');
+    Route::post('/unenroll-class', [JoinedClassController::class, 'destroy'])->name('unenroll.class');
 
 });
     Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function () {
