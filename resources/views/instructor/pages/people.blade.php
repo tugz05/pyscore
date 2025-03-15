@@ -50,8 +50,7 @@
                             </svg>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu{{ $student->id }}">
-
-                            <li><a class="dropdown-item text-danger" href="#">Remove</a></li>
+                            <li><a class="dropdown-item text-danger remove-btn" href="#" data-id="{{ $student->id }}" data-user="{{ $classlist->id }}">Remove</a></li>
                         </ul>
                     </div>
                 </div>

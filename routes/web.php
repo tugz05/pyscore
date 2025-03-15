@@ -55,6 +55,8 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
     Route::get('/archived-classlist', [ArchiveController::class, 'getArchivelists'])->name('archive.list');
     Route::post('/restore-class', [ArchiveController::class, 'restoreClass'])->name('archive.restore');
     Route::delete('/archive/{id}', [ArchiveController::class, 'destroy'])->name('archive.destroy');
+    Route::post('/remove-student', [ClassController::class, 'removeStudent'])->name('remove.student');
+
 
 });
 

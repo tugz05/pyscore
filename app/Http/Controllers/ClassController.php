@@ -246,4 +246,24 @@ class ClassController extends Controller
         $activity->delete();
         return response()->json(['message' => 'Activity deleted successfully!']);
     }
+    public function removeStudent(Request $request){
+        try {
+            // Find the class based on id and user_id
+            $class = JoinedClass::where('classlist_id', $request->userID)
+                ->where('user_id', $request->id)
+                ->firstOrFail();
+
+            // Update the is_remove field
+            $class->is_remove = 1;
+            $class->save();
+
+            return response()->json(['success' => true, 'message' => 'Removed student successfully']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove student',
+                'error' => $e->getMessage() // Optional: for debugging purposes
+            ]);
+        }
+    }
 }

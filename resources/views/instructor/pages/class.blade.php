@@ -185,6 +185,27 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="removeConfirmModal" tabindex="-1" aria-labelledby="removeConfirmLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="archiveConfirmLabel">Remove Student</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to remove this student?</p>
+                    <input type="text" id="removeClassId">
+                    <input type="text" id="userID">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmRemove">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @push('script')
     <script>
@@ -195,8 +216,52 @@
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
                     ['para', ['ul', 'ol', 'paragraph']],
-
                 ]
+            });
+            $(document).on('click', '.remove-btn', function(e) {
+                e.preventDefault();
+
+                let id = $(this).data('id');
+                let userID = $(this).data('user');
+                $('#removeClassId').val(id);
+                $('#userID').val(userID);
+                $('#removeConfirmModal').modal('show'); // Show the modal
+                $('#confirmRemove').click(function() {
+                    let id = $('#removeClassId').val();
+                    let userID = $('#userID').val();
+
+                    $.ajax({
+                        url: "{{ route('remove.student') }}",
+                        type: "POST",
+                        data: {
+                            userID: userID,
+                            id: id,
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            console.log(response);
+                            $('#removeConfirmModal').modal(
+                                'hide'); // Hide the modal after successful archive
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Class unenrolled successfully',
+                            });
+                            // loadClasses(); // Reload class list
+
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(xhr.responseText);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Something went wrong. Please try again.',
+                            });
+
+                        }
+                    });
+                });
+
             });
 
             // Ensure content is passed correctly on form submission
