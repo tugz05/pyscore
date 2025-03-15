@@ -186,7 +186,8 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="removeConfirmModal" tabindex="-1" aria-labelledby="removeConfirmLabel" aria-hidden="true">
+    <div class="modal fade" id="removeConfirmModal" tabindex="-1" aria-labelledby="removeConfirmLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -242,15 +243,20 @@
                         success: function(response) {
                             console.log(response);
                             $('#removeConfirmModal').modal(
-                                'hide'); // Hide the modal after successful archive
+                            'hide'); // Hide the modal after successful archive
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
-                                text: 'Class unenrolled successfully',
+                                text: 'Student removed successfully',
+                            }).then(() => {
+                                // Reload the page or class list after the alert is closed
+                                location
+                            .reload(); // This will refresh the entire page
+                                // Or, if you just need to reload the class list without refreshing the entire page:
+                                // loadClasses();
                             });
-                            // loadClasses(); // Reload class list
-
                         },
+
                         error: function(xhr, status, error) {
                             console.error(xhr.responseText);
                             Swal.fire({
