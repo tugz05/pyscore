@@ -31,14 +31,26 @@ class SectionController extends Controller
     {
         $id = Auth::id();
         $request->merge(['user_id' => $id]);
+
+        // Validate the request
         $request->validate([
             'name' => 'required|string|max:255',
             'schedule_from' => 'required',
             'schedule_to' => 'required|after:schedule_from',
-            'day' => 'required|string',
+            'days' => 'required|array', // Ensure days is an array
         ]);
 
-        Section::create($request->all());
+        // Convert days array to comma-separated string
+        $days = implode(',', $request->days);
+
+        // Create the section
+        Section::create([
+            'user_id' => $id,
+            'name' => $request->name,
+            'schedule_from' => $request->schedule_from,
+            'schedule_to' => $request->schedule_to,
+            'day' => $days, // Save days as comma-separated string
+        ]);
 
         return redirect()->route('sections.index')->with('success', 'Section added successfully!');
     }
@@ -54,19 +66,27 @@ class SectionController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'schedule_from' => 'required',
-            'schedule_to' => 'required|after:schedule_from',
-            'day' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'schedule_from' => 'required',
+        'schedule_to' => 'required|after:schedule_from',
+        'days' => 'required|array', // Ensure days is an array
+    ]);
 
-        $section = Section::findOrFail($id);
-        $section->update($request->all());
+    // Convert days array to comma-separated string
+    $days = implode(',', $request->days);
 
-        return response()->json(['success' => 'Section updated successfully!']);
-    }
+    $section = Section::findOrFail($id);
+    $section->update([
+        'name' => $request->name,
+        'schedule_from' => $request->schedule_from,
+        'schedule_to' => $request->schedule_to,
+        'day' => $days, // Update days as comma-separated string
+    ]);
+
+    return response()->json(['success' => 'Section updated successfully!']);
+}
 
     public function destroy($id)
     {

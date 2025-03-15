@@ -159,6 +159,7 @@ class ClassController extends Controller
         $students = DB::table('joined_classes')
             ->join('users', 'joined_classes.user_id', '=', 'users.id')
             ->where('joined_classes.classlist_id', $id)
+            ->where('joined_classes.is_remove', false) // Ensures only active students
             ->whereNull('joined_classes.deleted_at') // Ensures only active students
             ->select('users.id', 'users.name', 'users.avatar', 'users.email')
             ->get();

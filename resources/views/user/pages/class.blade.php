@@ -9,7 +9,7 @@
 
             <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 10px;">
                 <h2 class="fw-bold">{{ $classlist->name }}</h2>
-                <p class="mb-0">{{ $classlist->section->name }}</p>
+                <p class="mb-0">{{ $classlist->section->name }} | {{ $classlist->section->day }}</p>
             </div>
 
         </div>
@@ -31,7 +31,7 @@
                     <div class="col-md-3">
                         <div class="card shadow-sm border-0">
                             <div class="card-body">
-                                
+
                                 <h7 class="fw-bold">Due Today:</h3>
                                     <div id="upcoming-activities">
                                         <p class="text-muted">Loading upcoming activities...</p>
