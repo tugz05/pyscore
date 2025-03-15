@@ -21,12 +21,7 @@
 
     <div class="container-fluid bg-gray-100 mx-2">
         <!-- Page Heading -->
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">
-                <i class="fa-brands fa-python text-primary"></i> Archived Classes
-            </h1>
-
-        </div>
+       
 
         <!-- Content Row -->
 

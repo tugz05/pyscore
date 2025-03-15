@@ -19,6 +19,7 @@
                                         <th class="text-center">ID</th>
                                         <th class="text-center">Section Name</th>
                                         <th class="text-center">Schedule</th>
+                                        <th class="text-center">Days</th>
                                         <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
@@ -37,21 +38,44 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Add Section</h5>
-                    {{-- <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"></button> --}}
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-
                 </div>
                 <form id="addSectionForm">
                     <input type="hidden" id="section_id">
                     <div class="modal-body">
                         @csrf
-                        <x-input type="text" name="name" id="name" label="Section Name"
-                            placeholder="Enter Section Name" required />
+                        <x-input type="text" name="name" id="name" label="Section Name" placeholder="Enter Section Name" required />
                         <x-input type="time" name="schedule_from" id="schedule_from" label="From" required />
                         <x-input type="time" name="schedule_to" id="schedule_to" label="To" required />
-                        <x-select name="day" label="Select Day" :options="['mth' => 'Monday, Thursday', 'tf' => 'Tuesday, Friday']" required />
+
+                        <!-- Checkboxes for Days -->
+                        <div class="form-group">
+                            <label>Select Days</label>
+                            <div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="days[]" id="monday" value="M">
+                                    <label class="form-check-label" for="monday">Monday</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="days[]" id="tuesday" value="T">
+                                    <label class="form-check-label" for="tuesday">Tuesday</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="days[]" id="wednesday" value="W">
+                                    <label class="form-check-label" for="wednesday">Wednesday</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="days[]" id="thursday" value="Th">
+                                    <label class="form-check-label" for="thursday">Thursday</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="days[]" id="friday" value="F">
+                                    <label class="form-check-label" for="friday">Friday</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -70,17 +94,19 @@
                 "processing": true,
                 "serverSide": false,
                 "ajax": "{{ route('sections.data') }}",
-                "columns": [{
-                        "data": "id"
-                    },
-                    {
-                        "data": "name"
-                    },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "name" },
                     {
                         "data": null,
                         "render": function(data, type, row) {
-                            return convertTo12Hour(row.schedule_from) + " - " + convertTo12Hour(row
-                                .schedule_to);
+                            return convertTo12Hour(row.schedule_from) + " - " + convertTo12Hour(row.schedule_to);
+                        }
+                    },
+                    {
+                        "data": "day", // Display the days column
+                        "render": function(data, type, row) {
+                            return data.split(',').join(', '); // Format the days for display
                         }
                     },
                     {
@@ -89,13 +115,13 @@
                         "searchable": false,
                         "render": function(data, type, row) {
                             return `
-                    <button class="btn btn-sm btn-warning edit-btn" data-id="${row.id}"
-                        data-name="${row.name}" data-schedule_from="${row.schedule_from}"
-                        data-schedule_to="${row.schedule_to}" data-day="${row.day}">
-                        Edit
-                    </button>
-                    <button class="btn btn-sm btn-danger delete-btn" data-id="${row.id}">Delete</button>
-                `;
+                                <button class="btn btn-sm btn-warning edit-btn" data-id="${row.id}"
+                                    data-name="${row.name}" data-schedule_from="${row.schedule_from}"
+                                    data-schedule_to="${row.schedule_to}" data-day="${row.day}">
+                                    Edit
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-btn" data-id="${row.id}">Delete</button>
+                            `;
                         }
                     }
                 ]
@@ -140,7 +166,6 @@
                             text: xhr.responseJSON.message ||
                                 'An error occurred. Please try again.',
                         });
-
                     }
                 });
             });
@@ -152,7 +177,14 @@
                 $('#name').val($(this).data('name'));
                 $('#schedule_from').val($(this).data('schedule_from'));
                 $('#schedule_to').val($(this).data('schedule_to'));
-                $('#day').val($(this).data('day'));
+
+                // Pre-select checkboxes for days
+                let days = $(this).data('day').split(',');
+                $('input[name="days[]"]').prop('checked', false); // Uncheck all first
+                days.forEach(day => {
+                    $(`input[name="days[]"][value="${day}"]`).prop('checked', true);
+                });
+
                 $('.modal-title').text('Edit Section');
                 $('#addSectionModal').modal('show');
             });
@@ -197,7 +229,6 @@
                         });
                     }
                 });
-
             });
 
             // Ensure CSRF token is included in all AJAX requests

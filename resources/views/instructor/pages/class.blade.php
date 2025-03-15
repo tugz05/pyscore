@@ -16,7 +16,8 @@
 
                 <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 10px;">
                     <h2 class="fw-bold">{{ $classlist->name }}</h2>
-                    <p class="mb-0">{{ $classlist->section->name }}</p>
+                    <p class="mb-0">{{ $classlist->section->name }} | {{ $classlist->section->day }}</p>
+
                 </div>
 
             </div>

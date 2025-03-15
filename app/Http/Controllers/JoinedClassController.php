@@ -54,6 +54,7 @@ class JoinedClassController extends Controller
 
         // Fetch only the classlists the user has joined
         $classlists = Classlist::whereIn('id', $joined_class_id)
+        ->where('is_archive', false)
             ->with(['section', 'instructor']) // ✅ Load related section & instructor
             ->get();
 

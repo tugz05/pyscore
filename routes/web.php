@@ -94,11 +94,4 @@ Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(fu
         Route::post('/rooms/store', [RoomController::class, 'store'])->name('room.store');
         Route::put('/rooms/{id}/update', [RoomController::class, 'update'])->name('room.update');
         Route::delete('/rooms/{id}/delete', [RoomController::class, 'destroy'])->name('room.destroy');
-
-
-        Route::get('/days', [DayController::class, 'index'])->name('admin.day');
-        Route::get('/days/list', [DayController::class, 'list'])->name('day.list');
-        Route::post('/days/store', [DayController::class, 'store'])->name('day.store');
-        Route::put('/days/{id}/update', [DayController::class, 'update'])->name('day.update');
-        Route::delete('/days/{id}/delete', [DayController::class, 'destroy'])->name('day.destroy');
 });

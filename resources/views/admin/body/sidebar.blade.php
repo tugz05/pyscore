@@ -68,7 +68,7 @@
                 <h6 class="collapse-header">Manage Class:</h6>
                 <a class="collapse-item" href="{{ route('admin.academic_year') }}">Academic Year</a>
                 <a class="collapse-item" href="{{ route('admin.room')}}">Room</a>
-                <a class="collapse-item" href="{{ route('admin.day')}}">Day</a>
+
 
             </div>
         </div>
