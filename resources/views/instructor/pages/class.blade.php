@@ -37,6 +37,7 @@
             <div class="tab-pane fade show active" id="stream">
                 <div class="row mt-4">
                     <!-- Left Sidebar -->
+                    @if(!$classlist->is_archive)
                     <div class="col-md-3">
                         <div class="card shadow-sm border-0 mb-3">
                             <div class="card-body text-center">
@@ -48,9 +49,24 @@
                             </div>
                         </div>
                     </div>
+                    @else
+                    <div class="col-md-3">
+                        <div class="card shadow-sm border-0 mb-3">
+                            <div class="card-body text-center">
+
+                                <h4 >CLASS HAS BEEN ARCHIVED</h4>
+                                <p class="text-muted">Archived classes can only be <b>viewed</b> by instructors or students and cannot be
+                                    <b>modified</b>
+                                    unless they are restored.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
 
                     <!-- Main Content -->
                     <div class="col-md-9">
+                        @if(!$classlist->is_archive)
                         <div class="card shadow-sm border-0 mb-3">
                             <div class="card-body d-flex align-items-center justify-content-between">
                                 <img src="{{ $classlist->user->avatar }}" class="rounded-circle me-3" alt="User"
@@ -62,6 +78,7 @@
                                 </a>
                             </div>
                         </div>
+                        @endif
                         <div id="classCards">
                             <!-- AJAX-loaded class cards will appear here -->
                         </div>
@@ -246,9 +263,9 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
-                                text: 'Class unenrolled successfully',
+                                text: 'Student removed succesfully',
                             });
-                            // loadClasses(); // Reload class list
+
 
                         },
                         error: function(xhr, status, error) {
@@ -423,6 +440,7 @@
                                     </div>
 
                                     <!-- Right Side: Three-dot Menu -->
+                                    @if(!$classlist->is_archive)
                                     <div class="dropdown">
                                         <button class="btn btn-light border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
@@ -444,9 +462,10 @@
                                                     Edit
                                                 </a>
                                             </li>
-                                            <li><a class="dropdown-item delete-btn"  data-id="${activity.id}">Delete</a></li>
+                                            <li><a class="dropdown-item delete-btn text-danger"  data-id="${activity.id}">Delete</a></li>
                                         </ul>
                                     </div>
+                                    @endif
                                 </div>
                             </div>
                             </a>

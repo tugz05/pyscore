@@ -68,10 +68,16 @@
 </style>
 
 <div class="container-fluid mt-4">
+
     <div class="row">
 
         <!-- Left Column: Student List -->
         <div class="col-md-4">
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <a  class="btn btn-success">
+                    <i class="fas fa-arrow-down"></i> Download
+                </a>
+            </div>
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white py-3 d-flex align-items-center justify-content-between">
                     <h6 class="m-0 fw-bold">Student List</h6>

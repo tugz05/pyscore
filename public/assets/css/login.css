@@ -37,7 +37,7 @@ body {
     /* Adjust this value to reduce the space above "PYSCORE" */
 }
 
-.btn {
+.btn:not(.btn-secondary):not(.btn-primary) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -54,7 +54,7 @@ body {
 }
 
 /* Adding the shadow effect */
-.btn::before {
+.btn:not(.btn-secondary):not(.btn-primary)::before {
     content: "";
     position: absolute;
     top: 12px;

@@ -40,6 +40,7 @@
                         @endif
                         <span class="fw-bold">{{ $student->name }}</span>
                     </div>
+                    @if(!$classlist->is_archive)
                     <div class="dropdown">
                         <button class="btn btn-light btn-sm" type="button" id="dropdownMenu{{ $student->id }}"
                             data-bs-toggle="dropdown">
@@ -53,6 +54,7 @@
                             <li><a class="dropdown-item text-danger remove-btn" href="#" data-id="{{ $student->id }}" data-user="{{ $classlist->id }}">Remove</a></li>
                         </ul>
                     </div>
+                    @endif
                 </div>
             @endforeach
         </div>

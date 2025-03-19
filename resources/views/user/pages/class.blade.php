@@ -28,6 +28,7 @@
             <div class="tab-pane fade show active" id="stream">
                 <div class="row mt-4">
                     <!-- Left Sidebar -->
+                    @if(!$classlist->is_archive)
                     <div class="col-md-3">
                         <div class="card shadow-sm border-0">
                             <div class="card-body">
@@ -44,6 +45,20 @@
 
                     </div>
 
+@else
+<div class="col-md-3">
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body text-center">
+
+            <h4 >CLASS HAS BEEN ARCHIVED</h4>
+            <p class="text-muted">Archived classes can only be <b>viewed</b> by the students and cannot be
+                <b>modified</b>
+                unless they are restored by the instructor.
+            </p>
+        </div>
+    </div>
+</div>
+@endif
                     <!-- Main Content -->
                     <div class="col-md-9">
                         <div id="classCards">

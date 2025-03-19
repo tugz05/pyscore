@@ -6,6 +6,7 @@ use App\Models\Activity;
 use App\Models\Archive;
 use App\Models\Classlist;
 use App\Models\JoinedClass;
+use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,8 +15,10 @@ class ArchiveController extends Controller
     public function index()
     {
         $id = Auth::id();
+        $academic_year = AcademicYear::all(); // Fetch all academic years
+
         $archives = Archive::where('user_id', $id)->get();
-        return view('instructor.pages.archive', compact('archives'));
+        return view('instructor.pages.archive', compact('archives', 'academic_year'));
     }
 
     public function archiveData(Request $request)

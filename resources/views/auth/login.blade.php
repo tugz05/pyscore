@@ -40,7 +40,7 @@
                     <span>Get Started &nbsp;<i class="fas fa-arrow-right"></i></span>
                 </a>
             </div>
-
+            
             <div class="pt-1 mb-4">
                 @if(session('error'))
                 <div class="alert alert-danger">
@@ -116,7 +116,7 @@
                 <div class="stepper-content">
                     <div class="step">
                         <div class="step-number">1</div>
-                        <span class="step-text">Login using NEMSU Workspace Account</span>
+                        <span class="step-text">Login using your NEMSU Workspace Account</span>
                     </div>
                     <div class="step">
                         <div class="step-number">2</div>

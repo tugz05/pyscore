@@ -167,8 +167,7 @@ class ClassController extends Controller
     }
     public function list($id)
     {
-        $classlist = Classlist::where('is_archive', false)
-            ->with(['section', 'user'])->find($id);
+        $classlist = Classlist::with(['section', 'user'])->find($id);
         $activities = Activity::where('classlist_id', $id)
             ->with(['classlist', 'section', 'user']) // Load relationships
             ->orderBy('created_at', 'desc') // Sort by latest time

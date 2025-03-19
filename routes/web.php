@@ -73,6 +73,9 @@ Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(fu
     Route::get('/check-submission', [PythonEvaluationController::class, 'checkSubmission'])->name('check.submission');
     Route::post('/unenroll-class', [JoinedClassController::class, 'destroy'])->name('unenroll.class');
 
+    Route::get('/archive', [JoinedClassController::class, 'archive'])->name('user.archive');
+    Route::get('/archive_data', [JoinedClassController::class, 'getArchives'])->name('user.archive.data');
+
 });
     Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');

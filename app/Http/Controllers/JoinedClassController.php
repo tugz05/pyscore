@@ -23,38 +23,53 @@ class JoinedClassController extends Controller
         return view('user.pages.join_class', compact('class'), ['id' => $classId]);
     }
     public function list($id)
-{
-    $classlist = Classlist::with(['section', 'user'])->find($id);
-    $activities = Activity::where('classlist_id', $id)
-        ->with(['classlist', 'section', 'user'])
-        ->orderBy('created_at', 'desc')
-        ->get()
-        ->map(function ($activity) {
-            $output = Output::where('user_id', auth()->id())
-                ->where('activity_id', $activity->id)
-                ->first();
+    {
+        $classlist = Classlist::with(['section', 'user'])->find($id);
+        $activities = Activity::where('classlist_id', $id)
+            ->with(['classlist', 'section', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($activity) {
+                $output = Output::where('user_id', auth()->id())
+                    ->where('activity_id', $activity->id)
+                    ->first();
 
-            $activity->user_score = $output ? $output->score : null;
-            return $activity;
-        });
+                $activity->user_score = $output ? $output->score : null;
+                return $activity;
+            });
 
-    return response()->json([
-        'data' => $activities,
-        'classlist' => $classlist,
+        return response()->json([
+            'data' => $activities,
+            'classlist' => $classlist,
 
-    ]);
-}
+        ]);
+    }
 
+
+    public function getArchives(Request $request)
+    {
+        // Get the classlist IDs that the authenticated user has joined
+        $joined_class_id = JoinedClass::where('is_remove', false)
+            ->where('user_id', auth()->user()->id)->pluck('classlist_id');
+
+        // Fetch only the classlists the user has joined
+        $classlists = Classlist::whereIn('id', $joined_class_id)
+            ->where('is_archive', true)
+            ->with(['section', 'instructor']) // ✅ Load related section & instructor
+            ->get();
+
+        return response()->json(["data" => $classlists]);
+    }
 
     public function getClasslists(Request $request)
     {
         // Get the classlist IDs that the authenticated user has joined
         $joined_class_id = JoinedClass::where('is_remove', false)
-        ->where('user_id', auth()->user()->id)->pluck('classlist_id');
+            ->where('user_id', auth()->user()->id)->pluck('classlist_id');
 
         // Fetch only the classlists the user has joined
         $classlists = Classlist::whereIn('id', $joined_class_id)
-        ->where('is_archive', false)
+            ->where('is_archive', false)
             ->with(['section', 'instructor']) // ✅ Load related section & instructor
             ->get();
 
@@ -111,7 +126,13 @@ class JoinedClassController extends Controller
 
         return view('user.home', compact('user', 'academic_year'));
     }
+    public function archive()
+    {
+        $user = auth()->user();
+        $academic_year = AcademicYear::all(); // Fetch all academic years
 
+        return view('user.pages.archive', compact('user', 'academic_year'));
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -134,6 +155,17 @@ class JoinedClassController extends Controller
 
         $userId = Auth::id();
 
+        // Check if the class exists
+        $class = Classlist::find($validated['classlist_id']);
+        if (!$class) {
+            return response()->json(['error' => 'Class not found!'], 404);
+        }
+
+        // Check if the class is archived
+        if ($class->is_archive) {
+            return response()->json(['error' => 'Class has been archived!'], 400);
+        }
+
         // Check if the user has already joined the class and is active
         $existingClass = JoinedClass::where('user_id', $userId)
             ->where('classlist_id', $validated['classlist_id'])
@@ -142,12 +174,6 @@ class JoinedClassController extends Controller
 
         if ($existingClass) {
             return response()->json(['error' => 'You have already joined this class!'], 400);
-        }
-
-        // Check if the class exists
-        $class = Classlist::find($validated['classlist_id']);
-        if (!$class) {
-            return response()->json(['error' => 'Class not found!'], 404);
         }
 
         // Check if the user has previously unenrolled and re-enroll them
@@ -179,6 +205,7 @@ class JoinedClassController extends Controller
 }
 
 
+
     /**
      * Display the specified resource.
      */
@@ -207,25 +234,24 @@ class JoinedClassController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(Request $request)
-{
-    try {
-        // Find the class based on id and user_id
-        $class = JoinedClass::where('classlist_id', $request->id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
+    {
+        try {
+            // Find the class based on id and user_id
+            $class = JoinedClass::where('classlist_id', $request->id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
 
-        // Update the is_remove field
-        $class->is_remove = 1;
-        $class->save();
+            // Update the is_remove field
+            $class->is_remove = 1;
+            $class->save();
 
-        return response()->json(['success' => true, 'message' => 'Class unenrolled successfully']);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to unenroll class',
-            'error' => $e->getMessage() // Optional: for debugging purposes
-        ]);
+            return response()->json(['success' => true, 'message' => 'Class unenrolled successfully']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to unenroll class',
+                'error' => $e->getMessage() // Optional: for debugging purposes
+            ]);
+        }
     }
-}
-
 }
