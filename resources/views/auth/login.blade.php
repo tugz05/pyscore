@@ -40,7 +40,7 @@
                     <span>Get Started &nbsp;<i class="fas fa-arrow-right"></i></span>
                 </a>
             </div>
-            
+
             <div class="pt-1 mb-4">
                 @if(session('error'))
                 <div class="alert alert-danger">
@@ -50,6 +50,27 @@
             </div>
         </div>
 
+<!-- Video Element -->
+<video class="arrow-video" autoplay loop muted style=" position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 80px; /* Adjust size as needed */
+    height: auto;
+    opacity: 0.8;
+    z-index: 2;">
+    <source src="{{ asset('assets/mp4/arrow_down.mp4') }}" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+<video class="arrow-video" autoplay loop muted style=" position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 80px; /* Adjust size as needed */
+    height: auto;
+    opacity: 0.8;
+    z-index: 2;">
+    <source src="{{ asset('assets/mp4/arrow_down.mp4') }}" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
     </div>
 
     <!-- Desktop & Mobile Adapted Section -->
