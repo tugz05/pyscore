@@ -57,6 +57,7 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
     Route::delete('/archive/{id}', [ArchiveController::class, 'destroy'])->name('archive.destroy');
     Route::post('/remove-student', [ClassController::class, 'removeStudent'])->name('remove.student');
 
+    Route::get('/activity/comparison/{id}', [ClassController::class, 'compareStudentOutputs'])->name('activity.comparison');
 
 });
 
@@ -75,6 +76,8 @@ Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(fu
 
     Route::get('/archive', [JoinedClassController::class, 'archive'])->name('user.archive');
     Route::get('/archive_data', [JoinedClassController::class, 'getArchives'])->name('user.archive.data');
+
+    Route::post('/run-python', [PythonEvaluationController::class, 'runPython'])->name('run.python.code');
 
 });
     Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function () {

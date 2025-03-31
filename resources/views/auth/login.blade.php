@@ -49,31 +49,21 @@
                 @endif
             </div>
         </div>
-
-<!-- Video Element -->
-<video class="arrow-video" autoplay loop muted style=" position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 80px; /* Adjust size as needed */
-    height: auto;
-    opacity: 0.8;
-    z-index: 2;">
-    <source src="{{ asset('assets/mp4/arrow_down.mp4') }}" type="video/mp4">
-    Your browser does not support the video tag.
-</video>
-<video class="arrow-video" autoplay loop muted style=" position: absolute;
-    bottom: 20px;
-    left: 20px;
-    width: 80px; /* Adjust size as needed */
-    height: auto;
-    opacity: 0.8;
-    z-index: 2;">
-    <source src="{{ asset('assets/mp4/arrow_down.mp4') }}" type="video/mp4">
-    Your browser does not support the video tag.
-</video>
+        <video class="arrow-video" autoplay loop muted style="
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px; /* Adjust size as needed */
+        height: auto;
+        opacity: 0.8;
+        z-index: 2;">
+        <source src="{{ asset('assets/mp4/arrow_down.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
     </div>
 
-    <!-- Desktop & Mobile Adapted Section -->
+    <!-- Desktop & Mobile Adapted Section -- >
     <!-- Second Section-->
     <div class="section">
         <div class="container">
@@ -93,10 +83,12 @@
             <!-- Right Side: Features -->
             <div class="right-content">
                 <ul class="features-list">
+                    <li><i class="fas fa-check-circle"></i>Create/Join a class</li>
                     <li><i class="fas fa-check-circle"></i> Automatic code checking</li>
                     <li><i class="fas fa-check-circle"></i> Similar code detection</li>
                     <li><i class="fas fa-check-circle"></i> Real-time code feedback</li>
-                    <li><i class="fas fa-check-circle"></i> Accessible via mobile phones</li>
+
+
                 </ul>
             </div>
         </div>

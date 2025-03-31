@@ -19,6 +19,9 @@
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="tab" href="#work">Student Work</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#comparison">Similarities</a>
+                </li>
 
             </ul>
 
@@ -61,6 +64,10 @@
                 <!-- Stream Tab -->
                 <div class="tab-pane fade show" id="work">
                     @include('instructor.pages.output')
+                </div>
+                 <!-- Stream Tab -->
+                 <div class="tab-pane fade show" id="comparison">
+                    @include('instructor.pages.comparison')
                 </div>
             </div>
         </div>

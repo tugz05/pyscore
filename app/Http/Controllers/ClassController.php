@@ -266,4 +266,52 @@ class ClassController extends Controller
             ]);
         }
     }
+
+
+    public function compareStudentOutputs($activityId)
+{
+    $outputs = DB::table('outputs')
+        ->where('activity_id', $activityId)
+        ->join('users', 'outputs.user_id', '=', 'users.id')
+        ->select('outputs.*', 'users.name as student_name')
+        ->get();
+
+    // Normalize code by removing comments and extra spaces
+    $normalizedOutputs = [];
+    foreach ($outputs as $output) {
+        $cleanCode = $this->normalizeCode($output->code);
+
+        if (!isset($normalizedOutputs[$cleanCode])) {
+            $normalizedOutputs[$cleanCode] = [
+                'original_code' => $output->code, // Keep the first version
+                'students' => []
+            ];
+        }
+
+        $normalizedOutputs[$cleanCode]['students'][] = [
+            'name' => $output->student_name,
+            'full_code' => $output->code
+        ];
+    }
+
+    // Filter to only include outputs with more than one student
+    $filteredOutputs = array_filter($normalizedOutputs, function($item) {
+        return count($item['students']) > 1;
+    });
+
+    return response()->json(array_values($filteredOutputs));
+}
+
+// Function to remove comments and extra spaces
+private function normalizeCode($code)
+{
+    // Remove single-line comments (# this is a comment)
+    $code = preg_replace('/#.*$/m', '', $code);
+  // Convert to lowercase to ignore casing
+  $code = strtolower($code);
+    // Remove empty lines and trim spaces
+    $codeLines = array_filter(array_map('trim', explode("\n", $code)));
+
+    return implode("\n", $codeLines);
+}
 }

@@ -1,16 +1,16 @@
 <style>
     /* Hover effect when selecting */
-.student-item:hover {
-    background-color: #ececec;
-    cursor: pointer;
-}
+    .student-item:hover {
+        background-color: #ececec;
+        cursor: pointer;
+    }
 
-/* Highlight the selected student */
-.student-item.active {
-    background-color: #dadada;
-    color: black !important;
+    /* Highlight the selected student */
+    .student-item.active {
+        background-color: #dadada;
+        color: black !important;
 
-}
+    }
 
     .student-list {
         max-height: 700px;
@@ -36,35 +36,36 @@
         border-radius: 8px;
         border: 1px solid #ddd;
     }
+
     /* Custom styling for the score filter dropdown */
-#scoreFilter {
-    appearance: none; /* Removes default browser styling */
-    background-color: #e0e0e0;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
+    #scoreFilter {
+        appearance: none;
+        /* Removes default browser styling */
+        background-color: #e0e0e0;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
 
-}
+    }
 
 
 
-/* Change background on focus */
-#scoreFilter:focus {
-    outline: none;
-   x
-}
+    /* Change background on focus */
+    #scoreFilter:focus {
+        outline: none;
+        x
+    }
 
-/* Styling for dropdown arrow */
-#scoreFilter::after {
-    content: '▼';
-    font-size: 12px;
-    margin-left: 10px;
-    color: white;
-}
-
+    /* Styling for dropdown arrow */
+    #scoreFilter::after {
+        content: '▼';
+        font-size: 12px;
+        margin-left: 10px;
+        color: white;
+    }
 </style>
 
 <div class="container-fluid mt-4">
@@ -73,11 +74,7 @@
 
         <!-- Left Column: Student List -->
         <div class="col-md-4">
-            <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                <a  class="btn btn-success">
-                    <i class="fas fa-arrow-down"></i> Download
-                </a>
-            </div>
+
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white py-3 d-flex align-items-center justify-content-between">
                     <h6 class="m-0 fw-bold">Student List</h6>
@@ -168,46 +165,47 @@
             editor.setReadOnly(true);
 
             $(document).ready(function() {
-    let editor = ace.edit("editor");
-    editor.setTheme("ace/theme/monokai");
-    editor.session.setMode("ace/mode/python");
-    editor.setReadOnly(true);
+                let editor = ace.edit("editor");
+                editor.setTheme("ace/theme/monokai");
+                editor.session.setMode("ace/mode/python");
+                editor.setReadOnly(true);
 
-    $(".student-item").on("click", function() {
-        let userId = $(this).data("user-id");
-        let activityId = $(this).data("activity-id");
+                $(".student-item").on("click", function() {
+                    let userId = $(this).data("user-id");
+                    let activityId = $(this).data("activity-id");
 
-        // Remove active class from all students
-        $(".student-item").removeClass("active");
+                    // Remove active class from all students
+                    $(".student-item").removeClass("active");
 
-        // Add active class to the clicked student
-        $(this).addClass("active");
+                    // Add active class to the clicked student
+                    $(this).addClass("active");
 
-        // Fetch the student's output
-        $.ajax({
-            url: `/instructor/get-student-output/${userId}/${activityId}`,
-            type: "GET",
-            success: function(response) {
-                if (response.success) {
-                    editor.setValue(response.output.code, -1);
-                    $("#score").text(response.output.score + "/{{ $activity->points }}");
-                    $("#feedback").text(response.output.feedback);
-                } else {
-                    editor.setValue("");
-                    $("#score").text("/{{ $activity->points }}");
-                    $("#feedback").text("No feedback available.");
-                }
-            },
-            error: function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error fetching student output.',
+                    // Fetch the student's output
+                    $.ajax({
+                        url: `/instructor/get-student-output/${userId}/${activityId}`,
+                        type: "GET",
+                        success: function(response) {
+                            if (response.success) {
+                                editor.setValue(response.output.code, -1);
+                                $("#score").text(response.output.score +
+                                    "/{{ $activity->points }}");
+                                $("#feedback").text(response.output.feedback);
+                            } else {
+                                editor.setValue("");
+                                $("#score").text("/{{ $activity->points }}");
+                                $("#feedback").text("No feedback available.");
+                            }
+                        },
+                        error: function() {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Error fetching student output.',
+                            });
+                        }
+                    });
                 });
-            }
-        });
-    });
-});
+            });
 
 
             // Score Filtering Logic
