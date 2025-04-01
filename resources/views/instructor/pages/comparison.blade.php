@@ -1,9 +1,10 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center">
         <h4 class="fw-bold">Similar Submissions</h4>
-        <button class="btn btn-primary" onclick="fetchComparisonData()">
+        <button id="refreshComparison" class="btn btn-primary" onclick="fetchComparisonData()">
             <i class="fas fa-sync-alt"></i> Refresh
         </button>
+
     </div>
     <div id="comparison-results" class="mt-3"></div>
 </div>
@@ -28,7 +29,10 @@ document.addEventListener("DOMContentLoaded", fetchComparisonData);
 
 // Function to fetch and update the comparison data
 function fetchComparisonData() {
-    let refreshButton = document.querySelector("button.btn-primary");
+    let refreshButton = document.getElementById("refreshComparison");
+    let refreshIcon = refreshButton.querySelector("i");
+
+    // Update button text and disable it
     refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
     refreshButton.disabled = true;
 
@@ -60,17 +64,17 @@ function fetchComparisonData() {
                 outputHtml = "<p class='text-muted'>No duplicate submissions found.</p>";
             }
             document.getElementById("comparison-results").innerHTML = outputHtml;
-
-            // Reset button after loading
-            refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
-            refreshButton.disabled = false;
         })
         .catch(error => {
             console.error("Error fetching comparison data:", error);
+        })
+        .finally(() => {
+            // Restore button state
             refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
             refreshButton.disabled = false;
         });
 }
+
 
 // Function to show full submitted code in the modal with student's name
 function showCode(code, studentName) {

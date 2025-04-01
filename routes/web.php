@@ -47,7 +47,7 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
     Route::get('/get-classes/{excludeClassId}', [ClassController::class, 'getAllClasses']);
 
     Route::get('/get-student-output/{userId}/{activityId}', [ClassController::class, 'getStudentOutput']);
-
+    Route::get('/activity/{activityId}/students', [ClassController::class, 'getStudentsForActivity'])->name('activity.students');
 
 
     Route::resource('archives', ArchiveController::class);

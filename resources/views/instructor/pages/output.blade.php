@@ -9,7 +9,6 @@
     .student-item.active {
         background-color: #dadada;
         color: black !important;
-
     }
 
     .student-list {
@@ -40,46 +39,35 @@
     /* Custom styling for the score filter dropdown */
     #scoreFilter {
         appearance: none;
-        /* Removes default browser styling */
         background-color: #e0e0e0;
-        color: white;
+        color: black;
         padding: 8px 12px;
         border: none;
         border-radius: 5px;
         font-weight: bold;
         cursor: pointer;
-
     }
-
-
 
     /* Change background on focus */
     #scoreFilter:focus {
         outline: none;
-        x
-    }
-
-    /* Styling for dropdown arrow */
-    #scoreFilter::after {
-        content: '▼';
-        font-size: 12px;
-        margin-left: 10px;
-        color: white;
     }
 </style>
 
 <div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h4 class="fw-bold">Student Submissions</h4>
+        <button class="btn btn-primary" id="refreshBtn">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+    </div>
 
-    <div class="row">
-
+    <div class="row mt-3">
         <!-- Left Column: Student List -->
         <div class="col-md-4">
-
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white py-3 d-flex align-items-center justify-content-between">
                     <h6 class="m-0 fw-bold">Student List</h6>
-
-                    <!-- Score Filtering Dropdown -->
                     <select id="scoreFilter" class="form-select form-select-sm text-dark" style="width: 150px;">
                         <option value="default">Sort by Score</option>
                         <option value="asc">Lowest to Highest</option>
@@ -88,8 +76,7 @@
                 </div>
 
                 <div class="card-body p-0 student-list">
-                    <ul id="studentList" class="list-group list-group-flush">
-                        <!-- Dynamic Student List -->
+                    <ul id="studentList" class="list-group list-group-flush" data-activity-id="{{ $activity->id }}">
                         @forelse ($students as $student)
                             <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3"
                                 data-user-id="{{ $student->user->id }}" data-activity-id="{{ $activity->id }}"
@@ -100,9 +87,8 @@
                                         alt="Profile" class="rounded-circle me-3 ml-3" width="45" height="45">
                                     <div class="ml-3">
                                         <span class="fw-bold">{{ $student->user->name }}</span>
-                                        <span
-                                            class="fw-bold text-success">{{ $student->score }}/{{ $activity->points }}</span>
-                                        <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
+                                        <span class="fw-bold text-success">{{ $student->score }}/{{ $activity->points }}</span>
+                                       
                                     </div>
                                 </div>
                             </li>
@@ -133,8 +119,7 @@
                             <div class="card bg-success text-white shadow">
                                 <div class="card-body">
                                     Score
-                                    <div id="score" class="h5 mb-0 font-weight-bold">--/{{ $activity->points }}
-                                    </div>
+                                    <div id="score" class="h5 mb-0 font-weight-bold">--/{{ $activity->points }}</div>
                                 </div>
                             </div>
                         </div>
@@ -154,8 +139,8 @@
 </div>
 
 @push('script')
-    <!-- Include ACE Editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
     <script>
         $(document).ready(function() {
@@ -164,72 +149,89 @@
             editor.session.setMode("ace/mode/python");
             editor.setReadOnly(true);
 
-            $(document).ready(function() {
-                let editor = ace.edit("editor");
-                editor.setTheme("ace/theme/monokai");
-                editor.session.setMode("ace/mode/python");
-                editor.setReadOnly(true);
-
+            function attachStudentItemHandlers() {
                 $(".student-item").on("click", function() {
                     let userId = $(this).data("user-id");
                     let activityId = $(this).data("activity-id");
 
-                    // Remove active class from all students
                     $(".student-item").removeClass("active");
-
-                    // Add active class to the clicked student
                     $(this).addClass("active");
 
-                    // Fetch the student's output
                     $.ajax({
                         url: `/instructor/get-student-output/${userId}/${activityId}`,
                         type: "GET",
                         success: function(response) {
                             if (response.success) {
                                 editor.setValue(response.output.code, -1);
-                                $("#score").text(response.output.score +
-                                    "/{{ $activity->points }}");
+                                $("#score").text(response.output.score + "/{{ $activity->points }}");
                                 $("#feedback").text(response.output.feedback);
                             } else {
                                 editor.setValue("");
-                                $("#score").text("/{{ $activity->points }}");
+                                $("#score").text("--/{{ $activity->points }}");
                                 $("#feedback").text("No feedback available.");
                             }
                         },
                         error: function() {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Error fetching student output.',
-                            });
+                            Swal.fire({ icon: 'error', title: 'Error', text: 'Error fetching student output.' });
                         }
                     });
                 });
-            });
+            }
 
+            attachStudentItemHandlers();
 
-            // Score Filtering Logic
             $("#scoreFilter").on("change", function() {
                 let order = $(this).val();
-                let studentList = $("#studentList");
-
                 let students = $(".student-item").get();
+
                 students.sort(function(a, b) {
                     let scoreA = parseInt($(a).data("score"));
                     let scoreB = parseInt($(b).data("score"));
 
-                    if (order === "asc") {
-                        return scoreA - scoreB; // Sort Lowest to Highest
-                    } else if (order === "desc") {
-                        return scoreB - scoreA; // Sort Highest to Lowest
-                    }
-                    return 0; // Default Order
+                    return order === "asc" ? scoreA - scoreB : scoreB - scoreA;
                 });
 
-                $.each(students, function(index, student) {
-                    studentList.append(student);
+                $.each(students, function(_, student) {
+                    $("#studentList").append(student);
                 });
             });
+
+            function refreshStudentList() {
+                let refreshButton = $("#refreshBtn");
+                refreshButton.html('<i class="fas fa-spinner fa-spin"></i> Refreshing...').prop("disabled", true);
+
+                const activityId = $('#studentList').data('activity-id');
+
+                $.ajax({
+                    url: `/instructor/activity/${activityId}/students`,
+                    type: "GET",
+                    success: function(response) {
+                        let html = response.length > 0 ? response.map(student => `
+                            <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3"
+                                data-user-id="${student.user_id}" data-activity-id="${student.activity_id}"
+                                data-score="${student.score_value}">
+                                <div class="d-flex align-items-center">
+                                    <img src="${student.avatar}" alt="Profile" class="rounded-circle me-3 ml-3" width="45" height="45">
+                                    <div class="ml-3">
+                                        <span class="fw-bold">${student.name}</span>
+                                        <span class="fw-bold text-success">${student.score}/${student.points}</span>
+                                    </div>
+                                </div>
+                            </li>
+                        `).join("") : `<h5 class="text-center">No students enrolled</h5>`;
+
+                        $('#studentList').html(html);
+                        attachStudentItemHandlers();
+                        refreshButton.html('<i class="fas fa-sync-alt"></i> Refresh').prop("disabled", false);
+                    },
+                    error: function() {
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to refresh student list' });
+                        refreshButton.html('<i class="fas fa-sync-alt"></i> Refresh').prop("disabled", false);
+                    }
+                });
+            }
+
+            $("#refreshBtn").on("click", refreshStudentList);
         });
     </script>
 @endpush

@@ -108,7 +108,33 @@ class ClassController extends Controller
 
     return view('instructor.pages.activity', compact('activity', 'students'));
 }
+public function getStudentsForActivity($activityId)
+{
+    $activity = Activity::findOrFail($activityId);
 
+    $students = JoinedClass::where('classlist_id', $activity->classlist_id)
+        ->with('user')
+        ->get();
+
+    // Prepare student data with scores
+    $studentData = $students->map(function($student) use ($activityId, $activity) {
+        $output = Output::where('user_id', $student->user->id)
+            ->where('activity_id', $activityId)
+            ->first();
+
+        return [
+            'user_id' => $student->user->id,
+            'activity_id' => $activity->id,
+            'score' => $output ? $output->score : '--',
+            'avatar' => $student->user->avatar ?? 'https://via.placeholder.com/45',
+            'name' => $student->user->name,
+            'points' => $activity->points,
+            'score_value' => $output ? $output->score : 0
+        ];
+    });
+
+    return response()->json($studentData);
+}
 
     public function getStudentOutput($userId, $activityId)
     {
@@ -269,49 +295,69 @@ class ClassController extends Controller
 
 
     public function compareStudentOutputs($activityId)
-{
-    $outputs = DB::table('outputs')
-        ->where('activity_id', $activityId)
-        ->join('users', 'outputs.user_id', '=', 'users.id')
-        ->select('outputs.*', 'users.name as student_name')
-        ->get();
+    {
+        // Fetch all student outputs for the given activity
+        $outputs = DB::table('outputs')
+            ->where('activity_id', $activityId)
+            ->join('users', 'outputs.user_id', '=', 'users.id')
+            ->select('outputs.*', 'users.name as student_name')
+            ->get();
 
-    // Normalize code by removing comments and extra spaces
-    $normalizedOutputs = [];
-    foreach ($outputs as $output) {
-        $cleanCode = $this->normalizeCode($output->code);
+        // Store normalized codes for comparison
+        $normalizedOutputs = [];
 
-        if (!isset($normalizedOutputs[$cleanCode])) {
-            $normalizedOutputs[$cleanCode] = [
-                'original_code' => $output->code, // Keep the first version
-                'students' => []
+        foreach ($outputs as $output) {
+            // Normalize code by removing comments, spaces, and making it lowercase
+            $cleanCode = $this->normalizeCode($output->code);
+
+            // If this version of code isn't stored yet, initialize it
+            if (!isset($normalizedOutputs[$cleanCode])) {
+                $normalizedOutputs[$cleanCode] = [
+                    'original_code' => $output->code, // Keep original format for display
+                    'students' => []
+                ];
+            }
+
+            // Store student details with original submitted code
+            $normalizedOutputs[$cleanCode]['students'][] = [
+                'name' => $output->student_name,
+                'full_code' => $output->code
             ];
         }
 
-        $normalizedOutputs[$cleanCode]['students'][] = [
-            'name' => $output->student_name,
-            'full_code' => $output->code
-        ];
+        // **Filter out codes that are submitted by only one student**
+        $filteredOutputs = array_filter($normalizedOutputs, function ($entry) {
+            return count($entry['students']) > 1; // Only keep duplicates
+        });
+
+        // Return grouped results as JSON for the frontend
+        return response()->json(array_values($filteredOutputs));
     }
 
-    // Filter to only include outputs with more than one student
-    $filteredOutputs = array_filter($normalizedOutputs, function($item) {
-        return count($item['students']) > 1;
-    });
+    /**
+     * Normalize submitted code to detect similar submissions.
+     *
+     * Steps:
+     * 1. Remove all comments (`# this is a comment`).
+     * 2. Convert to lowercase to ignore case differences.
+     * 3. Trim extra spaces and empty lines.
+     * 4. Remove ALL spaces within each line (`print('Sample ')` -> `print('Sample')`).
+     */
+    private function normalizeCode($code)
+    {
+        // Remove single-line comments (everything after #)
+        $code = preg_replace('/#.*$/m', '', $code);
 
-    return response()->json(array_values($filteredOutputs));
-}
+        // Convert to lowercase (ignores case differences)
+        $code = strtolower($code);
 
-// Function to remove comments and extra spaces
-private function normalizeCode($code)
-{
-    // Remove single-line comments (# this is a comment)
-    $code = preg_replace('/#.*$/m', '', $code);
-  // Convert to lowercase to ignore casing
-  $code = strtolower($code);
-    // Remove empty lines and trim spaces
-    $codeLines = array_filter(array_map('trim', explode("\n", $code)));
+        // Remove empty lines and trim spaces
+        $codeLines = array_filter(array_map('trim', explode("\n", $code)));
 
-    return implode("\n", $codeLines);
-}
+        // Remove ALL spaces within each line (fixes "print('Sample ')" issue)
+        $codeLines = array_map(fn($line) => preg_replace('/\s+/', '', $line), $codeLines);
+
+        // Join the lines back into a single string
+        return implode("\n", $codeLines);
+    }
 }
