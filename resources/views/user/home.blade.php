@@ -78,7 +78,7 @@
                     <form id="joinClassForm">
                         @csrf
                         <div class="form-group">
-                            <label for="classlist_id">Class code</label>
+                            <label for="classlist_id">Ask your teacher for the class code, then enter it here.</label>
                             <input type="text" class="form-control" id="classlist_id" name="classlist_id"
                                 placeholder="Enter class code" required oninput="validateClassCode(this)"
                                 onkeydown="restrictInput(event)">

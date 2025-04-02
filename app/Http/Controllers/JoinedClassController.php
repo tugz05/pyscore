@@ -111,6 +111,7 @@ class JoinedClassController extends Controller
 
         // Fetch students who joined the class
         $students = JoinedClass::where('classlist_id', $id)
+        ->where('is_remove', false)
             ->with('user')
             ->get()
             ->pluck('user');
