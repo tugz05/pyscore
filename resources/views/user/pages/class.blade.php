@@ -221,7 +221,7 @@
                                     <div class="col">
                                         <p class="fw-bold mb-0">${classlist.user.name} posted a new assignment:
                                             <span class="text-dark">${activity.title}</span>
-                                        </p>
+                                        </p>Posted:
                                         ${new Date(activity.created_at).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}
                                         <span class="badge ${statusClassBadge} ml-3 text-white">${submissionAssignedScore} / ${activity.points}</span>
                                     </div>

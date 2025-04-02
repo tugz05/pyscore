@@ -116,40 +116,35 @@ class ClassController extends Controller
 }
 
 
-public function getStudentsForActivity($activityId)
+// Add this method to ClassController.php
+public function getStudentList($activityId)
 {
     $activity = Activity::findOrFail($activityId);
 
     $students = JoinedClass::where('classlist_id', $activity->classlist_id)
-        ->where('is_remove', 0)
+        ->where('is_remove', false)
         ->with('user')
         ->get();
 
-    // Prepare student data with scores
-    $studentData = $students->map(function($student) use ($activityId, $activity) {
+    // Fetch student scores
+    foreach ($students as $student) {
         $output = Output::where('user_id', $student->user->id)
             ->where('activity_id', $activityId)
             ->first();
 
-        $score = $output ? $output->score : '--';
+        $student->score = $output ? $output->score : '--';
+    }
 
-        return [
-            'user_id' => $student->user->id,
-            'activity_id' => $activity->id,
-            'score' => $score,
-            'avatar' => $student->user->avatar ?? 'https://via.placeholder.com/45',
-            'name' => $student->user->name,
-            'points' => $activity->points,
-            'score_value' => is_numeric($score) ? (float)$score : -1 // Use -1 for non-numeric to push down
-        ];
-    });
+    // Sort students from highest to lowest
+    $students = $students->sortByDesc(function ($student) {
+        return is_numeric($student->score) ? (float)$student->score : -1;
+    })->values();
 
-    // Sort by score_value descending (highest first)
-    $studentData = $studentData->sortByDesc('score_value')->values();
-
-    return response()->json($studentData);
+    return response()->json([
+        'students' => $students,
+        'activity' => $activity
+    ]);
 }
-
 
     public function getStudentOutput($userId, $activityId)
     {
