@@ -73,36 +73,12 @@
         /* Same as default */
         outline: none !important;
     }
-
-    .custom-margin {
-    margin-left: 0; /* default for small screens */
-}
-
-@media (min-width: 576px) {
-    .custom-margin {
-        margin-left: 50px;
-    }
-}
-
-@media (min-width: 768px) {
-    .custom-margin {
-        margin-left: 100px;
-    }
-}
-
-@media (min-width: 992px) {
-    .custom-margin {
-        margin-left: 150px;
-    }
-}
-
-@media (min-width: 1200px) {
-    .custom-margin {
-        margin-left: 200px;
-    }
-}
-
-
+    /* .student-item .custom-margin {
+    margin-left: auto; /* Pushes the score to the right */
+    text-align: right;
+    white-space: nowrap; /* Prevents text wrapping */
+    padding-left: 100px; /* Adds space between name and score */
+} */
 
     /* Or to customize the click effect */
     #copyBtn:active {
@@ -133,32 +109,32 @@
                 <div class="card-body p-0 student-list">
                     <ul id="studentList" class="list-group list-group-flush" data-activity-id="{{ $activity->id }}">
                         @forelse ($students as $student)
-                            <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3"
-                                data-user-id="{{ $student->user->id }}" data-activity-id="{{ $activity->id }}"
-                                data-score="{{ $student->score == '--' ? 0 : $student->score }}">
+                        <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3 float-end"
+                        data-user-id="{{ $student->user->id }}" data-activity-id="{{ $activity->id }}"
+                        data-score="{{ $student->score == '--' ? 0 : $student->score }}">
 
-                                <div class="d-flex align-items-center">
-                                    <img src="{{ $student->user->avatar ?? 'https://via.placeholder.com/45' }}"
-                                        alt="Profile" class="rounded-circle me-3 ml-3" width="45" height="45">
-                                    <div class="ml-3 w-100">
-                                        <div class="d-flex justify-content-between">
-                                            <span class="fw-bold">{{ $student->user->name }}</span>
-                                            <span
-                                                class="fw-bold ms-auto custom-margin
-                                                 {{ $activity->is_missing == 1 ? 'text-danger' : ($student->score == '--' ? 'text-warning' : 'text-success') }}">
-                                                @if ($activity->is_missing == 1)
-                                                    Missing
-                                                @elseif ($student->score == '--')
-                                                    {{ $student->score }}/{{ $activity->points }}
-                                                @else
-                                                    {{ $student->score }}/{{ $activity->points }}
-                                                @endif
-                                            </span>
-                                        </div>
-                                        <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
-                                    </div>
+                        <div class="d-flex align-items-center w-100">
+                            <img src="{{ $student->user->avatar ?? 'https://via.placeholder.com/45' }}"
+                                alt="Profile" class="rounded-circle me-3 mr-2" width="45" height="45">
+                            <div class="w-100">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold student-name">{{ $student->user->name }}</span>
+                                    <span class="fw-bold ms-3 text-nowrap
+                                         {{ $activity->is_missing == 1 ? 'text-danger' : ($student->score == '--' ? 'text-warning' : 'text-success') }}">
+                                        @if ($activity->is_missing == 1)
+                                            Missing
+                                        @elseif ($student->score == '--')
+                                            {{ $student->score }}/{{ $activity->points }}
+                                        @else
+                                            {{ $student->score }}/{{ $activity->points }}
+                                        @endif
+                                    </span>
                                 </div>
-                            </li>
+                                <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
+                            </div>
+                        </div>
+                    </li>
+
                         @empty
                             <div class="d-flex align-items-center">
                                 <h5 class="text-center">No students enrolled</h5>

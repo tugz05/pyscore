@@ -23,7 +23,7 @@
 
             </div>
         </div>
-
+        
         <div class="list-group">
             @foreach ($students as $student)
                 <div class="list-group-item d-flex align-items-center justify-content-between">

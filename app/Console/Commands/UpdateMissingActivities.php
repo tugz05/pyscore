@@ -14,38 +14,25 @@ class UpdateMissingActivities extends Command
 
     public function handle()
     {
-        // Get current date and time
-        $now = Carbon::now('Asia/Manila');
-        $today = $now->toDateString(); // YYYY-MM-DD format
-        $currentTime = $now->format('H:i:s'); // HH:MM:SS format
+        $now = Carbon::now('Asia/Manila'); // Get the current timestamp
 
-        // Get activities that should be marked as missing
-        $activities = Activity::where('is_missing', false)
-            ->where('is_submitted', false)
-            ->where(function ($query) use ($today, $currentTime) {
-                $query->where('due_date', '<', $today) // Past due date
-                      ->orWhere(function ($q) use ($today, $currentTime) {
-                          $q->where('due_date', '=', $today) // Due today
-                            ->whereNotNull('due_time')
-                            ->where('due_time', '<', $currentTime); // Past due time
-                      });
-            })
+        // Get overdue activities
+        $activities = Activity::where('is_missing', 0)
+            ->where('is_submitted', 0)
+            ->where('due_date', '<=', $now->toDateString())
+            ->where('due_time', '<=', $now->toTimeString())
             ->get();
-
-        // Log affected activities before updating
-        if ($activities->isEmpty()) {
-            Log::info('No activities found to update as missing.');
-            $this->info('No activities to update.');
-            return;
-        }
-
         foreach ($activities as $activity) {
-            Log::info("Marking activity ID {$activity->id} as missing. Due: {$activity->due_date} {$activity->due_time}");
+            $dueDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $activity->due_date . ' ' . $activity->due_time, 'Asia/Manila');
+            if ($now->greaterThan($dueDateTime)) {
+                // Update the activity status to 'missing'
+                $activity->is_missing = 1;
+                $activity->save();
+                Log::info("Activity ID {$activity->id} marked as missing.");
+            }
         }
+        $this->info($activities);
 
-        // Update activities to mark as missing
-        $affectedRows = Activity::whereIn('id', $activities->pluck('id'))->update(['is_missing' => true]);
 
-        $this->info("Updated $affectedRows activities as missing.");
     }
 }

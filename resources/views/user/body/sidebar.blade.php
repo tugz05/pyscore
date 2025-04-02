@@ -46,16 +46,19 @@
                 <h6 class="collapse-header">Subjects:</h6>
                 {{-- <h1>{{$classlists}}</h1> --}}
                 @if(count($classlists) > 0)
-                    @forelse ($classlists as $class)
-                    <a class="collapse-item truncate-text" href="{{ route('user.class.view', $class->classlist->id) }}" title="{{ $class->classlist->name }}">
-                        {{$class->classlist->name }}
-                    </a>
-                    @empty
-                        <p class="collapse-item text-muted">No classes available</p>
-                    @endforelse
-                @else
+                @forelse ($classlists as $class)
+                    @if ($class->is_remove != 1)
+                        <a class="collapse-item truncate-text" href="{{ route('user.class.view', $class->classlist->id) }}" title="{{ $class->classlist->name }}">
+                            {{$class->classlist->name }}
+                        </a>
+                    @endif
+                @empty
                     <p class="collapse-item text-muted">No classes available</p>
-                @endif
+                @endforelse
+            @else
+                <p class="collapse-item text-muted">No classes available</p>
+            @endif
+
             </div>
         </div>
 

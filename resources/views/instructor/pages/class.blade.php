@@ -216,8 +216,8 @@
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to remove this student?</p>
-                    <input type="text" id="removeClassId">
-                    <input type="text" id="userID">
+                    <input type="hidden" id="removeClassId">
+                    <input type="hidden" id="userID">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -226,205 +226,206 @@
             </div>
         </div>
     </div>
-
 @endsection
 @push('script')
     <script>
         $(document).ready(function() {
-            $(document).on('click', '[data-bs-target="#addActivityModal"]', function () {
-        $('#addActivityForm').trigger('reset'); // Clear all input fields
-        $('#activity_id').val(''); // Ensure activity_id is empty for new activity
-        $('.summernote').summernote('code', ''); // Clear Summernote content
-    });
-                        // Initialize Summernote
-                        $('.summernote').summernote({
-                            height: 200, // Set height
-                            toolbar: [
-                                ['style', ['bold', 'italic', 'underline', 'clear']],
-                                ['para', ['ul', 'ol', 'paragraph']],
-                            ]
-                        });
-                        $(document).on('click', '.remove-btn', function(e) {
-                            e.preventDefault();
+            $(document).on('click', '[data-bs-target="#addActivityModal"]', function() {
+                $('#addActivityForm').trigger('reset'); // Clear all input fields
+                $('#activity_id').val(''); // Ensure activity_id is empty for new activity
+                $('.summernote').summernote('code', ''); // Clear Summernote content
+            });
+            // Initialize Summernote
+            $('.summernote').summernote({
+                height: 200, // Set height
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                ]
+            });
+            $(document).on('click', '.remove-btn', function(e) {
+                e.preventDefault();
 
-                            let id = $(this).data('id');
-                            let userID = $(this).data('user');
-                            $('#removeClassId').val(id);
-                            $('#userID').val(userID);
-                            $('#removeConfirmModal').modal('show'); // Show the modal
-                            $('#confirmRemove').click(function() {
-                                let id = $('#removeClassId').val();
-                                let userID = $('#userID').val();
+                let id = $(this).data('id');
+                let userID = $(this).data('user');
+                $('#removeClassId').val(id);
+                $('#userID').val(userID);
+                $('#removeConfirmModal').modal('show'); // Show the modal
+                $('#confirmRemove').click(function() {
+                    let id = $('#removeClassId').val();
+                    let userID = $('#userID').val();
 
-                                $.ajax({
-                                    url: "{{ route('remove.student') }}",
-                                    type: "POST",
-                                    data: {
-                                        userID: userID,
-                                        id: id,
-                                        _token: "{{ csrf_token() }}"
-                                    },
-                                    success: function(response) {
-                                        console.log(response);
-                                        $('#removeConfirmModal').modal(
-                                            'hide'
-                                            ); // Hide the modal after successful archive
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Success',
-                                            text: 'Student removed succesfully',
-                                        });
+                    $.ajax({
+                        url: "{{ route('remove.student') }}",
+                        type: "POST",
+                        data: {
+                            userID: userID,
+                            id: id,
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            console.log(response);
+                            $('#removeConfirmModal').modal(
+                            'hide'); // Hide the modal after successful archive
 
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Student removed successfully',
+                            }).then(() => {
+                                location
+                            .reload(); // Auto-refresh the page after clicking "OK" in the success message
+                            });
+                        },
 
-                                    },
-                                    error: function(xhr, status, error) {
-                                        console.error(xhr.responseText);
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: 'Something went wrong. Please try again.',
-                                        });
-
-                                    }
-                                });
+                        error: function(xhr, status, error) {
+                            console.error(xhr.responseText);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Something went wrong. Please try again.',
                             });
 
-                        });
-
-                        // Ensure content is passed correctly on form submission
-                        $('#addActivityForm').on('submit', function() {
-                            let instructionContent = $('.summernote').summernote('code');
-                            $('#instruction').val(instructionContent);
-                        });
-
-                    });
-
-                    document.getElementById('share_activity').addEventListener('change', function() {
-                        let hiddenInput = document.getElementById('share_activity_hidden');
-                        hiddenInput.value = this.checked ? "1" : "0";
-                    });
-                    document.getElementById('share_activity').addEventListener('change', function() {
-                        let classlistContainer = document.getElementById('classlist_container');
-                        let classlistCheckboxes = document.getElementById('classlist_checkboxes');
-                        let classlistId = "{{ $classlist->id }}"; // Get the current class ID
-
-                        if (this.checked) {
-                            classlistContainer.style.display = 'block'; // Show checkboxes
-
-                            // Fetch classes dynamically from the backend
-                            fetch(`/instructor/get-classes/${classlistId}`) // Pass current class ID
-                                .then(response => response.json())
-                                .then(data => {
-                                    classlistCheckboxes.innerHTML = ''; // Clear previous checkboxes
-
-                                    data.forEach(classItem => {
-                                        let div = document.createElement('div');
-                                        div.classList.add('col'); // Responsive column
-
-                                        let checkbox = document.createElement('input');
-                                        checkbox.type = 'checkbox';
-                                        checkbox.name = 'selected_classes[]';
-                                        checkbox.value = classItem.id;
-                                        checkbox.id = 'class_' + classItem.id;
-                                        checkbox.classList.add('form-check-input');
-
-                                        let label = document.createElement('label');
-                                        label.htmlFor = 'class_' + classItem.id;
-                                        label.textContent = classItem.name + ' | ' + classItem.section
-                                            .name;
-                                        label.classList.add('form-check-label');
-
-                                        let checkContainer = document.createElement('div');
-                                        checkContainer.classList.add('form-check');
-                                        checkContainer.appendChild(checkbox);
-                                        checkContainer.appendChild(label);
-
-                                        div.appendChild(checkContainer);
-                                        classlistCheckboxes.appendChild(div);
-                                    });
-                                })
-                                .catch(error => console.error('Error fetching class list:', error));
-                        } else {
-                            classlistContainer.style.display = 'none'; // Hide checkboxes
                         }
                     });
+                });
 
+            });
 
-                    document.getElementById('schedule_activity').addEventListener('change', function() {
-                        let scheduleFields = document.getElementById('schedule_fields');
+            // Ensure content is passed correctly on form submission
+            $('#addActivityForm').on('submit', function() {
+                let instructionContent = $('.summernote').summernote('code');
+                $('#instruction').val(instructionContent);
+            });
 
-                        if (this.checked) {
-                            scheduleFields.style.display = 'flex'; // Show fields
-                        } else {
-                            scheduleFields.style.display = 'none'; // Hide fields
-                        }
-                    });
-                    /** Copy Share Code Functionality **/
-                    function copyShareCode() {
-                        let copyText = document.getElementById("shareCode");
-                        copyText.select();
-                        navigator.clipboard.writeText(copyText.value).then(() => {
-                            Swal.fire({
-                                position: "bottom",
-                                title: "Share code copied: " + copyText.value,
-                                showConfirmButton: false,
-                                timer: 1100,
-                                customClass: {
-                                    title: 'swal-share-class' // Assign a CSS class to the title
-                                }
-                            });
-                        }).catch(err => {
-                            console.error("Error copying text:", err);
+        });
+
+        document.getElementById('share_activity').addEventListener('change', function() {
+            let hiddenInput = document.getElementById('share_activity_hidden');
+            hiddenInput.value = this.checked ? "1" : "0";
+        });
+        document.getElementById('share_activity').addEventListener('change', function() {
+            let classlistContainer = document.getElementById('classlist_container');
+            let classlistCheckboxes = document.getElementById('classlist_checkboxes');
+            let classlistId = "{{ $classlist->id }}"; // Get the current class ID
+
+            if (this.checked) {
+                classlistContainer.style.display = 'block'; // Show checkboxes
+
+                // Fetch classes dynamically from the backend
+                fetch(`/instructor/get-classes/${classlistId}`) // Pass current class ID
+                    .then(response => response.json())
+                    .then(data => {
+                        classlistCheckboxes.innerHTML = ''; // Clear previous checkboxes
+
+                        data.forEach(classItem => {
+                            let div = document.createElement('div');
+                            div.classList.add('col'); // Responsive column
+
+                            let checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.name = 'selected_classes[]';
+                            checkbox.value = classItem.id;
+                            checkbox.id = 'class_' + classItem.id;
+                            checkbox.classList.add('form-check-input');
+
+                            let label = document.createElement('label');
+                            label.htmlFor = 'class_' + classItem.id;
+                            label.textContent = classItem.name + ' | ' + classItem.section
+                                .name;
+                            label.classList.add('form-check-label');
+
+                            let checkContainer = document.createElement('div');
+                            checkContainer.classList.add('form-check');
+                            checkContainer.appendChild(checkbox);
+                            checkContainer.appendChild(label);
+
+                            div.appendChild(checkContainer);
+                            classlistCheckboxes.appendChild(div);
                         });
+                    })
+                    .catch(error => console.error('Error fetching class list:', error));
+            } else {
+                classlistContainer.style.display = 'none'; // Hide checkboxes
+            }
+        });
+
+
+        document.getElementById('schedule_activity').addEventListener('change', function() {
+            let scheduleFields = document.getElementById('schedule_fields');
+
+            if (this.checked) {
+                scheduleFields.style.display = 'flex'; // Show fields
+            } else {
+                scheduleFields.style.display = 'none'; // Hide fields
+            }
+        });
+        /** Copy Share Code Functionality **/
+        function copyShareCode() {
+            let copyText = document.getElementById("shareCode");
+            copyText.select();
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                Swal.fire({
+                    position: "bottom",
+                    title: "Share code copied: " + copyText.value,
+                    showConfirmButton: false,
+                    timer: 1100,
+                    customClass: {
+                        title: 'swal-share-class' // Assign a CSS class to the title
                     }
+                });
+            }).catch(err => {
+                console.error("Error copying text:", err);
+            });
+        }
 
-                    function copyLink() {
-                        let copyText = document.getElementById("shareCode");
-                        let baseUrl = window.location.origin; // Dynamically gets the base URL
-                        let fullUrl = `${baseUrl}/student/join/class/s/${copyText.value}`;
+        function copyLink() {
+            let copyText = document.getElementById("shareCode");
+            let baseUrl = window.location.origin; // Dynamically gets the base URL
+            let fullUrl = `${baseUrl}/student/join/class/s/${copyText.value}`;
 
-                        navigator.clipboard.writeText(fullUrl).then(() => {
-                            Swal.fire({
-                                position: "bottom",
-                                title: "Share code link copied: " + fullUrl,
-                                showConfirmButton: false,
-                                timer: 1100,
-                                customClass: {
-                                    title: 'swal-share-class' // Assign a CSS class to the title
-                                }
-                            });
-                        }).catch(err => {
-                            console.error("Error copying text:", err);
-                        });
+            navigator.clipboard.writeText(fullUrl).then(() => {
+                Swal.fire({
+                    position: "bottom",
+                    title: "Share code link copied: " + fullUrl,
+                    showConfirmButton: false,
+                    timer: 1100,
+                    customClass: {
+                        title: 'swal-share-class' // Assign a CSS class to the title
                     }
+                });
+            }).catch(err => {
+                console.error("Error copying text:", err);
+            });
+        }
 
 
-                    $(document).ready(function() {
-                        $(document).on("click", ".dropdown-menu", function(event) {
-                            event.stopPropagation();
-                        });
+        $(document).ready(function() {
+            $(document).on("click", ".dropdown-menu", function(event) {
+                event.stopPropagation();
+            });
 
-                        // Handle card clicks, excluding the dropdown menu
-                        $(document).on("click", ".activity-card", function(event) {
-                            if (!$(event.target).closest(".dropdown").length) {
-                                let url = $(this).data("url"); // Get the activity URL
-                                window.location.href = url; // Redirect to the activity details page
-                            }
-                        });
-                        let classlistId = "{{ $classlist->id }}"; // Pass classlist_id from Blade to JavaScript
+            // Handle card clicks, excluding the dropdown menu
+            $(document).on("click", ".activity-card", function(event) {
+                if (!$(event.target).closest(".dropdown").length) {
+                    let url = $(this).data("url"); // Get the activity URL
+                    window.location.href = url; // Redirect to the activity details page
+                }
+            });
+            let classlistId = "{{ $classlist->id }}"; // Pass classlist_id from Blade to JavaScript
 
-                        loadActivities(classlistId); // Load activities dynamically
+            loadActivities(classlistId); // Load activities dynamically
 
-                        function loadActivities(classlistId) {
-                            $.ajax({
-                                url: `/instructor/activities/list/${classlistId}`, // Correctly append classlistId
-                                type: "GET",
-                                dataType: "json",
-                                success: function(response) {
-                                    let classCards = '';
-                                    let classlist = response.classlist;
-                                    if (response.data.length === 0) {
-                                        classCards = `
+            function loadActivities(classlistId) {
+                $.ajax({
+                    url: `/instructor/activities/list/${classlistId}`, // Correctly append classlistId
+                    type: "GET",
+                    dataType: "json",
+                    success: function(response) {
+                        let classCards = '';
+                        let classlist = response.classlist;
+                        if (response.data.length === 0) {
+                            classCards = `
                        <div class="d-flex align-items-center justify-content-center w-100" style="height: 75vh;">
                             <div class="text-center">
                                 <img src="{{ asset('assets/img/undraw_posting_photo.svg') }}" style="max-width: 50%; height: auto; padding: 20px;">
@@ -432,10 +433,10 @@
                             </div>
                         </div>
                     `;
-                                    } else {
-                                        console.log(response.data);
-                                        $.each(response.data, function(index, activity) {
-                                            classCards += `
+                        } else {
+                            console.log(response.data);
+                            $.each(response.data, function(index, activity) {
+                                classCards += `
                              <div class="card shadow-sm border-0 rounded-3 p-2 mb-3 activity-card" data-url="/instructor/activity/${activity.id}" style="cursor: pointer;">
                                 <div class="card-body d-flex align-items-center justify-content-between">
                                     <!-- Left Side: Icon -->
@@ -481,123 +482,123 @@
                             </div>
                             </a>
                 `;
-                                        });
-                                    }
-                                    $('#classCards').html(classCards);
-                                }
                             });
                         }
+                        $('#classCards').html(classCards);
+                    }
+                });
+            }
 
 
-                        $('#addActivityForm').submit(function(e) {
-                            e.preventDefault();
-                            let id = $('#activity_id').val().trim();
-                            let classlistId = $('#classlist_id').val(); // Always keep classlist_id
-                            let sectionId = $('#section_id').val(); // Always keep section_id
-                            let url = id ? `activity/update/${id}` : "{{ route('activity.store') }}";
-                            let method = id ? 'PUT' : 'POST';
-                            $.ajax({
-                                url: url,
-                                type: method,
-                                data: $(this).serialize(),
-                                headers: {
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                },
-                                success: function(response) {
-                                    $('#addActivityModal').modal('hide');
-                                    // Clear all fields except hidden ones
-                                    $('#addActivityForm').find(
-                                        'input:not([type=hidden]), textarea').val(
-                                        '');
-                                    $('#addActivityForm').find('.summernote').summernote('code',
-                                        '');
-                                    // Reassign hidden field values
-                                    $('#classlist_id').val("{{ $classlist->id }}");
-                                    $('#section_id').val("{{ $classlist->section->id }}");
-                                    $('#classlist_id').val(
-                                    classlistId); // Restore classlist_id after reset
-                                    $('#section_id').val(
-                                    sectionId); // Restore section_id after reset
-                                    Swal.fire({
-                                        icon: "success",
-                                        text: "Activity saved successfully!",
-                                    });
-                                    loadActivities(classlistId);
-
-                                },
-                                error: function(xhr) {
-                                    console.log("AJAX Error:", xhr.responseText);
-                                    alert("Error: " + xhr.responseJSON.error);
-                                }
-                            });
+            $('#addActivityForm').submit(function(e) {
+                e.preventDefault();
+                let id = $('#activity_id').val().trim();
+                let classlistId = $('#classlist_id').val(); // Always keep classlist_id
+                let sectionId = $('#section_id').val(); // Always keep section_id
+                let url = id ? `activity/update/${id}` : "{{ route('activity.store') }}";
+                let method = id ? 'PUT' : 'POST';
+                $.ajax({
+                    url: url,
+                    type: method,
+                    data: $(this).serialize(),
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        $('#addActivityModal').modal('hide');
+                        // Clear all fields except hidden ones
+                        $('#addActivityForm').find(
+                            'input:not([type=hidden]), textarea').val(
+                            '');
+                        $('#addActivityForm').find('.summernote').summernote('code',
+                            '');
+                        // Reassign hidden field values
+                        $('#classlist_id').val("{{ $classlist->id }}");
+                        $('#section_id').val("{{ $classlist->section->id }}");
+                        $('#classlist_id').val(
+                            classlistId); // Restore classlist_id after reset
+                        $('#section_id').val(
+                            sectionId); // Restore section_id after reset
+                        Swal.fire({
+                            icon: "success",
+                            text: "Activity saved successfully!",
                         });
-                        /** Edit Activity **/
-                        $(document).on("click", ".edit-btn", function() {
-                            $("#activity_id").val($(this).data('id'));
-                            $("#title").val($(this).data('title'));
-                            $("#points").val($(this).data('points'));
+                        loadActivities(classlistId);
 
-                            // Retrieve and decode HTML content
-                            let instructionHtml = decodeURIComponent($(this).data('instruction'));
+                    },
+                    error: function(xhr) {
+                        console.log("AJAX Error:", xhr.responseText);
+                        alert("Error: " + xhr.responseJSON.error);
+                    }
+                });
+            });
+            /** Edit Activity **/
+            $(document).on("click", ".edit-btn", function() {
+                $("#activity_id").val($(this).data('id'));
+                $("#title").val($(this).data('title'));
+                $("#points").val($(this).data('points'));
 
-                            // Set HTML content inside Summernote
-                            $('#instruction').summernote('code', instructionHtml);
+                // Retrieve and decode HTML content
+                let instructionHtml = decodeURIComponent($(this).data('instruction'));
 
-                            $("#due_date").val($(this).data('due_date'));
-                            $("#due_time").val($(this).data('due_time'));
-                            $("#accessible_date").val($(this).data('accessible_date'));
-                            $("#accessible_time").val($(this).data('accessible_time'));
+                // Set HTML content inside Summernote
+                $('#instruction').summernote('code', instructionHtml);
 
-                            $("#addActivityModal").modal("show");
+                $("#due_date").val($(this).data('due_date'));
+                $("#due_time").val($(this).data('due_time'));
+                $("#accessible_date").val($(this).data('accessible_date'));
+                $("#accessible_time").val($(this).data('accessible_time'));
+
+                $("#addActivityModal").modal("show");
+            });
+
+
+            /** Delete Activity **/
+            $(document).on('click', '.delete-btn', function() {
+                let classlistId = "{{ $classlist->id }}";
+                let id = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Do you want to delete this Activity?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `activity/${id}`,
+                            type: "DELETE",
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr(
+                                    'content')
+                            },
+                            success: function(response) {
+                                loadActivities(classlistId);
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Activity has been deleted successfully.',
+                                });
+                            },
+                            error: function() {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Something went wrong!',
+                                });
+                            }
                         });
+                    }
+                });
+            });
 
 
-                        /** Delete Activity **/
-                        $(document).on('click', '.delete-btn', function() {
-                            let classlistId = "{{ $classlist->id }}";
-                            let id = $(this).data('id');
-
-                            Swal.fire({
-                                title: 'Are you sure?',
-                                text: 'Do you want to delete this Activity?',
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonColor: '#d33',
-                                cancelButtonColor: '#3085d6',
-                                confirmButtonText: 'Yes, delete it!',
-                                cancelButtonText: 'Cancel'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    $.ajax({
-                                        url: `activity/${id}`,
-                                        type: "DELETE",
-                                        data: {
-                                            _token: $('meta[name="csrf-token"]').attr(
-                                                'content')
-                                        },
-                                        success: function(response) {
-                                            loadActivities(classlistId);
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: 'Deleted!',
-                                                text: 'Activity has been deleted successfully.',
-                                            });
-                                        },
-                                        error: function() {
-                                            Swal.fire({
-                                                icon: 'error',
-                                                title: 'Oops...',
-                                                text: 'Something went wrong!',
-                                            });
-                                        }
-                                    });
-                                }
-                            });
-                        });
-
-
-                        /** Fix Bootstrap Dropdown **/
-                        $(".dropdown-toggle").dropdown();
-                    });
+            /** Fix Bootstrap Dropdown **/
+            $(".dropdown-toggle").dropdown();
+        });
     </script>
 @endpush

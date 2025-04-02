@@ -206,7 +206,11 @@
                                 let submissionAssignedScore = submissionStatus ===
                                     'Missing' ? 0 : (activity.user_score !== null ?
                                         activity.user_score : '--');
-
+                                if (submissionAssignedScore === '--') {
+                                    statusClass = 'text-warning';
+                                    statusClassBadge = 'bg-warning';
+                                    submissionStatus = 'Pending';
+                                }
                                 classCards +=
                                     `<div class="card shadow-sm border-0 rounded-3 p-2 mb-3 activity-card" data-url="/student/activity/${activity.id}" style="cursor: pointer;">
                             <div class="card-body d-flex align-items-center justify-content-between">
