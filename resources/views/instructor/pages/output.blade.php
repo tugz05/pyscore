@@ -249,6 +249,7 @@
             });
 
 
+
             function refreshStudentList() {
     let refreshButton = $("#refreshBtn");
     refreshButton.html('<i class="fas fa-spinner fa-spin"></i> Refreshing...').prop("disabled", true);
@@ -319,7 +320,6 @@
         }
     });
 }
-
 
             $("#refreshBtn").on("click", refreshStudentList);
 
