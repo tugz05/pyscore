@@ -110,7 +110,7 @@ class ClassController extends Controller
         return view('instructor.pages.activity', compact('activity', 'students'));
     }
 
-    
+
 public function getStudentsForActivity($activityId)
 {
     $activity = Activity::findOrFail($activityId);
