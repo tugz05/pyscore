@@ -226,7 +226,7 @@
             </div>
         </div>
     </div>
-    <p>Try lng</p>
+
 @endsection
 @push('script')
     <script>

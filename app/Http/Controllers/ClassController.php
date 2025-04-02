@@ -91,31 +91,7 @@ class ClassController extends Controller
         return abort(404, 'Activity not found.');
     }
 
-    $classlist = Classlist::where('id', $activity->classlist_id)->with(['user'])->first();
-
-    $students = JoinedClass::where('classlist_id', $activity->classlist_id)
-        ->where('is_remove', false)
-        ->with('user')
-        ->get();
-
-    // Fetch student scores
-    foreach ($students as $student) {
-        $output = Output::where('user_id', $student->user->id)
-            ->where('activity_id', $id)
-            ->first();
-
-        $student->score = $output ? $output->score : '--'; // Assign score or "--" if not found
-    }
-
-    // Sort students from highest to lowest, treating '--' as lowest
-    $students = $students->sortByDesc(function ($student) {
-        return is_numeric($student->score) ? (float)$student->score : -1;
-    })->values();
-
-    return view('instructor.pages.activity', compact('activity', 'students'));
 }
-
-
 public function getStudentsForActivity($activityId)
 {
     $activity = Activity::findOrFail($activityId);
