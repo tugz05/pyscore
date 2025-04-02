@@ -64,19 +64,29 @@
         background-color: #28a745 !important;
         color: white !important;
     }
-    /* To remove the gray border effect on click */
-#copyBtn:active,
-#copyBtn:focus {
-    box-shadow: none !important;
-    border-color: #6c757d !important; /* Same as default */
-    outline: none !important;
-}
 
-/* Or to customize the click effect */
-#copyBtn:active {
-    border-color: #28a745 !important; /* Green border when clicked */
-    background-color: rgba(40, 167, 69, 0.1) !important; /* Light green background */
-}
+    /* To remove the gray border effect on click */
+    #copyBtn:active,
+    #copyBtn:focus {
+        box-shadow: none !important;
+        border-color: #6c757d !important;
+        /* Same as default */
+        outline: none !important;
+    }
+
+    .custom-margin {
+        margin-left: 200px;
+        /* Adjust the value as needed */
+    }
+
+
+    /* Or to customize the click effect */
+    #copyBtn:active {
+        border-color: #28a745 !important;
+        /* Green border when clicked */
+        background-color: rgba(40, 167, 69, 0.1) !important;
+        /* Light green background */
+    }
 </style>
 
 <div class="container-fluid mt-4">
@@ -93,12 +103,8 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white py-3 d-flex align-items-center justify-content-between">
                     <h6 class="m-0 fw-bold">Student List</h6>
-                    <select id="scoreFilter" class="form-select form-select-sm text-dark" style="width: 150px;">
-                        <option value="default">Sort by Score</option>
-                        <option value="asc">Lowest to Highest</option>
-                        <option value="desc">Highest to Lowest</option>
-                    </select>
                 </div>
+                {{-- <span>{{ $activity }}</span> --}}
 
                 <div class="card-body p-0 student-list">
                     <ul id="studentList" class="list-group list-group-flush" data-activity-id="{{ $activity->id }}">
@@ -113,12 +119,21 @@
                                     <div class="ml-3 w-100">
                                         <div class="d-flex justify-content-between">
                                             <span class="fw-bold">{{ $student->user->name }}</span>
-                                            <span class="fw-bold text-success ms-auto">{{ $student->score }}/{{ $activity->points }}</span>
+                                            <span
+                                                class="fw-bold ms-auto custom-margin
+                                                 {{ $activity->is_missing == 1 ? 'text-danger' : ($student->score == '--' ? 'text-warning' : 'text-success') }}">
+                                                @if ($activity->is_missing == 1)
+                                                    Missing
+                                                @elseif ($student->score == '--')
+                                                    {{ $student->score }}/{{ $activity->points }}
+                                                @else
+                                                    {{ $student->score }}/{{ $activity->points }}
+                                                @endif
+                                            </span>
                                         </div>
                                         <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
                                     </div>
                                 </div>
-
                             </li>
                         @empty
                             <div class="d-flex align-items-center">
@@ -150,7 +165,8 @@
                             <div class="card bg-success text-white shadow">
                                 <div class="card-body">
                                     Score
-                                    <div id="score" class="h5 mb-0 font-weight-bold">--/{{ $activity->points }}</div>
+                                    <div id="score" class="h5 mb-0 font-weight-bold">--/{{ $activity->points }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -194,7 +210,8 @@
                         success: function(response) {
                             if (response.success) {
                                 editor.setValue(response.output.code, -1);
-                                $("#score").text(response.output.score + "/{{ $activity->points }}");
+                                $("#score").text(response.output.score +
+                                    "/{{ $activity->points }}");
                                 $("#feedback").text(response.output.feedback);
                             } else {
                                 editor.setValue("");
@@ -203,7 +220,11 @@
                             }
                         },
                         error: function() {
-                            Swal.fire({ icon: 'error', title: 'Error', text: 'Error fetching student output.' });
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Error fetching student output.'
+                            });
                         }
                     });
                 });
@@ -227,40 +248,78 @@
                 });
             });
 
+
             function refreshStudentList() {
-                let refreshButton = $("#refreshBtn");
-                refreshButton.html('<i class="fas fa-spinner fa-spin"></i> Refreshing...').prop("disabled", true);
+    let refreshButton = $("#refreshBtn");
+    refreshButton.html('<i class="fas fa-spinner fa-spin"></i> Refreshing...').prop("disabled", true);
 
-                const activityId = $('#studentList').data('activity-id');
+    const activityId = $('#studentList').data('activity-id');
 
-                $.ajax({
-                    url: `/instructor/activity/${activityId}/students`,
-                    type: "GET",
-                    success: function(response) {
-                        let html = response.length > 0 ? response.map(student => `
-                            <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3"
-                                data-user-id="${student.user_id}" data-activity-id="${student.activity_id}"
-                                data-score="${student.score_value}">
-                                <div class="d-flex align-items-center">
-                                    <img src="${student.avatar}" alt="Profile" class="rounded-circle me-3 ml-3" width="45" height="45">
-                                    <div class="ml-3">
-                                        <span class="fw-bold">${student.name}</span>
-                                        <span class="fw-bold text-success">${student.score}/${student.points}</span>
-                                    </div>
-                                </div>
-                            </li>
-                        `).join("") : `<h5 class="text-center">No students enrolled</h5>`;
+    $.ajax({
+        url: `/instructor/activity/${activityId}/students`,
+        type: "GET",
+        success: function(response) {
+            let html = "";
 
-                        $('#studentList').html(html);
-                        attachStudentItemHandlers();
-                        refreshButton.html('<i class="fas fa-sync-alt"></i> Refresh').prop("disabled", false);
-                    },
-                    error: function() {
-                        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to refresh student list' });
-                        refreshButton.html('<i class="fas fa-sync-alt"></i> Refresh').prop("disabled", false);
+            if (response.length > 0) {
+                html = response.map(student => {
+                    let scoreText = '';
+                    let scoreClass = '';
+
+                    if (student.is_missing === 1) {
+                        scoreText = 'Missing';
+                        scoreClass = 'text-danger';
+                    } else if (student.score === '--') {
+                        scoreText = `${student.score}/${student.points}`;
+                        scoreClass = 'text-warning';
+                    } else {
+                        scoreText = `${student.score}/${student.points}`;
+                        scoreClass = 'text-success';
                     }
-                });
+
+                    return `
+                        <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3"
+                            data-user-id="${student.user_id}" data-activity-id="${student.activity_id}"
+                            data-score="${student.score === '--' ? 0 : student.score}">
+
+                            <div class="d-flex align-items-center">
+                                <img src="${student.avatar}" alt="Profile" class="rounded-circle me-3 ml-3" width="45" height="45">
+                                <div class="ml-3 w-100">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-bold">${student.name}</span>
+                                        <span class="fw-bold ms-auto custom-margin ${scoreClass}">
+                                            ${scoreText}
+                                        </span>
+                                    </div>
+                                    <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
+                                </div>
+                            </div>
+                        </li>
+                    `;
+                }).join("");
+            } else {
+                html = `
+                    <div class="d-flex align-items-center">
+                        <h5 class="text-center">No students enrolled</h5>
+                    </div>
+                `;
             }
+
+            $('#studentList').html(html);
+            attachStudentItemHandlers();
+            refreshButton.html('<i class="fas fa-sync-alt"></i> Refresh').prop("disabled", false);
+        },
+        error: function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to refresh student list'
+            });
+            refreshButton.html('<i class="fas fa-sync-alt"></i> Refresh').prop("disabled", false);
+        }
+    });
+}
+
 
             $("#refreshBtn").on("click", refreshStudentList);
 
