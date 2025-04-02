@@ -84,30 +84,31 @@ class ClassController extends Controller
     }
 
     public function viewActivity($id)
-{
-    $activity = Activity::where('id', $id)->with(['user'])->first();
+    {
+        $activity = Activity::where('id', $id)->with(['user'])->first();
 
-    if (!$activity) {
-        return abort(404, 'Activity not found.');
+        if (!$activity) {
+            return abort(404, 'Activity not found.');
+        }
+
+        $classlist = Classlist::where('id', $activity->classlist_id)->with(['user'])->first();
+
+        $students = JoinedClass::where('classlist_id', $activity->classlist_id)
+            ->where('is_remove', false)
+            ->with('user')
+            ->get();
+        
+        // Fetch student scores
+        foreach ($students as $student) {
+            $output = Output::where('user_id', $student->user->id)
+                ->where('activity_id', $id)
+                ->first();
+
+            $student->score = $output ? $output->score : '--'; // Assign score or "--" if not found
+        }
+
+        return view('instructor.pages.activity', compact('activity', 'students'));
     }
-
-    $classlist = Classlist::where('id', $activity->classlist_id)->with(['user'])->first();
-
-    $students = JoinedClass::where('classlist_id', $activity->classlist_id)
-        ->with('user')
-        ->get();
-
-    // Fetch student scores
-    foreach ($students as $student) {
-        $output = Output::where('user_id', $student->user->id)
-            ->where('activity_id', $id)
-            ->first();
-
-        $student->score = $output ? $output->score : '--'; // Assign score or "--" if not found
-    }
-
-    return view('instructor.pages.activity', compact('activity', 'students'));
-}
 
 
     public function getStudentOutput($userId, $activityId)
@@ -247,7 +248,8 @@ class ClassController extends Controller
         $activity->delete();
         return response()->json(['message' => 'Activity deleted successfully!']);
     }
-    public function removeStudent(Request $request){
+    public function removeStudent(Request $request)
+    {
         try {
             // Find the class based on id and user_id
             $class = JoinedClass::where('classlist_id', $request->userID)
