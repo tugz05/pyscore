@@ -256,6 +256,39 @@
                                 let id = $('#removeClassId').val();
                                 let userID = $('#userID').val();
 
+<<<<<<< HEAD
+                    $.ajax({
+                        url: "{{ route('remove.student') }}",
+                        type: "POST",
+                        data: {
+                            userID: userID,
+                            id: id,
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            console.log(response);
+                            $('#removeConfirmModal').modal(
+                            'hide'); // Hide the modal after successful archive
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Student removed successfully',
+                            }).then(() => {
+                                // Reload the page or class list after the alert is closed
+                                location
+                            .reload(); // This will refresh the entire page
+                                // Or, if you just need to reload the class list without refreshing the entire page:
+                                // loadClasses();
+                            });
+                        },
+
+                        error: function(xhr, status, error) {
+                            console.error(xhr.responseText);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Something went wrong. Please try again.',
+=======
                                 $.ajax({
                                     url: "{{ route('remove.student') }}",
                                     type: "POST",
@@ -287,6 +320,7 @@
 
                                     }
                                 });
+>>>>>>> b3060d8ba84d52809e701317e77f5f38c4a28c3f
                             });
 
                         });

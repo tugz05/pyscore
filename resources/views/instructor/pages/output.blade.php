@@ -110,12 +110,22 @@
                                 <div class="d-flex align-items-center">
                                     <img src="{{ $student->user->avatar ?? 'https://via.placeholder.com/45' }}"
                                         alt="Profile" class="rounded-circle me-3 ml-3" width="45" height="45">
+<<<<<<< HEAD
+                                    <div class="ml-3 w-100">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="fw-bold">{{ $student->user->name }}</span>
+                                            <span class="fw-bold text-success ms-auto">{{ $student->score }}/{{ $activity->points }}</span>
+                                        </div>
+                                        <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
+=======
                                     <div class="ml-3">
                                         <span class="fw-bold">{{ $student->user->name }}</span>
                                         <span class="fw-bold text-success">{{ $student->score }}/{{ $activity->points }}</span>
 
+>>>>>>> b3060d8ba84d52809e701317e77f5f38c4a28c3f
                                     </div>
                                 </div>
+
                             </li>
                         @empty
                             <div class="d-flex align-items-center">
