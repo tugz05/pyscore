@@ -52,6 +52,31 @@
     #scoreFilter:focus {
         outline: none;
     }
+
+    /* Copy button styles */
+    .copy-btn {
+        transition: all 0.3s ease;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+
+    .copy-btn.copied {
+        background-color: #28a745 !important;
+        color: white !important;
+    }
+    /* To remove the gray border effect on click */
+#copyBtn:active,
+#copyBtn:focus {
+    box-shadow: none !important;
+    border-color: #6c757d !important; /* Same as default */
+    outline: none !important;
+}
+
+/* Or to customize the click effect */
+#copyBtn:active {
+    border-color: #28a745 !important; /* Green border when clicked */
+    background-color: rgba(40, 167, 69, 0.1) !important; /* Light green background */
+}
 </style>
 
 <div class="container-fluid mt-4">
@@ -88,7 +113,7 @@
                                     <div class="ml-3">
                                         <span class="fw-bold">{{ $student->user->name }}</span>
                                         <span class="fw-bold text-success">{{ $student->score }}/{{ $activity->points }}</span>
-                                       
+
                                     </div>
                                 </div>
                             </li>
@@ -105,8 +130,11 @@
         <!-- Right Column: Output, Score, Feedback -->
         <div class="col-md-8">
             <div class="card shadow mb-4">
-                <div class="card-header py-3">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 font-weight-bold text-primary">Student Evaluation</h6>
+                    <button id="copyBtn" class="btn btn-sm btn-outline-secondary copy-btn">
+                        <i class="fas fa-copy"></i> <span class="btn-text">Copy</span>
+                    </button>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
@@ -232,6 +260,35 @@
             }
 
             $("#refreshBtn").on("click", refreshStudentList);
+
+            // Copy button functionality
+            $("#copyBtn").on("click", function() {
+                const code = editor.getValue();
+                if (code.trim() === "") {
+                    return;
+                }
+
+                // Copy to clipboard
+                navigator.clipboard.writeText(code).then(() => {
+                    const $btn = $(this);
+                    const $icon = $btn.find("i");
+                    const $text = $btn.find(".btn-text");
+
+                    // Change to check icon and "Copied!" text
+                    $icon.removeClass("fa-copy").addClass("fa-check");
+                    $text.text("Copied!");
+                    $btn.addClass("copied");
+
+                    // Revert after 2 seconds
+                    setTimeout(() => {
+                        $icon.removeClass("fa-check").addClass("fa-copy");
+                        $text.text("Copy");
+                        $btn.removeClass("copied");
+                    }, 800);
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            });
         });
     </script>
 @endpush

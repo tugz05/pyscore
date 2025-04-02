@@ -36,7 +36,7 @@ function fetchComparisonData() {
     refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
     refreshButton.disabled = true;
 
-    fetch("{{ route('activity.comparison', $activity->id) }}")
+    fetch("{{ route('activity.comparison', $activity->id) }}")  
         .then(response => response.json())
         .then(data => {
             let outputHtml = "";

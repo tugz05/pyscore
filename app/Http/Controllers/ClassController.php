@@ -94,6 +94,7 @@ class ClassController extends Controller
     $classlist = Classlist::where('id', $activity->classlist_id)->with(['user'])->first();
 
     $students = JoinedClass::where('classlist_id', $activity->classlist_id)
+    ->where('is_remove', 0)
         ->with('user')
         ->get();
 
@@ -113,6 +114,7 @@ public function getStudentsForActivity($activityId)
     $activity = Activity::findOrFail($activityId);
 
     $students = JoinedClass::where('classlist_id', $activity->classlist_id)
+    ->where('is_remove', 0)
         ->with('user')
         ->get();
 
@@ -294,46 +296,56 @@ public function getStudentsForActivity($activityId)
     }
 
 
+
     public function compareStudentOutputs($activityId)
-    {
-        // Fetch all student outputs for the given activity
-        $outputs = DB::table('outputs')
-            ->where('activity_id', $activityId)
-            ->join('users', 'outputs.user_id', '=', 'users.id')
-            ->select('outputs.*', 'users.name as student_name')
-            ->get();
+{
+    // Get the class ID for this activity
+    $activity = Activity::findOrFail($activityId);
+    $classId = $activity->classlist_id;
 
-        // Store normalized codes for comparison
-        $normalizedOutputs = [];
+    // Fetch all student outputs for the given activity, excluding removed students
+    $outputs = DB::table('outputs')
+        ->join('users', 'outputs.user_id', '=', 'users.id')
+        ->join('joined_classes', function($join) use ($classId) {
+            $join->on('outputs.user_id', '=', 'joined_classes.user_id')
+                 ->where('joined_classes.classlist_id', $classId)
+                 ->where('joined_classes.is_remove', 0); // Only include non-removed students
+        })
+        ->where('outputs.activity_id', $activityId)
+        ->select('outputs.*', 'users.name as student_name', 'users.id as user_id')
+        ->get()
+        ->unique('user_id'); // Ensure each student appears only once
 
-        foreach ($outputs as $output) {
-            // Normalize code by removing comments, spaces, and making it lowercase
-            $cleanCode = $this->normalizeCode($output->code);
+    // Store normalized codes for comparison
+    $normalizedOutputs = [];
 
-            // If this version of code isn't stored yet, initialize it
-            if (!isset($normalizedOutputs[$cleanCode])) {
-                $normalizedOutputs[$cleanCode] = [
-                    'original_code' => $output->code, // Keep original format for display
-                    'students' => []
-                ];
-            }
+    foreach ($outputs as $output) {
+        // Normalize code by removing comments, spaces, and making it lowercase
+        $cleanCode = $this->normalizeCode($output->code);
 
-            // Store student details with original submitted code
-            $normalizedOutputs[$cleanCode]['students'][] = [
-                'name' => $output->student_name,
-                'full_code' => $output->code
+        // If this version of code isn't stored yet, initialize it
+        if (!isset($normalizedOutputs[$cleanCode])) {
+            $normalizedOutputs[$cleanCode] = [
+                'original_code' => $output->code, // Keep original format for display
+                'students' => []
             ];
         }
 
-        // **Filter out codes that are submitted by only one student**
-        $filteredOutputs = array_filter($normalizedOutputs, function ($entry) {
-            return count($entry['students']) > 1; // Only keep duplicates
-        });
-
-        // Return grouped results as JSON for the frontend
-        return response()->json(array_values($filteredOutputs));
+        // Store student details with original submitted code
+        $normalizedOutputs[$cleanCode]['students'][] = [
+            'name' => $output->student_name,
+            'full_code' => $output->code
+        ];
     }
 
+    // Filter out codes that are submitted by only one student
+    $filteredOutputs = array_filter($normalizedOutputs, function ($entry) {
+        return count($entry['students']) > 1; // Only keep duplicates
+    });
+
+    // Return grouped results as JSON for the frontend
+    return response()->json(array_values($filteredOutputs));
+}
     /**
      * Normalize submitted code to detect similar submissions.
      *
