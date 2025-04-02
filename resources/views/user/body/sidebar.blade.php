@@ -64,7 +64,7 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
     <li class="nav-item">
-        <a class="nav-link" href="">
+        <a class="nav-link" href="{{ route('user.archive') }}">
             <i class="fas fa-fw fa-archive"></i>
             <span>Archived Classes </span></a>
     </li>

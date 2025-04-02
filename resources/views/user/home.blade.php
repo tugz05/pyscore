@@ -110,7 +110,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to unenroll this class?</p>
+                    <p>You will be removed from this class.</p>
+                    <p>Are you sure you want to unenroll <span id="classNamePlaceholder">this class</span>?</p>
                     <input type="hidden" id="removeClassId">
                 </div>
                 <div class="modal-footer">
@@ -263,7 +264,9 @@
                 e.preventDefault();
 
                 let id = $(this).data('id');
+                let className = $(this).closest('.card').find('.card-title').text(); // Get the class name from the card
                 $('#removeClassId').val(id);
+                $('#classNamePlaceholder').text(className);
                 $('#removeConfirmModal').modal('show'); // Show the modal
                 $('#confirmRemove').click(function() {
                     let id = $('#removeClassId').val();

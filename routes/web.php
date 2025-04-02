@@ -47,7 +47,7 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
     Route::get('/get-classes/{excludeClassId}', [ClassController::class, 'getAllClasses']);
 
     Route::get('/get-student-output/{userId}/{activityId}', [ClassController::class, 'getStudentOutput']);
-
+    Route::get('/activity/{activityId}/students', [ClassController::class, 'getStudentsForActivity'])->name('activity.students');
 
 
     Route::resource('archives', ArchiveController::class);
@@ -57,6 +57,7 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
     Route::delete('/archive/{id}', [ArchiveController::class, 'destroy'])->name('archive.destroy');
     Route::post('/remove-student', [ClassController::class, 'removeStudent'])->name('remove.student');
 
+    Route::get('/activity/comparison/{id}', [ClassController::class, 'compareStudentOutputs'])->name('activity.comparison');
 
 });
 
@@ -72,6 +73,11 @@ Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(fu
     Route::get('/submission-status/{userId}/{activityId}', [ClassController::class, 'getSubmissionStatus']);
     Route::get('/check-submission', [PythonEvaluationController::class, 'checkSubmission'])->name('check.submission');
     Route::post('/unenroll-class', [JoinedClassController::class, 'destroy'])->name('unenroll.class');
+
+    Route::get('/archive', [JoinedClassController::class, 'archive'])->name('user.archive');
+    Route::get('/archive_data', [JoinedClassController::class, 'getArchives'])->name('user.archive.data');
+
+    Route::post('/run-python', [PythonEvaluationController::class, 'runPython'])->name('run.python.code');
 
 });
     Route::middleware(['account_type:admin', 'auth'])->prefix('admin')->group(function () {

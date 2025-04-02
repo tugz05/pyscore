@@ -237,6 +237,18 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+            // When clicking the "Add Section" button, reset the modal
+$(document).on('click', '[data-bs-target="#addSectionModal"]', function () {
+    let isEdit = $(this).hasClass('edit-btn');
+
+    if (!isEdit) { // Only reset if NOT editing
+        $('#addSectionForm')[0].reset(); // Clear all input fields
+        $('#section_id').val(''); // Clear hidden input for ID
+        $('.modal-title').text('Add Section'); // Set the correct modal title
+        $('input[name="days[]"]').prop('checked', false); // Uncheck all checkboxes
+    }
+});
+
         });
     </script>
 @endpush

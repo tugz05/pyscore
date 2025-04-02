@@ -4,7 +4,9 @@
 <div class="container-fluid mx-6">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Assignment</h1>
+        <a href="{{ url()->previous() }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
     </div>
 
     <div class="card shadow-lg border-0">
@@ -16,6 +18,9 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="tab" href="#work">Student Work</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#comparison">Similarities</a>
                 </li>
 
             </ul>
@@ -59,6 +64,10 @@
                 <!-- Stream Tab -->
                 <div class="tab-pane fade show" id="work">
                     @include('instructor.pages.output')
+                </div>
+                 <!-- Stream Tab -->
+                 <div class="tab-pane fade show" id="comparison">
+                    @include('instructor.pages.comparison')
                 </div>
             </div>
         </div>
