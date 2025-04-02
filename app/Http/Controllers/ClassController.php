@@ -97,7 +97,7 @@ class ClassController extends Controller
             ->where('is_remove', false)
             ->with('user')
             ->get();
-        
+
         // Fetch student scores
         foreach ($students as $student) {
             $output = Output::where('user_id', $student->user->id)
@@ -110,26 +110,7 @@ class ClassController extends Controller
         return view('instructor.pages.activity', compact('activity', 'students'));
     }
 
-<<<<<<< HEAD
-=======
-    $classlist = Classlist::where('id', $activity->classlist_id)->with(['user'])->first();
-
-    $students = JoinedClass::where('classlist_id', $activity->classlist_id)
-    ->where('is_remove', 0)
-        ->with('user')
-        ->get();
-
-    // Fetch student scores
-    foreach ($students as $student) {
-        $output = Output::where('user_id', $student->user->id)
-            ->where('activity_id', $id)
-            ->first();
-
-        $student->score = $output ? $output->score : '--'; // Assign score or "--" if not found
-    }
-
-    return view('instructor.pages.activity', compact('activity', 'students'));
-}
+    
 public function getStudentsForActivity($activityId)
 {
     $activity = Activity::findOrFail($activityId);
@@ -158,7 +139,6 @@ public function getStudentsForActivity($activityId)
 
     return response()->json($studentData);
 }
->>>>>>> b3060d8ba84d52809e701317e77f5f38c4a28c3f
 
     public function getStudentOutput($userId, $activityId)
     {
