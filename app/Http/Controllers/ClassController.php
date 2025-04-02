@@ -97,7 +97,7 @@ class ClassController extends Controller
             ->where('is_remove', false)
             ->with('user')
             ->get();
-        
+
         // Fetch student scores
         foreach ($students as $student) {
             $output = Output::where('user_id', $student->user->id)
@@ -110,55 +110,6 @@ class ClassController extends Controller
         return view('instructor.pages.activity', compact('activity', 'students'));
     }
 
-<<<<<<< HEAD
-=======
-    $classlist = Classlist::where('id', $activity->classlist_id)->with(['user'])->first();
-
-    $students = JoinedClass::where('classlist_id', $activity->classlist_id)
-    ->where('is_remove', 0)
-        ->with('user')
-        ->get();
-
-    // Fetch student scores
-    foreach ($students as $student) {
-        $output = Output::where('user_id', $student->user->id)
-            ->where('activity_id', $id)
-            ->first();
-
-        $student->score = $output ? $output->score : '--'; // Assign score or "--" if not found
-    }
-
-    return view('instructor.pages.activity', compact('activity', 'students'));
-}
-public function getStudentsForActivity($activityId)
-{
-    $activity = Activity::findOrFail($activityId);
-
-    $students = JoinedClass::where('classlist_id', $activity->classlist_id)
-    ->where('is_remove', 0)
-        ->with('user')
-        ->get();
-
-    // Prepare student data with scores
-    $studentData = $students->map(function($student) use ($activityId, $activity) {
-        $output = Output::where('user_id', $student->user->id)
-            ->where('activity_id', $activityId)
-            ->first();
-
-        return [
-            'user_id' => $student->user->id,
-            'activity_id' => $activity->id,
-            'score' => $output ? $output->score : '--',
-            'avatar' => $student->user->avatar ?? 'https://via.placeholder.com/45',
-            'name' => $student->user->name,
-            'points' => $activity->points,
-            'score_value' => $output ? $output->score : 0
-        ];
-    });
-
-    return response()->json($studentData);
-}
->>>>>>> b3060d8ba84d52809e701317e77f5f38c4a28c3f
 
     public function getStudentOutput($userId, $activityId)
     {
