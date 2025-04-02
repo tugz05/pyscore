@@ -22,26 +22,23 @@
                                 <strong>{{ Auth::user()->name }}</strong> <br>
                                 <small>{{ Auth::user()->email }}</small>
                             </div>
-                            <button class="btn btn-outline-primary btn-sm ml-auto">Switch account</button>
+
                         </div>
 
                         <!-- Class Code Input -->
                         <form id="joinClassForm">
                             @csrf
                             <div class="form-group">
-                                <label for="classlist_id">Class code</label>
+                                <label for="classlist_id">Ask your teacher for the class code, then enter it here.</label>
                                 <input type="text" class="form-control" id="classlist_id" name="classlist_id"
                                     placeholder="Enter class code" value="{{ $id ?? '' }}">
                                 <small class="form-text text-muted">
-                                    Use a class code with 5-7 letters or numbers, and no spaces or symbols.
+                                    Format: xxx-xxxx-xxx (Lowercase letters and numbers only).
                                 </small>
                             </div>
 
                             <!-- Help Link -->
-                            <p class="text-muted">
-                                If you have trouble joining the class, go to the
-                                <a href="#" class="text-primary">Help Center article</a>.
-                            </p>
+
 
                             <!-- Modal Footer -->
                             <div class="modal-footer">
