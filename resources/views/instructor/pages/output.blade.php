@@ -75,9 +75,33 @@
     }
 
     .custom-margin {
-        margin-left: 200px;
-        /* Adjust the value as needed */
+    margin-left: 0; /* default for small screens */
+}
+
+@media (min-width: 576px) {
+    .custom-margin {
+        margin-left: 50px;
     }
+}
+
+@media (min-width: 768px) {
+    .custom-margin {
+        margin-left: 100px;
+    }
+}
+
+@media (min-width: 992px) {
+    .custom-margin {
+        margin-left: 150px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .custom-margin {
+        margin-left: 200px;
+    }
+}
+
 
 
     /* Or to customize the click effect */
