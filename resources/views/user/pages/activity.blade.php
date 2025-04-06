@@ -46,7 +46,7 @@
                         </div>
 
                         <!-- Description Content -->
-                        <p style="margin-top: 50px;"><b>Instructions: </b><br>{!! $activity->instruction !!}
+                        <p style="margin-top: 50px; user-select:none;"><b>Instructions: </b><br>{!! $activity->instruction !!}
                             <hr>
 
                             <!-- Points and Due Date -->

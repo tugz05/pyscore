@@ -45,14 +45,29 @@ class ClasslistController extends Controller
                 'room' => 'required|exists:rooms,room_number',
             ]);
 
-            $user = Auth::user()->id;
+            $userId = Auth::id();
+
+            // Check if class with the same details already exists
+            $existing = Classlist::where('name', $validated['name'])
+                ->where('section_id', $validated['section_id'])
+                ->where('academic_year', $validated['academic_year'])
+                ->where('room', $validated['room'])
+                ->where('user_id', $userId)
+                ->where('is_archive', false)
+                ->first();
+
+            if ($existing) {
+                return response()->json(['error' => 'This class already exists.'], 409);
+            }
+
+            // If no duplicate, create the class
             $classlist = new Classlist();
-            $classlist->user_id = $user;
+            $classlist->user_id = $userId;
             $classlist->name = $validated['name'];
             $classlist->section_id = $validated['section_id'];
             $classlist->academic_year = $validated['academic_year'];
             $classlist->room = $validated['room'];
-            $classlist->course_image = $this->getUniqueRandomCourseImage(); // Use this function
+            $classlist->course_image = $this->getUniqueRandomCourseImage();
             $classlist->save();
 
             return response()->json(['success' => 'Class added successfully!']);
@@ -60,6 +75,7 @@ class ClasslistController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
 
     // Function to ensure different images are picked each time
     private function getUniqueRandomCourseImage()
@@ -92,15 +108,31 @@ class ClasslistController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'section_id' => 'required|exists:sections,id',
             'academic_year' => 'required|string',
             'room' => 'required|string|max:50',
         ]);
 
+        $userId = Auth::id();
+
+        // Check for duplicate class excluding the current one
+        $duplicate = Classlist::where('id', '!=', $id)
+            ->where('name', $validated['name'])
+            ->where('section_id', $validated['section_id'])
+            ->where('academic_year', $validated['academic_year'])
+            ->where('room', $validated['room'])
+            ->where('user_id', $userId)
+            ->where('is_archive', false)
+            ->first();
+
+        if ($duplicate) {
+            return response()->json(['error' => 'A class with these details already exists.'], 409);
+        }
+
         $classlist = Classlist::findOrFail($id);
-        $classlist->update($request->all());
+        $classlist->update($validated);
 
         return response()->json(['success' => 'Class updated successfully!']);
     }

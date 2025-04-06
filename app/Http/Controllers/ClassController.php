@@ -66,7 +66,6 @@ class ClassController extends Controller
     }
     public function viewStudentsAndTeacher($classlist_id)
     {
-        -
         // Fetch the teacher assigned to the class (modify this as needed based on your DB structure)
         $instructor = User::whereHas('classlist', function ($query) use ($classlist_id) {
             $query->where('id', $classlist_id)->where('account_type', 'instructor');

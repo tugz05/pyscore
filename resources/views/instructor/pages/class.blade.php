@@ -489,49 +489,50 @@
                 });
             }
 
-
             $('#addActivityForm').submit(function(e) {
-                e.preventDefault();
-                let id = $('#activity_id').val().trim();
-                let classlistId = $('#classlist_id').val(); // Always keep classlist_id
-                let sectionId = $('#section_id').val(); // Always keep section_id
-                let url = id ? `activity/update/${id}` : "{{ route('activity.store') }}";
-                let method = id ? 'PUT' : 'POST';
-                $.ajax({
-                    url: url,
-                    type: method,
-                    data: $(this).serialize(),
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        $('#addActivityModal').modal('hide');
-                        // Clear all fields except hidden ones
-                        $('#addActivityForm').find(
-                            'input:not([type=hidden]), textarea').val(
-                            '');
-                        $('#addActivityForm').find('.summernote').summernote('code',
-                            '');
-                        // Reassign hidden field values
-                        $('#classlist_id').val("{{ $classlist->id }}");
-                        $('#section_id').val("{{ $classlist->section->id }}");
-                        $('#classlist_id').val(
-                            classlistId); // Restore classlist_id after reset
-                        $('#section_id').val(
-                            sectionId); // Restore section_id after reset
-                        Swal.fire({
-                            icon: "success",
-                            text: "Activity saved successfully!",
-                        });
-                        loadActivities(classlistId);
+    e.preventDefault();
 
-                    },
-                    error: function(xhr) {
-                        console.log("AJAX Error:", xhr.responseText);
-                        alert("Error: " + xhr.responseJSON.error);
-                    }
-                });
+    let saveButton = $(this).find('button[type="submit"]');
+    saveButton.prop('disabled', true).text('Saving...'); // Disable & change text
+
+    let id = $('#activity_id').val().trim();
+    let classlistId = $('#classlist_id').val();
+    let sectionId = $('#section_id').val();
+    let url = id ? `activity/update/${id}` : "{{ route('activity.store') }}";
+    let method = id ? 'PUT' : 'POST';
+
+    $.ajax({
+        url: url,
+        type: method,
+        data: $(this).serialize(),
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            $('#addActivityModal').modal('hide');
+            $('#addActivityForm').find('input:not([type=hidden]), textarea').val('');
+            $('#addActivityForm').find('.summernote').summernote('code', '');
+            $('#classlist_id').val(classlistId);
+            $('#section_id').val(sectionId);
+
+            Swal.fire({
+                icon: "success",
+                text: "Activity saved successfully!",
             });
+
+            loadActivities(classlistId);
+        },
+        error: function(xhr) {
+            console.log("AJAX Error:", xhr.responseText);
+            alert("Error: " + xhr.responseJSON?.error ?? 'Unknown error');
+        },
+        complete: function() {
+            // Always re-enable the button
+            saveButton.prop('disabled', false).text('Save');
+        }
+    });
+});
+
             /** Edit Activity **/
             $(document).on("click", ".edit-btn", function() {
                 $("#activity_id").val($(this).data('id'));
