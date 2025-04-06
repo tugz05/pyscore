@@ -93,6 +93,33 @@
         /* Light green background */
     }
 </style>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card shadow border-left-success text-success text-center py-1">
+            <div class="card-body d-flex justify-content-between align-items-center" style="font-size: 16px;">
+                <span class="fw-bold">SUBMITTED</span>
+                <h1 id="submittedCount" class="fw-bold mb-0" style="font-size: 16px;" >{{ $summary['Submitted'] }}</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow border-left-warning text-success text-center py-1">
+            <div class="card-body d-flex justify-content-between align-items-center" style="font-size: 16px;">
+                <span class="fw-bold">PENDING</span>
+                <h1 id="pendingCount" class="fw-bold mb-0" style="font-size: 16px;">{{ $summary['Pending'] }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow border-left-danger text-success text-center py-1">
+            <div class="card-body d-flex justify-content-between align-items-center" style="font-size: 16px;">
+                <span  class="fw-bold mb-0" >MISSING</span>
+                <h1 id="missingCount" class="fw-bold mb-0" style="font-size: 16px;">{{ $summary['Missing'] }}</h1>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center">
@@ -315,6 +342,10 @@ function refreshStudentList() {
                     </div>
                 `);
             }
+// Update the summary boxes
+$('#submittedCount').text(response.summary.Submitted);
+$('#pendingCount').text(response.summary.Pending);
+$('#missingCount').text(response.summary.Missing);
 
             // Reattach click handlers to the new student items
             attachStudentItemHandlers();

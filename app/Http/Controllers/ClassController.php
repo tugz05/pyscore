@@ -83,36 +83,53 @@ class ClassController extends Controller
     }
 
     public function viewActivity($id)
-{
-    $activity = Activity::where('id', $id)->with(['user'])->first();
+    {
+        $activity = Activity::where('id', $id)->with(['user'])->first();
 
-    if (!$activity) {
-        return abort(404, 'Activity not found.');
+        if (!$activity) {
+            return abort(404, 'Activity not found.');
+        }
+
+        $classlist = Classlist::where('id', $activity->classlist_id)->with(['user'])->first();
+
+        $students = JoinedClass::where('classlist_id', $activity->classlist_id)
+            ->where('is_remove', false)
+            ->with('user')
+            ->get();
+
+        // Initialize counters
+        $summary = [
+            'Submitted' => 0,
+            'Pending' => 0,
+            'Missing' => 0
+        ];
+
+        // Fetch student scores and categorize status
+        foreach ($students as $student) {
+            $output = Output::where('user_id', $student->user->id)
+                ->where('activity_id', $id)
+                ->first();
+
+            $student->score = $output ? $output->score : '--'; // Assign score or "--"
+
+            // Categorize submission status
+            if ($activity->is_missing == true && !$output) {
+                $summary['Missing']++;
+            } elseif ($output) {
+                $summary['Submitted']++;
+            } else {
+                $summary['Pending']++;
+            }
+        }
+
+        // Sort students by score (highest to lowest)
+        $students = $students->sortByDesc(function ($student) {
+            return is_numeric($student->score) ? (float)$student->score : -1;
+        })->values();
+
+        return view('instructor.pages.activity', compact('activity', 'students', 'summary'));
     }
 
-    $classlist = Classlist::where('id', $activity->classlist_id)->with(['user'])->first();
-
-    $students = JoinedClass::where('classlist_id', $activity->classlist_id)
-        ->where('is_remove', false)
-        ->with('user')
-        ->get();
-
-    // Fetch student scores
-    foreach ($students as $student) {
-        $output = Output::where('user_id', $student->user->id)
-            ->where('activity_id', $id)
-            ->first();
-
-        $student->score = $output ? $output->score : '--'; // Assign score or "--" if not found
-    }
-
-    // Sort students from highest to lowest, treating '--' as lowest
-    $students = $students->sortByDesc(function ($student) {
-        return is_numeric($student->score) ? (float)$student->score : -1;
-    })->values();
-
-    return view('instructor.pages.activity', compact('activity', 'students'));
-}
 
 
 // Add this method to ClassController.php
@@ -125,25 +142,42 @@ public function getStudentList($activityId)
         ->with('user')
         ->get();
 
-    // Fetch student scores
+    // Init summary
+    $summary = [
+        'Submitted' => 0,
+        'Pending' => 0,
+        'Missing' => 0
+    ];
+
     foreach ($students as $student) {
         $output = Output::where('user_id', $student->user->id)
             ->where('activity_id', $activityId)
             ->first();
 
         $student->score = $output ? $output->score : '--';
+
+        // Update summary
+        if ($activity->is_missing == true && !$output) {
+            $summary['Missing']++;
+        } elseif ($output) {
+            $summary['Submitted']++;
+        } else {
+            $summary['Pending']++;
+        }
     }
 
-    // Sort students from highest to lowest
+    // Sort by score
     $students = $students->sortByDesc(function ($student) {
         return is_numeric($student->score) ? (float)$student->score : -1;
     })->values();
 
     return response()->json([
         'students' => $students,
-        'activity' => $activity
+        'activity' => $activity,
+        'summary' => $summary // Include this!
     ]);
 }
+
 
     public function getStudentOutput($userId, $activityId)
     {
