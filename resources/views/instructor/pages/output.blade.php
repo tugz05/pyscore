@@ -74,7 +74,7 @@
         outline: none !important;
     }
 
-    .custom-margin {
+.custom-margin {
     margin-left: 0; /* default for small screens */
 }
 
