@@ -11,6 +11,8 @@
         </div>
         <div style="padding: 20px;">
             <h3 style="margin-top: 0; color: #333;">{{ $activity->title }}</h3>
+            <br>
+            <h4><b>Instructions: </b></h4>
             <p style="color: #555;">{!! $activity->instruction ?? 'No instructions provided.' !!}</p>
 
 
