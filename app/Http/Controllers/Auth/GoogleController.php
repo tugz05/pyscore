@@ -12,6 +12,10 @@ use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
 {
+    public function sample(){
+        $users = User::all();
+        return response()->json($users);
+    }
     public function redirect(){
         return Socialite::driver('google')->redirect();
     }

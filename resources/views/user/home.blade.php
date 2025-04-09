@@ -306,38 +306,46 @@
             });
 
             $('#joinClassForm').submit(function(e) {
-                e.preventDefault();
-                let classlistId = $('#classlist_id').val();
+    e.preventDefault();
 
-                $.ajax({
-                    url: "{{ route('joinclass.store') }}",
-                    type: "POST",
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        classlist_id: classlistId
-                    },
-                    success: function(response) {
-                        $('#joinClassModal').modal('hide');
-                        $('#joinClassForm')[0].reset();
-                        loadClasses();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Joined class successfully',
-                            text: response.success,
-                        });
+    // Disable the Join button and show loading text
+    const joinBtn = $(this).find('button[type="submit"]');
+    joinBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin mr-2"></i>Joining...');
 
-                    },
-                    error: function(xhr) {
-                        console.log("AJAX Error:", xhr.responseText);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Failed to join class',
-                            text: "Error: " + xhr.responseJSON.error,
-                        });
+    let classlistId = $('#classlist_id').val();
 
-                    }
-                });
+    $.ajax({
+        url: "{{ route('joinclass.store') }}",
+        type: "POST",
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            classlist_id: classlistId
+        },
+        success: function(response) {
+            $('#joinClassModal').modal('hide');
+            $('#joinClassForm')[0].reset();
+            loadClasses();
+            Swal.fire({
+                icon: 'success',
+                title: 'Joined class successfully',
+                text: response.success,
             });
+        },
+        error: function(xhr) {
+            console.log("AJAX Error:", xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to join class',
+                text: "Error: " + xhr.responseJSON.error,
+            });
+        },
+        complete: function() {
+            // Re-enable the button no matter what
+            joinBtn.prop('disabled', false).html('Join');
+        }
+    });
+});
+
 
         });
     </script>

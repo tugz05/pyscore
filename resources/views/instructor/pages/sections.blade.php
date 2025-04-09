@@ -136,39 +136,49 @@
             }
 
             // Submit Add/Edit Section
-            $('#addSectionForm').submit(function(e) {
-                e.preventDefault();
-                let id = $('#section_id').val();
-                let url = id ? `sections/${id}` : "{{ route('sections.store') }}";
-                let method = id ? 'PUT' : 'POST';
+            // Submit Add/Edit Section
+$('#addSectionForm').submit(function(e) {
+    e.preventDefault();
 
-                $.ajax({
-                    url: url,
-                    type: method,
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        $('#addSectionModal').modal('hide');
-                        $('#addSectionForm')[0].reset(); // Clear form after submission
-                        $('#section_id').val('');
-                        $('.modal-title').text('Add Section'); // Reset modal title
-                        table.ajax.reload();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: 'Section saved successfully!',
-                        });
-                    },
-                    error: function(xhr) {
-                        console.log("Submission Error: ", xhr.responseText);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: xhr.responseJSON.message ||
-                                'An error occurred. Please try again.',
-                        });
-                    }
-                });
+    let saveBtn = $(this).find('button[type="submit"]');
+    saveBtn.prop('disabled', true).text('Saving...'); // Disable and show feedback
+
+    let id = $('#section_id').val();
+    let url = id ? `sections/${id}` : "{{ route('sections.store') }}";
+    let method = id ? 'PUT' : 'POST';
+
+    $.ajax({
+        url: url,
+        type: method,
+        data: $(this).serialize(),
+        success: function(response) {
+            $('#addSectionModal').modal('hide');
+            $('#addSectionForm')[0].reset();
+            $('#section_id').val('');
+            $('.modal-title').text('Add Section');
+            $('#myTable').DataTable().ajax.reload();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Section saved successfully!',
             });
+        },
+        error: function(xhr) {
+            console.log("Submission Error: ", xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: xhr.responseJSON.message || 'An error occurred. Please try again.',
+            });
+        },
+        complete: function() {
+            // Always re-enable button after request completes
+            saveBtn.prop('disabled', false).html('Save');
+        }
+    });
+});
+
 
             // Edit Button Click
             $(document).on('click', '.edit-btn', function() {

@@ -315,40 +315,53 @@
 
             });
             $('#addClassForm').submit(function(e) {
-                e.preventDefault();
-                let id = $('#classlist_id').val();
-                let url = id ? `classlist/${id}` : "{{ route('classlist.store') }}";
-                let method = id ? 'PUT' : 'POST';
+    e.preventDefault();
 
-                $.ajax({
-                    url: url,
-                    type: method,
-                    data: $(this).serialize(),
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        $('#addClassModal').modal('hide');
-                        $('#addClassForm')[0].reset();
-                        $('#classlist_id').val('');
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: response.success,
-                        });
-                        loadClasses();
+    let saveBtn = $(this).find('button[type="submit"]');
+    saveBtn.prop('disabled', true).text('Saving...'); // Disable and show loading text
 
-                    },
-                    error: function(xhr) {
-                        console.log("AJAX Error:", xhr.responseText);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Something went wrong. Please try again.',
-                        });
-                    }
-                });
+    let id = $('#classlist_id').val();
+    let url = id ? `classlist/${id}` : "{{ route('classlist.store') }}";
+    let method = id ? 'PUT' : 'POST';
+
+    $.ajax({
+        url: url,
+        type: method,
+        data: $(this).serialize(),
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            $('#addClassModal').modal('hide');
+            $('#addClassForm')[0].reset();
+            $('#classlist_id').val('');
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: response.success,
             });
+            loadClasses();
+        },
+        error: function(xhr) {
+            console.log("AJAX Error:", xhr.responseText);
+
+            let message = "Something went wrong. Please try again.";
+            if (xhr.status === 409) {
+                message = xhr.responseJSON.error;
+            }
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: message,
+            });
+        },
+        complete: function() {
+            saveBtn.prop('disabled', false).text('Save'); // Re-enable button
+        }
+    });
+});
+
             $(document).on('click', '.share-btn', function() {
                 let shareCode = $(this).data('share_code');
                 $('#shareCode').val(shareCode);

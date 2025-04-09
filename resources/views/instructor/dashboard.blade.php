@@ -9,8 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg"
-        type="image/svg+xml">
+    <link rel="icon" href="{{ asset('assets/png/pyscore_logo2.png') }}" type="image/svg+xml">
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote.min.css" rel="stylesheet">
 
 
