@@ -196,6 +196,16 @@
         $('#submitCode').on('click', function() {
             var pythonCode = editor.getValue();
             $('#python_code').val(pythonCode);
+            Swal.fire({
+        title: "Are you sure you want to submit?",
+        text: "You won't be able to edit or unsubmit your solution!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Submit"
+    }).then((result) => {
+        if (result.isConfirmed) {
             showLoading();
             $.ajax({
                 url: "{{ route('submit.python.code') }}",
@@ -222,7 +232,9 @@
                         confirmButtonColor: "#d33"
                     });
                 }
-            });
+            })
+        }
+    });
         });
     </script>
 @endpush
