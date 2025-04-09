@@ -11,7 +11,8 @@
         </div>
         <div style="padding: 20px;">
             <h3 style="margin-top: 0; color: #333;">{{ $activity->title }}</h3>
-            <p style="color: #555;">{!! nl2br(e($activity->instruction ?? 'No instructions provided.')) !!}</p>
+            <p style="color: #555;">{!! $activity->instruction ?? 'No instructions provided.' !!}</p>
+
 
             <table style="margin-top: 20px; width: 100%;">
                 <tr>
