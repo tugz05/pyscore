@@ -72,7 +72,6 @@
         $(document).on('click', '.role-change', function() {
             let userId = $(this).data('id');
             let newRole = $(this).data('role');
-
             $.ajax({
                 url: "{{ route('admin.instructor.update') }}",
                 method: "POST",

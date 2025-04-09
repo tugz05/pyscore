@@ -4,9 +4,14 @@
 <div class="container-fluid mx-6">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <a href="{{ url()->previous() }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back
-        </a>
+        <div class="d-flex align-items-center">
+            <a href="{{ url()->previous() }}" class="btn btn-secondary me-3">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <h4 class="fw-bold mb-0" style="font-size: 22px; margin-left: 20px;">
+                Activity Title: {{ $activity->title }}
+            </h4>
+        </div>
     </div>
 
     <div class="card shadow-lg border-0">
