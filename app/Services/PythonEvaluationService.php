@@ -16,7 +16,7 @@ class PythonEvaluationService {
         // Construct a more precise and structured prompt
         $prompt = "Instruction: $instruction\n\n"
                 . "Time consumed: $time_consumed seconds\n\n"
-                . "Evaluate the following Python code based on the given instruction. Provide a score (0-$assigned_score) and a short feedback.  \n\n"
+                . "Evaluate the following Python code based on the given instruction. Provide a score (0-$assigned_score) and a short feedback. Note that if the code is not in python automatically zero \n\n"
                 . "### Evaluation Criteria:\n"
                 . "- **Adherence to the assigned problems (35%)**: Assesses the extent to which the solution aligns with the specific requirements and constraints outlined in the problem statement.\n"
                 . "- **Program Execution (30%)**: Evaluates whether the program runs successfully without errors and produces the expected output. It also considers the clarity and quality of the code construction.\n"
