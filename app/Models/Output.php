@@ -15,6 +15,7 @@ class Output extends Model
         'code',
         'feedback',
         'score',
+        'status',
     ];
     /**
      * Get the user that owns the JoinedClass

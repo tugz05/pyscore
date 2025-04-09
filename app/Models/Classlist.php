@@ -36,7 +36,7 @@ class Classlist extends Model
 
         });
     }
-    
+
     // Generate a Google Classroom-style code (e.g., abc-defg-hij)
     public static function generateClassroomCode()
     {
@@ -70,6 +70,12 @@ class Classlist extends Model
     {
         return $this->belongsTo(User::class);
     }
+    // In Classlist.php model
+public function students()
+{
+    return $this->hasMany(User::class, 'classlist_id'); // Adjust this according to your actual schema
+}
+
     /**
      * Get all of the joinedclasses for the Classlist
      *

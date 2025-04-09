@@ -23,10 +23,14 @@ class JoinedClass extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function students()
+    {
+        return $this->hasMany(User::class); // Adjust this according to your actual schema
+    }
 
     public function classlist()
     {
-        return $this->belongsTo(Classlist::class );
+        return $this->belongsTo(Classlist::class);
     }
     /**
      * Get the section that owns the JoinedClass

@@ -519,7 +519,7 @@
                 icon: "success",
                 text: "Activity saved successfully!",
             });
-
+            console.log(response);
             loadActivities(classlistId);
         },
         error: function(xhr) {

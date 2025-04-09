@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewActivityNotification;
 use App\Models\Activity;
 use App\Models\Classlist;
 use App\Models\JoinedClass;
@@ -10,56 +11,93 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class ClassController extends Controller
 {
 
+    // public function getSubmissionStatus($userId, $activityId)
+    // {
+    //     // Fetch the activity details in one query
+    //     $activity = Activity::find($activityId);
+
+    //     // Ensure the activity exists
+    //     if (!$activity) {
+    //         return response()->json(['error' => 'Activity not found'], 404);
+    //     }
+
+    //     // Get the current timestamp
+    //     $now = Carbon::now('Asia/Manila');
+
+    //     // Check if the user has submitted the activity
+    //     $submission = Activity::where('user_id', $userId)
+    //         ->where('id', $activityId)
+    //         ->where('is_submitted', true)
+    //         ->first();
+
+    //     // Check if the activity is marked as submitted (is_submitted)
+    //     $isSubmitted = $submission ? $submission->is_submitted : false;
+
+    //     // Get total score from the activity
+    //     $total_score = $activity->points;
+
+    //     // Get assigned score if submission exists, otherwise 0
+    //     $assigned_score = $submission ? $submission->score : 0;
+
+    //     // Determine submission status:
+    //     if ($activity->is_submitted == true) {
+    //         $status = 'Submitted'; // User has submitted
+    //     } elseif ($activity->is_missing == true) {
+    //         $status = 'Missing'; // Due date has passed, no submission
+    //     } else {
+    //         $status = 'Pending'; // Due date not yet passed, submission still possible
+    //     }
+
+    //     return response()->json([
+    //         'submission_status' => $isSubmitted, // Returns true if submitted
+    //         'assigned_score' => $assigned_score,
+    //         'total_score' => $total_score,
+    //         'status' => $status
+    //     ]);
+    // }
+
     public function getSubmissionStatus($userId, $activityId)
     {
-        // Fetch the activity details in one query
+        // Fetch the activity
         $activity = Activity::find($activityId);
 
-        // Ensure the activity exists
         if (!$activity) {
             return response()->json(['error' => 'Activity not found'], 404);
         }
 
-        // Get the current timestamp
+        // Get current time
         $now = Carbon::now('Asia/Manila');
 
-        // Check if the user has submitted the activity
-        $submission = Activity::where('user_id', $userId)
-            ->where('id', $activityId)
-            ->where('is_submitted', true)
-            ->first();
+        // Try to find a submission in the Output table
+        $output = Output::where('user_id', $userId)
+                        ->where('activity_id', $activityId)
+                        ->first();
 
-        // Check if the activity is marked as submitted (is_submitted)
-        $isSubmitted = $submission ? $submission->is_submitted : false;
-
-        // Get total score from the activity
-        $total_score = $activity->points;
-
-        // Get assigned score if submission exists, otherwise 0
-        $assigned_score = $submission ? $submission->score : 0;
-
-        // Determine submission status:
-        if ($activity->is_submitted == true) {
-            $status = 'Submitted'; // User has submitted
-        } elseif ($activity->is_missing == true) {
-            $status = 'Missing'; // Due date has passed, no submission
+        // Determine status based on Output table
+        if ($output) {
+            $status = match ($output->status) {
+                'submitted' => 'Submitted',
+                'missing'   => 'Missing',
+                default     => 'Pending'
+            };
+            $assigned_score = $output->score ?? 0;
         } else {
-            $status = 'Pending'; // Due date not yet passed, submission still possible
+            $status = 'Pending';
+            $assigned_score = 0;
         }
 
         return response()->json([
-            'submission_status' => $isSubmitted, // Returns true if submitted
+            'submission_status' => $output?->status ?? null,
             'assigned_score' => $assigned_score,
-            'total_score' => $total_score,
+            'total_score' => $activity->points,
             'status' => $status
         ]);
     }
-
-
     public function index()
     {
         return view('instructor.pages.class');
@@ -132,8 +170,8 @@ class ClassController extends Controller
 
 
 
-// Add this method to ClassController.php
-public function getStudentList($activityId)
+    // Add this method to ClassController.php
+    public function getStudentList($activityId)
 {
     $activity = Activity::findOrFail($activityId);
 
@@ -142,7 +180,6 @@ public function getStudentList($activityId)
         ->with('user')
         ->get();
 
-    // Init summary
     $summary = [
         'Submitted' => 0,
         'Pending' => 0,
@@ -154,19 +191,29 @@ public function getStudentList($activityId)
             ->where('activity_id', $activityId)
             ->first();
 
-        $student->score = $output ? $output->score : '--';
+        // Assign score or placeholder
+        $student->score = $output?->score ?? '--';
 
-        // Update summary
-        if ($activity->is_missing == true && !$output) {
-            $summary['Missing']++;
-        } elseif ($output) {
-            $summary['Submitted']++;
-        } else {
+        // Determine status from Output
+        if (!$output) {
             $summary['Pending']++;
+            $student->status = 'Pending';
+        } else {
+            $status = strtolower($output->status);
+            if ($status === 'submitted') {
+                $summary['Submitted']++;
+                $student->status = 'Submitted';
+            } elseif ($status === 'missing') {
+                $summary['Missing']++;
+                $student->status = 'Missing';
+            } else {
+                $summary['Pending']++;
+                $student->status = 'Pending';
+            }
         }
     }
 
-    // Sort by score
+    // Sort by score (numeric only)
     $students = $students->sortByDesc(function ($student) {
         return is_numeric($student->score) ? (float)$student->score : -1;
     })->values();
@@ -174,7 +221,7 @@ public function getStudentList($activityId)
     return response()->json([
         'students' => $students,
         'activity' => $activity,
-        'summary' => $summary // Include this!
+        'summary' => $summary
     ]);
 }
 
@@ -276,6 +323,17 @@ public function getStudentList($activityId)
             'accessible_date' => $request->accessible_date ?? null,
             'accessible_time' => $request->accessible_time ?? null
         ]);
+        $classes = JoinedClass::with('user', 'classlist')
+            ->where('classlist_id', $request->classlist_id)
+            ->get();
+        // assuming 'students' is a relationship
+        foreach ($classes as $joinedClass) {
+            $student = $joinedClass->user;
+
+            if ($student && $student->account_type === 'student') {
+                Mail::to($student->email)->send(new NewActivityNotification($activity, $joinedClass->classlist));
+            }
+        }
 
         // If "Share Activity" is checked, create copies for selected classes
         if ($request->has('share_activity') && $request->selected_classes) {
@@ -292,12 +350,19 @@ public function getStudentList($activityId)
                     'accessible_date' => $request->accessible_date ?? null,
                     'accessible_time' => $request->accessible_time ?? null
                 ]);
+                // $class = JoinedClass::with('user', 'classlist')->find($request->classlist_id)->get(); // assuming 'students' is a relationship
+                // foreach ($class->user as $student) {
+                //     if($student->account_type == 'student'){
+                //         Mail::to($student->email)->send(new NewActivityNotification($activity, $class));
+                //     }
+                // }
             }
         }
 
         return response()->json([
             'message' => 'Activity added successfully!',
-            'activity' => $activity
+            'activity' => $activity,
+            'classlist' => $classes,
         ]);
     }
 
@@ -340,54 +405,54 @@ public function getStudentList($activityId)
 
 
     public function compareStudentOutputs($activityId)
-{
-    // Get the class ID for this activity
-    $activity = Activity::findOrFail($activityId);
-    $classId = $activity->classlist_id;
+    {
+        // Get the class ID for this activity
+        $activity = Activity::findOrFail($activityId);
+        $classId = $activity->classlist_id;
 
-    // Fetch all student outputs for the given activity, excluding removed students
-    $outputs = DB::table('outputs')
-        ->join('users', 'outputs.user_id', '=', 'users.id')
-        ->join('joined_classes', function($join) use ($classId) {
-            $join->on('outputs.user_id', '=', 'joined_classes.user_id')
-                 ->where('joined_classes.classlist_id', $classId)
-                 ->where('joined_classes.is_remove', 0); // Only include non-removed students
-        })
-        ->where('outputs.activity_id', $activityId)
-        ->select('outputs.*', 'users.name as student_name', 'users.id as user_id')
-        ->get()
-        ->unique('user_id'); // Ensure each student appears only once
+        // Fetch all student outputs for the given activity, excluding removed students
+        $outputs = DB::table('outputs')
+            ->join('users', 'outputs.user_id', '=', 'users.id')
+            ->join('joined_classes', function ($join) use ($classId) {
+                $join->on('outputs.user_id', '=', 'joined_classes.user_id')
+                    ->where('joined_classes.classlist_id', $classId)
+                    ->where('joined_classes.is_remove', 0); // Only include non-removed students
+            })
+            ->where('outputs.activity_id', $activityId)
+            ->select('outputs.*', 'users.name as student_name', 'users.id as user_id')
+            ->get()
+            ->unique('user_id'); // Ensure each student appears only once
 
-    // Store normalized codes for comparison
-    $normalizedOutputs = [];
+        // Store normalized codes for comparison
+        $normalizedOutputs = [];
 
-    foreach ($outputs as $output) {
-        // Normalize code by removing comments, spaces, and making it lowercase
-        $cleanCode = $this->normalizeCode($output->code);
+        foreach ($outputs as $output) {
+            // Normalize code by removing comments, spaces, and making it lowercase
+            $cleanCode = $this->normalizeCode($output->code);
 
-        // If this version of code isn't stored yet, initialize it
-        if (!isset($normalizedOutputs[$cleanCode])) {
-            $normalizedOutputs[$cleanCode] = [
-                'original_code' => $output->code, // Keep original format for display
-                'students' => []
+            // If this version of code isn't stored yet, initialize it
+            if (!isset($normalizedOutputs[$cleanCode])) {
+                $normalizedOutputs[$cleanCode] = [
+                    'original_code' => $output->code, // Keep original format for display
+                    'students' => []
+                ];
+            }
+
+            // Store student details with original submitted code
+            $normalizedOutputs[$cleanCode]['students'][] = [
+                'name' => $output->student_name,
+                'full_code' => $output->code
             ];
         }
 
-        // Store student details with original submitted code
-        $normalizedOutputs[$cleanCode]['students'][] = [
-            'name' => $output->student_name,
-            'full_code' => $output->code
-        ];
+        // Filter out codes that are submitted by only one student
+        $filteredOutputs = array_filter($normalizedOutputs, function ($entry) {
+            return count($entry['students']) > 1; // Only keep duplicates
+        });
+
+        // Return grouped results as JSON for the frontend
+        return response()->json(array_values($filteredOutputs));
     }
-
-    // Filter out codes that are submitted by only one student
-    $filteredOutputs = array_filter($normalizedOutputs, function ($entry) {
-        return count($entry['students']) > 1; // Only keep duplicates
-    });
-
-    // Return grouped results as JSON for the frontend
-    return response()->json(array_values($filteredOutputs));
-}
     /**
      * Normalize submitted code to detect similar submissions.
      *

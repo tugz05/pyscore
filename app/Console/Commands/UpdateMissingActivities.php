@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\Activity;
+use App\Models\JoinedClass;
+use App\Models\Output;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -10,29 +12,51 @@ use Illuminate\Support\Facades\Log;
 class UpdateMissingActivities extends Command
 {
     protected $signature = 'activities:update-missing';
-    protected $description = 'Mark activities as missing if due_date and due_time are past due';
+    protected $description = 'Mark outputs as missing for students who did not submit past the deadline';
 
     public function handle()
     {
-        $now = Carbon::now('Asia/Manila'); // Get the current timestamp
+        $now = Carbon::now('Asia/Manila');
 
-        // Get overdue activities
-        $activities = Activity::where('is_missing', 0)
-            ->where('is_submitted', 0)
-            ->where('due_date', '<=', $now->toDateString())
-            ->where('due_time', '<=', $now->toTimeString())
+        // Fetch all activities that are past due
+        $activities = Activity::whereDate('due_date', '<=', $now->toDateString())
+            ->whereTime('due_time', '<=', $now->toTimeString())
             ->get();
+
         foreach ($activities as $activity) {
-            $dueDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $activity->due_date . ' ' . $activity->due_time, 'Asia/Manila');
-            if ($now->greaterThan($dueDateTime)) {
-                // Update the activity status to 'missing'
-                $activity->is_missing = 1;
-                $activity->save();
-                Log::info("Activity ID {$activity->id} marked as missing.");
+            if (!$activity->classlist_id) {
+                Log::warning("Skipping activity ID {$activity->id} due to missing classlist_id.");
+                continue;
+            }
+
+            // Get all students enrolled in this activity's class
+            $students = JoinedClass::where('classlist_id', $activity->classlist_id)
+                ->get();
+
+            foreach ($students as $joined) {
+                $userId = $joined->user_id;
+                // Check if student already has an output
+                $existingOutput = Output::where('user_id', $userId)
+                    ->where('activity_id', $activity->id)
+                    ->first();
+
+                if (!$existingOutput) {
+                    Output::create([
+                        'user_id' => $userId,
+                        'activity_id' => $activity->id,
+                        'section_id' => $activity->section_id,
+                        'code' => '',
+                        'feedback' => '',
+                        'created_at' => $now,
+                        'status' => 'missing',
+                        'score' => 0,
+                    ]);
+
+                    Log::info("✅ Marked missing: Activity ID {$activity->id}, User ID {$userId}");
+                }
             }
         }
-        $this->info($activities);
 
-
+        $this->info('✅ All missing submissions have been recorded in the Output table.');
     }
 }
