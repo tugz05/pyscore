@@ -17,7 +17,22 @@ class InstructorsSeeder extends Seeder
                 'account_type' => 'instructor'
             ],
             [
-                'email' => 'dmatlih@nemsu.edu.ph',
+                'email' => 'blguibijar@nemsu.edu.ph',
+                'status' => 'active',
+                'account_type' => 'instructor'
+            ],
+            [
+                'email' => 'cjcavila@nemsu.edu.ph',
+                'status' => 'active',
+                'account_type' => 'instructor'
+            ],
+            [
+                'email' => 'vcestrada@nemsu.edu.ph',
+                'status' => 'active',
+                'account_type' => 'instructor'
+            ],
+            [
+                'email' => 'cralimboyong@nemsu.edu.ph',
                 'status' => 'active',
                 'account_type' => 'instructor'
             ],

@@ -31,12 +31,12 @@ class SendActivityNotification implements ShouldQueue
         $joinedClasses = JoinedClass::with('user', 'classlist')
             ->where('classlist_id', $this->classlistId)
             ->get();
-        Log::info("message", ['joinedClasses' => $joinedClasses]);
-        // foreach ($joinedClasses as $joined) {
-        //     $student = $joined->user;
-        //     if ($student && $student->account_type === 'student') {
-        //         Mail::to($student->email)->send(new NewActivityNotification($this->activity, $joined->classlist));
-        //     }
-        // }
+        // Log::info("message", ['joinedClasses' => $joinedClasses]);
+        foreach ($joinedClasses as $joined) {
+            $student = $joined->user;
+            if ($student && $student->account_type === 'student') {
+                Mail::to($student->email)->send(new NewActivityNotification($this->activity, $joined->classlist));
+            }
+        }
     }
 }
