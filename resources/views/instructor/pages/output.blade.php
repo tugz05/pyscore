@@ -161,7 +161,7 @@
                                         @if ($student->status === 'Missing')
                                             Missing
                                         @elseif ($student->status === 'Pending')
-                                            --
+                                            --/{{ $activity->points }}
                                         @else
                                             {{ $student->score }}/{{ $activity->points }}
                                         @endif
