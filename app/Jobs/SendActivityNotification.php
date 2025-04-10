@@ -28,15 +28,15 @@ class SendActivityNotification implements ShouldQueue
 
     public function handle()
     {
-        $joinedClasses = JoinedClass::with('user', 'classlist')
-            ->where('classlist_id', $this->classlistId)
-            ->get();
-        // Log::info("message", ['joinedClasses' => $joinedClasses]);
-        foreach ($joinedClasses as $joined) {
-            $student = $joined->user;
-            if ($student && $student->account_type === 'student') {
-                Mail::to($student->email)->send(new NewActivityNotification($this->activity, $joined->classlist));
+        $classes = JoinedClass::with('user', 'classlist')
+                ->where('classlist_id', $this->classlistId)
+                ->get();
+            // assuming 'students' is a relationship
+            foreach ($classes as $joinedClass) {
+                $student = $joinedClass->user;
+                if ($student && $student->account_type === 'student') {
+                    Mail::to($student->email)->send(new NewActivityNotification($this->activity, $joinedClass->classlist));
+                }
             }
-        }
     }
 }
