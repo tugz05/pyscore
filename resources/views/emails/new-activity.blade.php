@@ -6,6 +6,10 @@
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;">
     <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+        <div style="background-color: #f1f1f1; padding: 20px; text-align: center;">
+            <img src="{{ asset('assets/png/pyscore_logo2.png') }}" alt="Logo" style="width: 100px; height: auto;">
+            <h1 style="margin: 0; font-size: 24px; color: #333;">PyScore</h1>
+        </div>
         <div style="background-color: #1a73e8; padding: 20px; color: #fff;">
             <h2 style="margin: 0;">📘 New Activity in {{ $class->name ?? 'Your Class' }}</h2>
         </div>

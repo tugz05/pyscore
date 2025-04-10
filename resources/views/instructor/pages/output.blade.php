@@ -74,35 +74,16 @@
         outline: none !important;
     }
 
-.custom-margin {
-    margin-left: 0; /* default for small screens */
-}
-
-@media (min-width: 576px) {
-    .custom-margin {
-        margin-left: 50px;
+    /* .student-item .custom-margin {
+    margin-left: auto; /* Pushes the score to the right */
+    text-align: right;
+    white-space: nowrap;
+    /* Prevents text wrapping */
+    padding-left: 100px;
+    /* Adds space between name and score */
     }
-}
 
-@media (min-width: 768px) {
-    .custom-margin {
-        margin-left: 100px;
-    }
-}
-
-@media (min-width: 992px) {
-    .custom-margin {
-        margin-left: 150px;
-    }
-}
-
-@media (min-width: 1200px) {
-    .custom-margin {
-        margin-left: 200px;
-    }
-}
-
-
+    */
 
     /* Or to customize the click effect */
     #copyBtn:active {
@@ -112,6 +93,33 @@
         /* Light green background */
     }
 </style>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card shadow border-left-success text-success text-center py-1">
+            <div class="card-body d-flex justify-content-between align-items-center" style="font-size: 16px;">
+                <span class="fw-bold">SUBMITTED</span>
+                <h1 id="submittedCount" class="fw-bold mb-0" style="font-size: 16px;" >{{ $summary['Submitted'] }}</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow border-left-warning text-success text-center py-1">
+            <div class="card-body d-flex justify-content-between align-items-center" style="font-size: 16px;">
+                <span class="fw-bold">PENDING</span>
+                <h1 id="pendingCount" class="fw-bold mb-0" style="font-size: 16px;">{{ $summary['Pending'] }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow border-left-danger text-success text-center py-1">
+            <div class="card-body d-flex justify-content-between align-items-center" style="font-size: 16px;">
+                <span  class="fw-bold mb-0" >MISSING</span>
+                <h1 id="missingCount" class="fw-bold mb-0" style="font-size: 16px;">{{ $summary['Missing'] }}</h1>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center">
@@ -133,32 +141,38 @@
                 <div class="card-body p-0 student-list">
                     <ul id="studentList" class="list-group list-group-flush" data-activity-id="{{ $activity->id }}">
                         @forelse ($students as $student)
-                            <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3"
+                            <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3 float-end"
                                 data-user-id="{{ $student->user->id }}" data-activity-id="{{ $activity->id }}"
                                 data-score="{{ $student->score == '--' ? 0 : $student->score }}">
 
-                                <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-center w-100">
                                     <img src="{{ $student->user->avatar ?? 'https://via.placeholder.com/45' }}"
-                                        alt="Profile" class="rounded-circle me-3 ml-3" width="45" height="45">
-                                    <div class="ml-3 w-100">
-                                        <div class="d-flex justify-content-between">
-                                            <span class="fw-bold">{{ $student->user->name }}</span>
+                                        alt="Profile" class="rounded-circle me-3 mr-2" width="45" height="45">
+                                    <div class="w-100">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold student-name">{{ $student->user->name }}</span>
                                             <span
-                                                class="fw-bold ms-auto custom-margin
-                                                 {{ $activity->is_missing == 1 ? 'text-danger' : ($student->score == '--' ? 'text-warning' : 'text-success') }}">
-                                                @if ($activity->is_missing == 1)
-                                                    Missing
-                                                @elseif ($student->score == '--')
-                                                    {{ $student->score }}/{{ $activity->points }}
-                                                @else
-                                                    {{ $student->score }}/{{ $activity->points }}
-                                                @endif
+                                                class="fw-bold ms-3 text-nowrap
+                                          {{ $student->status === 'Missing'
+                                            ? 'text-danger'
+                                            : ($student->status === 'Pending'
+                                                ? 'text-warning'
+                                                : 'text-success') }}">
+                                        @if ($student->status === 'Missing')
+                                            Missing
+                                        @elseif ($student->status === 'Pending')
+                                            --
+                                        @else
+                                            {{ $student->score }}/{{ $activity->points }}
+                                        @endif
+
                                             </span>
                                         </div>
                                         <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
                                     </div>
                                 </div>
                             </li>
+
                         @empty
                             <div class="d-flex align-items-center">
                                 <h5 class="text-center">No students enrolled</h5>
@@ -272,48 +286,50 @@
                 });
             });
 
+// Update the refreshStudentList function
+function refreshStudentList() {
+    let activityId = $('#studentList').data('activity-id');
+    let refreshButton = document.getElementById('refreshBtn');
 
-
-            function refreshStudentList() {
-    let refreshButton = $("#refreshBtn");
-    refreshButton.html('<i class="fas fa-spinner fa-spin"></i> Refreshing...').prop("disabled", true);
-
-    const activityId = $('#studentList').data('activity-id');
+    // Show loading state on button
+    refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+    refreshButton.disabled = true;
 
     $.ajax({
         url: `/instructor/activity/${activityId}/students`,
         type: "GET",
         success: function(response) {
-            let html = "";
+            // Clear the current list
+            $('#studentList').empty();
 
-            if (response.length > 0) {
-                html = response.map(student => {
-                    let scoreText = '';
-                    let scoreClass = '';
-
-                    if (student.is_missing === 1) {
-                        scoreText = 'Missing';
-                        scoreClass = 'text-danger';
-                    } else if (student.score === '--') {
-                        scoreText = `${student.score}/${student.points}`;
-                        scoreClass = 'text-warning';
+            // Check if there are students
+            if (response.students.length > 0) {
+                // Rebuild the student list
+                response.students.forEach(function(student) {
+                    let scoreDisplay = '';
+                    if (response.activity.is_missing == 1) {
+                        scoreDisplay = 'Missing';
+                    } else if (student.score == '--') {
+                        scoreDisplay = `${student.score}/${response.activity.points}`;
                     } else {
-                        scoreText = `${student.score}/${student.points}`;
-                        scoreClass = 'text-success';
+                        scoreDisplay = `${student.score}/${response.activity.points}`;
                     }
 
-                    return `
-                        <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3"
-                            data-user-id="${student.user_id}" data-activity-id="${student.activity_id}"
-                            data-score="${student.score === '--' ? 0 : student.score}">
+                    let scoreClass = response.activity.is_missing == 1 ? 'text-danger' :
+                                   (student.score == '--' ? 'text-warning' : 'text-success');
 
-                            <div class="d-flex align-items-center">
-                                <img src="${student.avatar}" alt="Profile" class="rounded-circle me-3 ml-3" width="45" height="45">
-                                <div class="ml-3 w-100">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="fw-bold">${student.name}</span>
-                                        <span class="fw-bold ms-auto custom-margin ${scoreClass}">
-                                            ${scoreText}
+                    let studentItem = `
+                        <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3 float-end"
+                            data-user-id="${student.user.id}" data-activity-id="${activityId}"
+                            data-score="${student.score == '--' ? 0 : student.score}">
+                            <div class="d-flex align-items-center w-100">
+                                <img src="${student.user.avatar || 'https://via.placeholder.com/45'}"
+                                    alt="Profile" class="rounded-circle me-3 mr-2" width="45" height="45">
+                                <div class="w-100">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold student-name">${student.user.name}</span>
+                                        <span class="fw-bold ms-3 text-nowrap ${scoreClass}">
+                                            ${scoreDisplay}
                                         </span>
                                     </div>
                                     <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
@@ -321,31 +337,45 @@
                             </div>
                         </li>
                     `;
-                }).join("");
+                    $('#studentList').append(studentItem);
+                });
             } else {
-                html = `
+                // No students case
+                $('#studentList').append(`
                     <div class="d-flex align-items-center">
                         <h5 class="text-center">No students enrolled</h5>
                     </div>
-                `;
+                `);
             }
+// Update the summary boxes
+$('#submittedCount').text(response.summary.Submitted);
+$('#pendingCount').text(response.summary.Pending);
+$('#missingCount').text(response.summary.Missing);
 
-            $('#studentList').html(html);
+            // Reattach click handlers to the new student items
             attachStudentItemHandlers();
-            refreshButton.html('<i class="fas fa-sync-alt"></i> Refresh').prop("disabled", false);
+
+            // Reset button state
+            refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+            refreshButton.disabled = false;
         },
         error: function() {
+            // Reset button state even on error
+            refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+            refreshButton.disabled = false;
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'Failed to refresh student list'
             });
-            refreshButton.html('<i class="fas fa-sync-alt"></i> Refresh').prop("disabled", false);
         }
     });
 }
-
-            $("#refreshBtn").on("click", refreshStudentList);
+// Add this click handler for the refresh button
+$("#refreshBtn").on("click", function() {
+    refreshStudentList();
+});
 
             // Copy button functionality
             $("#copyBtn").on("click", function() {

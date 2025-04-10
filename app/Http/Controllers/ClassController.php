@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendActivityNotification;
 use App\Mail\NewActivityNotification;
 use App\Models\Activity;
 use App\Models\Classlist;
@@ -75,8 +76,8 @@ class ClassController extends Controller
 
         // Try to find a submission in the Output table
         $output = Output::where('user_id', $userId)
-                        ->where('activity_id', $activityId)
-                        ->first();
+            ->where('activity_id', $activityId)
+            ->first();
 
         // Determine status based on Output table
         if ($output) {
@@ -122,45 +123,50 @@ class ClassController extends Controller
 
     public function viewActivity($id)
     {
-        $activity = Activity::where('id', $id)->with(['user'])->first();
+        $activity = Activity::with('user')->find($id);
 
         if (!$activity) {
             return abort(404, 'Activity not found.');
         }
 
-        $classlist = Classlist::where('id', $activity->classlist_id)->with(['user'])->first();
+        $classlist = Classlist::with('user')->find($activity->classlist_id);
 
+        // Get all enrolled students
         $students = JoinedClass::where('classlist_id', $activity->classlist_id)
-            ->where('is_remove', false)
             ->with('user')
             ->get();
 
-        // Initialize counters
+        // Summary counters
         $summary = [
             'Submitted' => 0,
             'Pending' => 0,
             'Missing' => 0
         ];
 
-        // Fetch student scores and categorize status
+        // Process each student's output
         foreach ($students as $student) {
             $output = Output::where('user_id', $student->user->id)
-                ->where('activity_id', $id)
+                ->where('activity_id', $activity->id)
                 ->first();
 
-            $student->score = $output ? $output->score : '--'; // Assign score or "--"
+            $student->score = $output?->score ?? '--';
 
-            // Categorize submission status
-            if ($activity->is_missing == true && !$output) {
-                $summary['Missing']++;
-            } elseif ($output) {
+            if (!$output) {
+                $student->status = 'Pending';
+                $summary['Pending']++;
+            } elseif ($output->status === 'submitted') {
+                $student->status = 'Submitted';
                 $summary['Submitted']++;
+            } elseif ($output->status === 'missing') {
+                $student->status = 'Missing';
+                $summary['Missing']++;
             } else {
+                $student->status = 'Pending';
                 $summary['Pending']++;
             }
         }
 
-        // Sort students by score (highest to lowest)
+        // Sort students by numeric score (desc)
         $students = $students->sortByDesc(function ($student) {
             return is_numeric($student->score) ? (float)$student->score : -1;
         })->values();
@@ -172,58 +178,58 @@ class ClassController extends Controller
 
     // Add this method to ClassController.php
     public function getStudentList($activityId)
-{
-    $activity = Activity::findOrFail($activityId);
+    {
+        $activity = Activity::findOrFail($activityId);
 
-    $students = JoinedClass::where('classlist_id', $activity->classlist_id)
-        ->where('is_remove', false)
-        ->with('user')
-        ->get();
+        $students = JoinedClass::where('classlist_id', $activity->classlist_id)
+            ->where('is_remove', false)
+            ->with('user')
+            ->get();
 
-    $summary = [
-        'Submitted' => 0,
-        'Pending' => 0,
-        'Missing' => 0
-    ];
+        $summary = [
+            'Submitted' => 0,
+            'Pending' => 0,
+            'Missing' => 0
+        ];
 
-    foreach ($students as $student) {
-        $output = Output::where('user_id', $student->user->id)
-            ->where('activity_id', $activityId)
-            ->first();
+        foreach ($students as $student) {
+            $output = Output::where('user_id', $student->user->id)
+                ->where('activity_id', $activityId)
+                ->first();
 
-        // Assign score or placeholder
-        $student->score = $output?->score ?? '--';
+            // Assign score or placeholder
+            $student->score = $output?->score ?? '--';
 
-        // Determine status from Output
-        if (!$output) {
-            $summary['Pending']++;
-            $student->status = 'Pending';
-        } else {
-            $status = strtolower($output->status);
-            if ($status === 'submitted') {
-                $summary['Submitted']++;
-                $student->status = 'Submitted';
-            } elseif ($status === 'missing') {
-                $summary['Missing']++;
-                $student->status = 'Missing';
-            } else {
+            // Determine status from Output
+            if (!$output) {
                 $summary['Pending']++;
                 $student->status = 'Pending';
+            } else {
+                $status = strtolower($output->status);
+                if ($status === 'submitted') {
+                    $summary['Submitted']++;
+                    $student->status = 'Submitted';
+                } elseif ($status === 'missing') {
+                    $summary['Missing']++;
+                    $student->status = 'Missing';
+                } else {
+                    $summary['Pending']++;
+                    $student->status = 'Pending';
+                }
             }
         }
+
+        // Sort by score (numeric only)
+        $students = $students->sortByDesc(function ($student) {
+            return is_numeric($student->score) ? (float)$student->score : -1;
+        })->values();
+
+        return response()->json([
+            'students' => $students,
+            'activity' => $activity,
+            'summary' => $summary
+        ]);
     }
-
-    // Sort by score (numeric only)
-    $students = $students->sortByDesc(function ($student) {
-        return is_numeric($student->score) ? (float)$student->score : -1;
-    })->values();
-
-    return response()->json([
-        'students' => $students,
-        'activity' => $activity,
-        'summary' => $summary
-    ]);
-}
 
 
     public function getStudentOutput($userId, $activityId)
@@ -294,77 +300,65 @@ class ClassController extends Controller
             'classlist' => $classlist
         ]);
     }
-    public function store(Request $request)
-    {
-        // Validate request data
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'instruction' => 'nullable|string',
-            'points' => 'required|integer|min:0',
-            'due_date' => 'required|date',
-            'due_time' => 'required',
-            'user_id' => 'required|exists:users,id',
-            'classlist_id' => 'required|exists:classlists,id',
-            'section_id' => 'required|exists:sections,id',
-            'selected_classes' => 'nullable|array', // Selected class IDs when sharing
-            'selected_classes.*' => 'exists:classlists,id' // Ensure valid class IDs
-        ]);
 
-        // Create the primary activity
-        $activity = Activity::create([
-            'user_id' => $request->user_id,
-            'classlist_id' => $request->classlist_id,
-            'section_id' => $request->section_id,
-            'title' => $request->title,
-            'instruction' => $request->instruction,
-            'points' => $request->points,
-            'due_date' => $request->due_date,
-            'due_time' => $request->due_time,
-            'accessible_date' => $request->accessible_date ?? null,
-            'accessible_time' => $request->accessible_time ?? null
-        ]);
-        $classes = JoinedClass::with('user', 'classlist')
-            ->where('classlist_id', $request->classlist_id)
-            ->get();
-        // assuming 'students' is a relationship
-        foreach ($classes as $joinedClass) {
-            $student = $joinedClass->user;
 
-            if ($student && $student->account_type === 'student') {
-                Mail::to($student->email)->send(new NewActivityNotification($activity, $joinedClass->classlist));
-            }
+public function store(Request $request)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'instruction' => 'nullable|string',
+        'points' => 'required|integer|min:0',
+        'due_date' => 'required|date',
+        'due_time' => 'required',
+        'user_id' => 'required|exists:users,id',
+        'classlist_id' => 'required|exists:classlists,id',
+        'section_id' => 'required|exists:sections,id',
+        'selected_classes' => 'nullable|array',
+        'selected_classes.*' => 'exists:classlists,id'
+    ]);
+
+    // Create main activity
+    $activity = Activity::create([
+        'user_id' => $request->user_id,
+        'classlist_id' => $request->classlist_id,
+        'section_id' => $request->section_id,
+        'title' => $request->title,
+        'instruction' => $request->instruction,
+        'points' => $request->points,
+        'due_date' => $request->due_date,
+        'due_time' => $request->due_time,
+        'accessible_date' => $request->accessible_date ?? null,
+        'accessible_time' => $request->accessible_time ?? null
+    ]);
+
+    // Queue email notification for primary class
+    SendActivityNotification::dispatch($activity, $request->classlist_id);
+
+    // Handle shared activity to other classes
+    if ($request->has('share_activity') && $request->selected_classes) {
+        foreach ($request->selected_classes as $classId) {
+            $sharedActivity = Activity::create([
+                'user_id' => $request->user_id,
+                'section_id' => $request->section_id,
+                'classlist_id' => $classId,
+                'title' => $request->title,
+                'instruction' => $request->instruction,
+                'points' => $request->points,
+                'due_date' => $request->due_date,
+                'due_time' => $request->due_time,
+                'accessible_date' => $request->accessible_date ?? null,
+                'accessible_time' => $request->accessible_time ?? null
+            ]);
+
+            SendActivityNotification::dispatch($sharedActivity, $classId);
         }
-
-        // If "Share Activity" is checked, create copies for selected classes
-        if ($request->has('share_activity') && $request->selected_classes) {
-            foreach ($request->selected_classes as $classId) {
-                Activity::create([
-                    'user_id' => $request->user_id,
-                    'section_id' => $request->section_id,
-                    'classlist_id' => $classId, // Assign to the selected class
-                    'title' => $request->title,
-                    'instruction' => $request->instruction,
-                    'points' => $request->points,
-                    'due_date' => $request->due_date,
-                    'due_time' => $request->due_time,
-                    'accessible_date' => $request->accessible_date ?? null,
-                    'accessible_time' => $request->accessible_time ?? null
-                ]);
-                // $class = JoinedClass::with('user', 'classlist')->find($request->classlist_id)->get(); // assuming 'students' is a relationship
-                // foreach ($class->user as $student) {
-                //     if($student->account_type == 'student'){
-                //         Mail::to($student->email)->send(new NewActivityNotification($activity, $class));
-                //     }
-                // }
-            }
-        }
-
-        return response()->json([
-            'message' => 'Activity added successfully!',
-            'activity' => $activity,
-            'classlist' => $classes,
-        ]);
     }
+
+    return response()->json([
+        'message' => 'Activity added successfully!',
+        'activity' => $activity
+    ]);
+}
 
 
     public function update(Request $request, $id)
