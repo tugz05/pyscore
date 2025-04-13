@@ -36,34 +36,46 @@ function fetchComparisonData() {
     refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
     refreshButton.disabled = true;
 
-    fetch("{{ route('activity.comparison', $activity->id) }}")  
+    fetch("{{ route('activity.comparison', $activity->id) }}")
         .then(response => response.json())
         .then(data => {
             let outputHtml = "";
             if (data.length > 0) {
                 data.forEach(group => {
                     outputHtml += `
-                        <div class="card my-3 shadow-sm">
-                            <div class="card-body">
-                                <h6 class="fw-bold">Common Code:</h6>
-                                <pre class="bg-dark text-white p-3 rounded">${group.original_code}</pre>
-                                <p class="fw-bold mt-2">Submitted by:</p>
-                                <ul>
-                                    ${group.students.map(student => `
-                                        <li>
-                                            <a href="#" class="text-primary" onclick="showCode('${encodeURIComponent(student.full_code)}', '${student.name}')">
-                                                ${student.name}
-                                            </a>
-                                        </li>
-                                    `).join('')}
-                                </ul>
-                            </div>
-                        </div>`;
+    <div class="card my-3 shadow-sm">
+        <div class="card-body">
+            <h6 class="fw-bold">Common Code:</h6>
+            <pre class="bg-dark text-white p-3 rounded">${group.original_code}</pre>
+            <p class="fw-bold mt-2">Submitted by:</p>
+            <ul>
+                ${group.students.map(student => `
+                    <li>
+                        <a href="#" class="text-primary view-code"
+                           data-code="${encodeURIComponent(student.full_code)}"
+                           data-name="${encodeURIComponent(student.name)}">
+                           ${student.name}
+                        </a>
+                    </li>
+                `).join('')}
+            </ul>
+        </div>
+    </div>`;
+
                 });
             } else {
                 outputHtml = "<p class='text-muted'>No duplicate submissions found.</p>";
             }
             document.getElementById("comparison-results").innerHTML = outputHtml;
+            document.querySelectorAll(".view-code").forEach(link => {
+    link.addEventListener("click", function(e) {
+        e.preventDefault();
+        const code = decodeURIComponent(this.dataset.code);
+        const name = decodeURIComponent(this.dataset.name);
+        showCode(code, name);
+    });
+});
+
         })
         .catch(error => {
             console.error("Error fetching comparison data:", error);

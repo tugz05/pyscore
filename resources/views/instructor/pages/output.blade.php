@@ -291,7 +291,7 @@ function refreshStudentList() {
     let activityId = $('#studentList').data('activity-id');
     let refreshButton = document.getElementById('refreshBtn');
 
-    // Show loading state on button
+    // Show loading spinner
     refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
     refreshButton.disabled = true;
 
@@ -299,38 +299,35 @@ function refreshStudentList() {
         url: `/instructor/activity/${activityId}/students`,
         type: "GET",
         success: function(response) {
-            // Clear the current list
             $('#studentList').empty();
 
-            // Check if there are students
             if (response.students.length > 0) {
-                // Rebuild the student list
                 response.students.forEach(function(student) {
-                    let scoreDisplay = '';
-                    if (response.activity.is_missing == 1) {
-                        scoreDisplay = 'Missing';
-                    } else if (student.score == '--') {
-                        scoreDisplay = `${student.score}/${response.activity.points}`;
-                    } else {
-                        scoreDisplay = `${student.score}/${response.activity.points}`;
-                    }
+                    let label = '';
+                    let labelClass = '';
 
-                    let scoreClass = response.activity.is_missing == 1 ? 'text-danger' :
-                                   (student.score == '--' ? 'text-warning' : 'text-success');
+                    if (student.status === 'Missing') {
+                        label = 'Missing';
+                        labelClass = 'text-danger';
+                    } else if (student.status === 'Pending') {
+                        label = `--/${response.activity.points}`;
+                        labelClass = 'text-warning';
+                    } else {
+                        label = `${student.score}/${response.activity.points}`;
+                        labelClass = 'text-success';
+                    }
 
                     let studentItem = `
                         <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3 float-end"
                             data-user-id="${student.user.id}" data-activity-id="${activityId}"
-                            data-score="${student.score == '--' ? 0 : student.score}">
+                            data-score="${student.score === '--' ? 0 : student.score}">
                             <div class="d-flex align-items-center w-100">
                                 <img src="${student.user.avatar || 'https://via.placeholder.com/45'}"
-                                    alt="Profile" class="rounded-circle me-3 mr-2" width="45" height="45">
+                                     alt="Profile" class="rounded-circle me-3 mr-2" width="45" height="45">
                                 <div class="w-100">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span class="fw-bold student-name">${student.user.name}</span>
-                                        <span class="fw-bold ms-3 text-nowrap ${scoreClass}">
-                                            ${scoreDisplay}
-                                        </span>
+                                        <span class="fw-bold ms-3 text-nowrap ${labelClass}">${label}</span>
                                     </div>
                                     <p class="text-muted mb-0" style="font-size: 0.85rem;">Student</p>
                                 </div>
@@ -340,27 +337,26 @@ function refreshStudentList() {
                     $('#studentList').append(studentItem);
                 });
             } else {
-                // No students case
                 $('#studentList').append(`
                     <div class="d-flex align-items-center">
                         <h5 class="text-center">No students enrolled</h5>
                     </div>
                 `);
             }
-// Update the summary boxes
-$('#submittedCount').text(response.summary.Submitted);
-$('#pendingCount').text(response.summary.Pending);
-$('#missingCount').text(response.summary.Missing);
 
-            // Reattach click handlers to the new student items
+            // Update the summary counters
+            $('#submittedCount').text(response.summary.Submitted);
+            $('#pendingCount').text(response.summary.Pending);
+            $('#missingCount').text(response.summary.Missing);
+
+            // Reattach click events
             attachStudentItemHandlers();
 
-            // Reset button state
+            // Restore button state
             refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
             refreshButton.disabled = false;
         },
         error: function() {
-            // Reset button state even on error
             refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
             refreshButton.disabled = false;
 
@@ -372,6 +368,7 @@ $('#missingCount').text(response.summary.Missing);
         }
     });
 }
+
 // Add this click handler for the refresh button
 $("#refreshBtn").on("click", function() {
     refreshStudentList();

@@ -302,63 +302,63 @@ class ClassController extends Controller
     }
 
 
-public function store(Request $request)
-{
-    $request->validate([
-        'title' => 'required|string|max:255',
-        'instruction' => 'nullable|string',
-        'points' => 'required|integer|min:0',
-        'due_date' => 'required|date',
-        'due_time' => 'required',
-        'user_id' => 'required|exists:users,id',
-        'classlist_id' => 'required|exists:classlists,id',
-        'section_id' => 'required|exists:sections,id',
-        'selected_classes' => 'nullable|array',
-        'selected_classes.*' => 'exists:classlists,id'
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'instruction' => 'nullable|string',
+            'points' => 'required|integer|min:0',
+            'due_date' => 'required|date',
+            'due_time' => 'required',
+            'user_id' => 'required|exists:users,id',
+            'classlist_id' => 'required|exists:classlists,id',
+            'section_id' => 'required|exists:sections,id',
+            'selected_classes' => 'nullable|array',
+            'selected_classes.*' => 'exists:classlists,id'
+        ]);
 
-    // Create main activity
-    $activity = Activity::create([
-        'user_id' => $request->user_id,
-        'classlist_id' => $request->classlist_id,
-        'section_id' => $request->section_id,
-        'title' => $request->title,
-        'instruction' => $request->instruction,
-        'points' => $request->points,
-        'due_date' => $request->due_date,
-        'due_time' => $request->due_time,
-        'accessible_date' => $request->accessible_date ?? null,
-        'accessible_time' => $request->accessible_time ?? null
-    ]);
+        // Create main activity
+        $activity = Activity::create([
+            'user_id' => $request->user_id,
+            'classlist_id' => $request->classlist_id,
+            'section_id' => $request->section_id,
+            'title' => $request->title,
+            'instruction' => $request->instruction,
+            'points' => $request->points,
+            'due_date' => $request->due_date,
+            'due_time' => $request->due_time,
+            'accessible_date' => $request->accessible_date ?? null,
+            'accessible_time' => $request->accessible_time ?? null
+        ]);
 
-    // Queue email notification for primary class
-    SendActivityNotification::dispatch($activity, $request->classlist_id);
+        // Queue email notification for primary class
+        SendActivityNotification::dispatch($activity, $request->classlist_id);
 
-    // Handle shared activity to other classes
-    if ($request->has('share_activity') && $request->selected_classes) {
-        foreach ($request->selected_classes as $classId) {
-            $sharedActivity = Activity::create([
-                'user_id' => $request->user_id,
-                'section_id' => $request->section_id,
-                'classlist_id' => $classId,
-                'title' => $request->title,
-                'instruction' => $request->instruction,
-                'points' => $request->points,
-                'due_date' => $request->due_date,
-                'due_time' => $request->due_time,
-                'accessible_date' => $request->accessible_date ?? null,
-                'accessible_time' => $request->accessible_time ?? null
-            ]);
+        // Handle shared activity to other classes
+        if ($request->has('share_activity') && $request->selected_classes) {
+            foreach ($request->selected_classes as $classId) {
+                $sharedActivity = Activity::create([
+                    'user_id' => $request->user_id,
+                    'section_id' => $request->section_id,
+                    'classlist_id' => $classId,
+                    'title' => $request->title,
+                    'instruction' => $request->instruction,
+                    'points' => $request->points,
+                    'due_date' => $request->due_date,
+                    'due_time' => $request->due_time,
+                    'accessible_date' => $request->accessible_date ?? null,
+                    'accessible_time' => $request->accessible_time ?? null
+                ]);
 
-            SendActivityNotification::dispatch($sharedActivity, $classId);
+                SendActivityNotification::dispatch($sharedActivity, $classId);
+            }
         }
-    }
 
-    return response()->json([
-        'message' => 'Activity added successfully!',
-        'activity' => $activity
-    ]);
-}
+        return response()->json([
+            'message' => 'Activity added successfully!',
+            'activity' => $activity
+        ]);
+    }
 
 
     public function update(Request $request, $id)
@@ -423,7 +423,10 @@ public function store(Request $request)
         foreach ($outputs as $output) {
             // Normalize code by removing comments, spaces, and making it lowercase
             $cleanCode = $this->normalizeCode($output->code);
-
+            // Skip completely empty code after normalization
+            if (trim($cleanCode) === '') {
+                continue;
+            }
             // If this version of code isn't stored yet, initialize it
             if (!isset($normalizedOutputs[$cleanCode])) {
                 $normalizedOutputs[$cleanCode] = [
