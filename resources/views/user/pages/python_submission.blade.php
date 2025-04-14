@@ -210,7 +210,7 @@
             $.ajax({
                 url: "{{ route('submit.python.code') }}",
                 type: "POST",
-                data: $('#codeForm').serialize(),
+                // data: $('#codeForm').serialize(),
                 success: function(response) {
                     hideLoading();
                     Swal.fire({

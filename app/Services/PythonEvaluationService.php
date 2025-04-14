@@ -18,7 +18,7 @@ class PythonEvaluationService {
                 . "Time consumed: $time_consumed seconds\n\n"
                 . "Evaluate the following Python code based on the given instruction. Provide a score (0-$assigned_score) and a short feedback. Note that if the code is not in python automatically zero \n\n"
                 . "### Evaluation Criteria:\n"
-                . "- **Adherence to the assigned problems (35%)**: Assesses the extent to which the solution aligns with the specific requirements and constraints outlined in the problem statement.\n"
+                . "- **Adherence to the assigned problems (35%)**: Assesses the extent to which the solution aligns with the specific requirements and constraints outlined in the problem instruction.\n"
                 . "- **Program Execution (30%)**: Evaluates whether the program runs successfully without errors and produces the expected output. It also considers the clarity and quality of the code construction.\n"
                 . "- **Correctness (25%)**: Checks the program's accuracy and logical correctness, ensuring it produces correct results for various inputs.\n"
                 . "- **Time Efficiency (10%)**: Assesses the efficiency of the program's algorithm and implementation, ensuring tasks complete within a reasonable timeframe.\n\n"
