@@ -195,9 +195,6 @@
         // AJAX Submission
         $('#submitCode').on('click', function() {
             var pythonCode = editor.getValue();
-            var formData = new FormData(document.getElementById('codeForm'));
-            formData.set('python_code', pythonCode); // update python_code dynamically
-
             $('#python_code').val(pythonCode);
             Swal.fire({
         title: "Are you sure you want to submit?",
@@ -213,7 +210,7 @@
             $.ajax({
                 url: "{{ route('submit.python.code') }}",
                 type: "POST",
-                data: formData.serialize(),
+                data: $('#codeForm').serialize(),
                 success: function(response) {
                     hideLoading();
                     Swal.fire({
