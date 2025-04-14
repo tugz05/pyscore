@@ -228,7 +228,7 @@
                     Swal.fire({
                         icon: "error",
                         title: "Submission Failed!",
-                        text: "There was an error submitting your code. Please try again." + xhr.responseJSON.errors,
+                        text: "There was an error submitting your code. Please try again." + xhr.responseText,
                         confirmButtonColor: "#d33"
                     });
                 }
