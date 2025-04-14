@@ -195,8 +195,7 @@
         // AJAX Submission
         $('#submitCode').on('click', function() {
             var pythonCode = editor.getValue();
-            var encodedCode = btoa(pythonCode); // base64 encode the code
-
+            $('#python_code').val(pythonCode);
             Swal.fire({
                 title: "Are you sure you want to submit?",
                 text: "You won't be able to edit or unsubmit your solution!",
@@ -208,17 +207,10 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     showLoading();
-
-                    let formData = new FormData();
-                    formData.append('#python_code', encodedCode);
-                    formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
-
                     $.ajax({
                         url: "{{ route('submit.python.code') }}",
                         type: "POST",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
+                        data: $('#codeForm').serialize(),
                         success: function(response) {
                             hideLoading();
                             Swal.fire({
@@ -233,7 +225,6 @@
                             checkSubmission();
                         },
                         error: function(xhr) {
-                            hideLoading();
                             Swal.fire({
                                 icon: "error",
                                 title: "Submission Failed!",
@@ -241,7 +232,7 @@
                                 confirmButtonColor: "#d33"
                             });
                         }
-                    });
+                    })
                 }
             });
         });
