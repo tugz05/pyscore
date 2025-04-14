@@ -210,7 +210,7 @@
                     showLoading();
 
                     let formData = new FormData();
-                    formData.append('code', encodedCode);
+                    formData.append('#python_code', encodedCode);
                     formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
 
                     $.ajax({
