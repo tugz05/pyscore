@@ -23,9 +23,7 @@ class PythonEvaluationService {
                 . "- **Correctness (25%)**: Checks the program's accuracy and logical correctness, ensuring it produces correct results for various inputs.\n"
                 . "- **Time Efficiency (10%)**: Assesses the efficiency of the program's algorithm and implementation, ensuring tasks complete within a reasonable timeframe.\n\n"
                 . "### Python Code:\n"
-                . "
-python\n$code\n
-"
+                . "python\n$code\n"
                 . "\n\nPlease provide your response in the following format:\n"
                 . "**Score:** (value between 0-$assigned_score)\n"
                 . "**Feedback:** (brief feedback on performance)";

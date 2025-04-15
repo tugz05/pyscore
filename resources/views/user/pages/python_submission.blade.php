@@ -195,46 +195,51 @@
         // AJAX Submission
         $('#submitCode').on('click', function() {
             var pythonCode = editor.getValue();
-            $('#python_code').val(pythonCode);
-            Swal.fire({
-                title: "Are you sure you want to submit?",
-                text: "You won't be able to edit or unsubmit your solution!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Submit"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    showLoading();
-                    $.ajax({
-                        url: "{{ route('submit.python.code') }}",
-                        type: "POST",
-                        data: $('#codeForm').serialize(),
-                        success: function(response) {
-                            hideLoading();
-                            Swal.fire({
-                                icon: "success",
-                                title: "Code Submitted!",
-                                text: "Your code has been successfully submitted.",
-                                timer: 3000,
-                                showConfirmButton: false
-                            });
 
-                            // Refresh the submission status
-                            checkSubmission();
-                        },
-                        error: function(xhr) {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Submission Failed!",
-                                text: "There was an error submitting your code. Please try again.",
-                                confirmButtonColor: "#d33"
-                            });
-                        }
-                    })
+// Wrap the code with safe markers
+var wrappedCode = '"""CODE_START\n' + pythonCode + '\nCODE_END"""';
+
+$('#python_code').val(wrappedCode);
+
+            Swal.fire({
+        title: "Are you sure you want to submit?",
+        text: "You won't be able to edit or unsubmit your solution!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Submit"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            showLoading();
+            $.ajax({
+                url: "{{ route('submit.python.code') }}",
+                type: "POST",
+                data: $('#codeForm').serialize(),
+                success: function(response) {
+                    hideLoading();
+                    Swal.fire({
+                        icon: "success",
+                        title: "Code Submitted!",
+                        text: "Your code has been successfully submitted.",
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+
+                    // Refresh the submission status
+                    checkSubmission();
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Submission Failed!",
+                        text: "There was an error submitting your code. Please try again.",
+                        confirmButtonColor: "#d33"
+                    });
                 }
-            });
+            })
+        }
+    });
         });
     </script>
 @endpush
