@@ -70,7 +70,7 @@ Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(fu
     Route::resource('joinclass', JoinedClassController::class);
     Route::get('/class/i/{id}', [JoinedClassController::class, 'viewClass'])->name('user.class.view');
     Route::get('/activity/{id}', [JoinedClassController::class, 'viewActivity'])->name('user.activity.view');
-    Route::post('/submit', [PythonEvaluationController::class, 'evaluate'])->name('submit.python.code');
+    Route::post('/try', [PythonEvaluationController::class, 'evaluate'])->name('submit.python.code');
     Route::get('/submission-status/{userId}/{activityId}', [ClassController::class, 'getSubmissionStatus']);
     Route::get('/check-submission', [PythonEvaluationController::class, 'checkSubmission'])->name('check.submission');
     Route::post('/unenroll-class', [JoinedClassController::class, 'destroy'])->name('unenroll.class');
