@@ -37,10 +37,12 @@ class PythonEvaluationController extends Controller {
 
         // Calculate time consumed if submission exists
         if ($output) {
-            $total_seconds = $activity->created_at->diffInSeconds($output->created_at);
-            $minutes = floor($total_seconds / 60);
+            $createdAt = \Carbon\Carbon::parse($activity->created_at);
+            $total_seconds = $createdAt->diffInSeconds(now());
+            $hours = floor($total_seconds / 3600);
+            $minutes = floor(($total_seconds % 3600) / 60);
             $seconds = $total_seconds % 60;
-            $time_consumed = sprintf("%d minutes %d seconds", $minutes, $seconds);
+            $time_consumed = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
         } else {
             $time_consumed = "N/A"; // If output is missing
         }

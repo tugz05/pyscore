@@ -15,7 +15,7 @@ class PythonEvaluationService {
     public function evaluatePythonCode($code, $instruction, $userId, $activityId, $sectionId, $assigned_score, $time_consumed) {
         // Construct a more precise and structured prompt
         $prompt = "Instruction: $instruction\n\n"
-                . "Time consumed: $time_consumed seconds\n\n"
+                . "Time consumed: $time_consumed\n\n"
                 . "Evaluate the following Python code based on the given instruction. Provide a score (0-$assigned_score) and a short feedback. Note that if the code is not in python automatically zero \n\n"
                 . "### Evaluation Criteria:\n"
                 . "- **Adherence to the assigned problems (35%)**: Assesses the extent to which the solution aligns with the specific requirements and constraints outlined in the instruction.\n"
