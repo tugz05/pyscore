@@ -13,6 +13,15 @@ class PythonEvaluationService {
     }
 
     public function evaluatePythonCode($code, $instruction, $userId, $activityId, $sectionId, $assigned_score, $time_consumed) {
+        // Sanitize wrapped code
+$code = trim($code);
+
+// Remove CODE_START and CODE_END wrappers if they exist
+if (str_starts_with($code, '"""CODE_START') && str_ends_with($code, 'CODE_END"""')) {
+    $code = preg_replace('/^"""CODE_START\s*/', '', $code); // remove leading marker
+    $code = preg_replace('/\s*CODE_END"""$/', '', $code);   // remove trailing marker
+}
+
         // Construct a more precise and structured prompt
         $prompt = "Instruction: $instruction\n\n"
                 . "Time consumed: $time_consumed seconds\n\n"
