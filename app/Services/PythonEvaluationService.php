@@ -13,15 +13,6 @@ class PythonEvaluationService {
     }
 
     public function evaluatePythonCode($code, $instruction, $userId, $activityId, $sectionId, $assigned_score, $time_consumed) {
-        // Sanitize wrapped code
-$code = trim($code);
-
-// Remove CODE_START and CODE_END wrappers if they exist
-if (str_starts_with($code, '"""CODE_START') && str_ends_with($code, 'CODE_END"""')) {
-    $code = preg_replace('/^"""CODE_START\s*/', '', $code); // remove leading marker
-    $code = preg_replace('/\s*CODE_END"""$/', '', $code);   // remove trailing marker
-}
-
         // Construct a more precise and structured prompt
         $prompt = "Instruction: $instruction\n\n"
                 . "Time consumed: $time_consumed seconds\n\n"
@@ -32,7 +23,9 @@ if (str_starts_with($code, '"""CODE_START') && str_ends_with($code, 'CODE_END"""
                 . "- **Correctness (25%)**: Checks the program's accuracy and logical correctness, ensuring it produces correct results for various inputs.\n"
                 . "- **Time Efficiency (10%)**: Assesses the efficiency of the program's algorithm and implementation, ensuring tasks complete within a reasonable timeframe.\n\n"
                 . "### Python Code:\n"
-                . "python\n$code\n"
+                . "
+python\n$code\n
+"
                 . "\n\nPlease provide your response in the following format:\n"
                 . "**Score:** (value between 0-$assigned_score)\n"
                 . "**Feedback:** (brief feedback on performance)";

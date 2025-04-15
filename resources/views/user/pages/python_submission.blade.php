@@ -195,11 +195,8 @@
         // AJAX Submission
         $('#submitCode').on('click', function() {
             var pythonCode = editor.getValue();
-
-// Wrap the code with safe markers
-var wrappedCode = '"""CODE_START\n' + pythonCode + '\nCODE_END"""';
-
-$('#python_code').val(wrappedCode);
+var encodedCode = btoa(unescape(encodeURIComponent(pythonCode))); // base64 encode with unicode safety
+$('#python_code').val(encodedCode);
 
             Swal.fire({
         title: "Are you sure you want to submit?",

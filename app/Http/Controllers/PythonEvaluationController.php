@@ -48,10 +48,13 @@ class PythonEvaluationController extends Controller {
         // Get instruction and assigned score
         $instruction = $activity->instruction ?? 'Evaluate the code based on correctness, efficiency, and best practices.';
         $assigned_score = $activity->points ?? 100;
-
+        if (!base64_decode($request->python_code, true)) {
+            return response()->json(['error' => 'Invalid code encoding.'], 400);
+        }
+        $decodedCode = base64_decode($request->python_code);
         // Evaluate the Python code
         $evaluation = $this->evaluationService->evaluatePythonCode(
-            $request->python_code,
+            $decodedCode, // important
             $instruction,
             $request->user_id,
             $request->activity_id,
