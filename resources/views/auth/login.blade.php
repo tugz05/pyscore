@@ -24,7 +24,7 @@
     <!-- Desktop & Mobile Adapted Section -->
     <!-- First Section -->
     <div class="section">
-        <img src="{{ asset('assets/png/homepage_background.png') }}" alt="Homepage Background">
+        <img src="{{ asset('assets/png/homepage_background_final.png') }}" alt="Homepage Background">
         <div class="content">
             <h1 style="font-size: 40px; font-weight: bold; font-family: 'Montserrat', sans-serif;">
                 PYSCORE

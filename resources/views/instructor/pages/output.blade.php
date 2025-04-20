@@ -214,6 +214,7 @@
                                     Feedback
                                     <div id="feedback" class="small">No feedback available.</div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -246,6 +247,8 @@
                         url: `/instructor/get-student-output/${userId}/${activityId}`,
                         type: "GET",
                         success: function(response) {
+                            console.log(response);
+
                             if (response.success) {
                                 editor.setValue(response.output.code, -1);
                                 $("#score").text(response.output.score +

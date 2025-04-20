@@ -245,6 +245,7 @@ class ClassController extends Controller
                     'code' => $output->code,
                     'score' => $output->score,
                     'feedback' => $output->feedback,
+                    'time_consumed' => $output->time_consumed,
                 ]
             ]);
         } else {

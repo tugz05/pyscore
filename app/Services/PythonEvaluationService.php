@@ -13,6 +13,12 @@ class PythonEvaluationService {
     }
 
     public function evaluatePythonCode($code, $instruction, $userId, $activityId, $sectionId, $assigned_score, $time_consumed) {
+        // $formattedTime = sprintf(
+        //     '%d Hours, %d minutes, %d seconds',
+        //     floor($time_consumed / 3600),
+        //     floor(($time_consumed % 3600) / 60),
+        //     $time_consumed % 60
+        // );
         // Construct a more precise and structured prompt
         $prompt = "Instruction: $instruction\n\n"
                 . "Time consumed: $time_consumed\n\n"
@@ -72,6 +78,7 @@ python\n$code\n
                 'code' => $code,
                 'score' => $score,
                 'feedback' => trim(str_replace("**Score:** $score", '', $feedback)), // Clean feedback by removing the score line
+
             ]);
 
         } catch (\Exception $e) {

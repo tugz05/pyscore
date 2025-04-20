@@ -188,8 +188,6 @@
         checkSubmission();
 
 
-        // Call function on page load
-        checkSubmission();
 
 
         // AJAX Submission

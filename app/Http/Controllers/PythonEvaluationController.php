@@ -36,17 +36,15 @@ class PythonEvaluationController extends Controller {
                         ->first();
 
         // Calculate time consumed if submission exists
-        if ($output) {
+
             $createdAt = \Carbon\Carbon::parse($activity->created_at);
             $total_seconds = $createdAt->diffInSeconds(now());
             $hours = floor($total_seconds / 3600);
             $minutes = floor(($total_seconds % 3600) / 60);
             $seconds = $total_seconds % 60;
-            $time_consumed = sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
-        } else {
-            $time_consumed = "N/A"; // If output is missing
-        }
+            $time_consumed = \Carbon\Carbon::createFromTime($hours, $minutes, $seconds)->toTimeString();
 
+        Log::info('Time consumed: ' . $time_consumed);
         // Get instruction and assigned score
         $instruction = $activity->instruction ?? 'Evaluate the code based on correctness, efficiency, and best practices.';
         $assigned_score = $activity->points ?? 100;
@@ -75,8 +73,6 @@ class PythonEvaluationController extends Controller {
         } else {
             return response()->json(['error' => 'Activity not found'], 404);
         }
-
-
         return response()->json([
             'message' => 'Python code evaluated successfully.',
             'evaluation' => $evaluation
