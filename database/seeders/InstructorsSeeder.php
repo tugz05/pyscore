@@ -26,6 +26,11 @@ class InstructorsSeeder extends Seeder
                 'status' => 'active',
                 'account_type' => 'instructor'
             ],
+            [
+                'email' => 'jdbontor@nemsu.edu.ph',
+                'status' => 'active',
+                'account_type' => 'instructor'
+            ],
 
         ]);
     }
