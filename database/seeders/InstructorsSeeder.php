@@ -12,22 +12,7 @@ class InstructorsSeeder extends Seeder
     {
         DB::table('users')->insert([
             [
-                'email' => 'blguibijar@nemsu.edu.ph',
-                'status' => 'active',
-                'account_type' => 'instructor'
-            ],
-            [
-                'email' => 'vcestrada@nemsu.edu.ph',
-                'status' => 'active',
-                'account_type' => 'instructor'
-            ],
-            [
-                'email' => 'cralimboyong@nemsu.edu.ph',
-                'status' => 'active',
-                'account_type' => 'instructor'
-            ],
-            [
-                'email' => 'jdbontor@nemsu.edu.ph',
+                'email' => 'jmcpalen@nemsu.edu.ph',
                 'status' => 'active',
                 'account_type' => 'instructor'
             ],
