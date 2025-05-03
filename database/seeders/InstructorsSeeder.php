@@ -24,8 +24,8 @@ class InstructorsSeeder extends Seeder
                 'account_type' => 'student'
             ],
             [
-                'email' => 'adbolanos@nemsu.edu.ph',
-                'name' => 'Ashlee Joshua Bolaños',
+                'email' => 'joronquillo@nemsu.edu.ph',
+                'name' => 'Jenny O. Ronquillo',
                 'status' => 'active',
                 'account_type' => 'student'
             ],
