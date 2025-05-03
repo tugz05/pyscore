@@ -12,108 +12,35 @@ class InstructorsSeeder extends Seeder
     {
         DB::table('users')->insert([
             [
-                'email' => 'rcgbandoy@nemsu.edu.ph',
-                'name' => 'Radz Chirro G. Bandoy',
+                'email' => 'vftugajr@nemsu.edu.ph',
                 'status' => 'active',
-                'account_type' => 'student'
+                'account_type' => 'instructor'
             ],
             [
-                'email' => 'jlbarte@nemsu.edu.ph',
-                'name' => 'Jericho L. Barte',
+                'email' => 'cjcavila@nemsu.edu.ph',
                 'status' => 'active',
-                'account_type' => 'student'
+                'account_type' => 'instructor'
             ],
             [
-                'email' => 'joronquillo@nemsu.edu.ph',
-                'name' => 'Jenny O. Ronquillo',
+                'email' => 'blguibijar@nemsu.edu.ph',
                 'status' => 'active',
-                'account_type' => 'student'
+                'account_type' => 'instructor'
             ],
             [
-                'email' => 'rnburlasa@nemsu.edu.ph',
-                'name' => 'Romel N. Burlasa',
+                'email' => 'vcestrada@nemsu.edu.ph',
                 'status' => 'active',
-                'account_type' => 'student'
+                'account_type' => 'instructor'
             ],
             [
-                'email' => 'gdbutron@nemsu.edu.ph',
-                'name' => 'Glyzle D. Butron',
+                'email' => 'palen@nemsu.edu.ph',
                 'status' => 'active',
-                'account_type' => 'student'
+                'account_type' => 'instructor'
             ],
             [
-                'email' => 'jamcadao@nemsu.edu.ph',
-                'name' => 'Junard Adrian M. Cadao',
+                'email' => 'cralimboyong@nemsu.edu.ph',
                 'status' => 'active',
-                'account_type' => 'student'
+                'account_type' => 'instructor'
             ],
-            [
-                'email' => 'racananes@nemsu.edu.ph',
-                'name' => 'Ronnel Cañanes',
-                'status' => 'active',
-                'account_type' => 'student'
-            ],
-            [
-                'email' => 'jjdaguiso@nemsu.edu.ph',
-                'name' => 'Jaybee J. Daguiso',
-                'status' => 'active',
-                'account_type' => 'student'
-            ],
-            [
-                'email' => 'fpdeleguerjr@nemsu.edu.ph',
-                'name' => 'Fernando Deleguer Jr',
-                'status' => 'active',
-                'account_type' => 'student'
-            ],
-            [
-                'email' => 'mrjcdivino@nemsu.edu.ph',
-                'name' => 'Ma. Rhea Jane C. Divino',
-                'status' => 'active',
-                'account_type' => 'student'
-            ],
-            [
-                'email' => 'mdetchon@nemsu.edu.ph',
-                'name' => 'Meljoy D. Etchon',
-                'status' => 'active',
-                'account_type' => 'student'
-            ],
-            [
-                'email' => 'erafestejo@nemsu.edu.ph',
-                'name' => 'Earl Rey A. Festejo',
-                'status' => 'active',
-                'account_type' => 'student'
-            ],
-            [
-                'email' => 'ljsgallardo@nemsu.edu.ph',
-                'name' => 'Louie Jay Gallardo',
-                'status' => 'active',
-                'account_type' => 'student'
-            ],
-            [
-                'email' => 'naogardigo@nemsu.edu.ph',
-                'name' => 'Nick Ale Gardigo',
-                'status' => 'active',
-                'account_type' => 'student'
-            ],
-            [
-                'email' => 'spmaunes@nemsu.edu.ph',
-                'name' => 'Sandara P. Maunes',
-                'status' => 'active',
-                'account_type' => 'student'
-            ],
-            [
-                'email' => 'rquijada@nemsu.edu.ph',
-                'name' => 'Rommel Quijada',
-                'status' => 'active',
-                'account_type' => 'student'
-            ],
-            [
-                'email' => 'kjcrapal@nemsu.edu.ph',
-                'name' => 'Khezar Jhon C. Rapal',
-                'status' => 'active',
-                'account_type' => 'student'
-            ],
-
         ]);
     }
 }

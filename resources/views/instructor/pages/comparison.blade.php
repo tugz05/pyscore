@@ -91,7 +91,7 @@ function fetchComparisonData() {
 // Function to show full submitted code in the modal with student's name
 function showCode(code, studentName) {
     document.getElementById("codeModalLabel").textContent = `${studentName}'s Submitted Code`;
-    document.getElementById("fullCode").textContent = decodeURIComponent(code);
+    document.getElementById("fullCode").textContent = code;
     var codeModal = new bootstrap.Modal(document.getElementById('codeModal'));
     codeModal.show();
 }
