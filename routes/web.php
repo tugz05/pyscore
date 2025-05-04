@@ -62,7 +62,7 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
 
     Route::get('/class/{id}/summary-report', [ClassController::class, 'getSummaryReport']);
 
-
+    Route::get('/activity/{id}/download-scores', [ClassController::class, 'downloadScores'])->name('activity.download-scores');
 
 });
 

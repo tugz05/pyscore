@@ -516,7 +516,33 @@ class ClassController extends Controller
 
     return response()->json($report);
 }
+public function downloadScores($id)
+{
+    $activity = Activity::with('user', 'classlist')->findOrFail($id);
 
+    $userIds = JoinedClass::where('classlist_id', $activity->classlist_id)
+        ->where('is_remove', false)
+        ->pluck('user_id');
 
+    $outputs = Output::whereIn('user_id', $userIds)
+        ->where('activity_id', $id)
+        ->get()
+        ->keyBy('user_id');
+
+    $students = User::whereIn('id', $userIds)->get();
+
+    $submitted = $outputs->where('status', 'submitted')->count();
+    $missing = $outputs->where('status', 'missing')->count();
+    $pending = $userIds->count() - $submitted - $missing;
+
+    return view('instructor.pages.scores-pdf', [
+        'activity' => $activity,
+        'students' => $students,
+        'outputs' => $outputs,
+        'submitted' => $submitted,
+        'pending' => $pending,
+        'missing' => $missing
+    ]);
+}
 
 }

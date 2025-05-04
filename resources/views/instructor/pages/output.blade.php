@@ -98,7 +98,7 @@
         <div class="card shadow border-left-success text-success text-center py-1">
             <div class="card-body d-flex justify-content-between align-items-center" style="font-size: 16px;">
                 <span class="fw-bold">SUBMITTED</span>
-                <h1 id="submittedCount" class="fw-bold mb-0" style="font-size: 16px;" >{{ $summary['Submitted'] }}</h1>
+                <h1 id="submittedCount" class="fw-bold mb-0" style="font-size: 16px;">{{ $summary['Submitted'] }}</h1>
             </div>
         </div>
     </div>
@@ -114,7 +114,7 @@
     <div class="col-md-4">
         <div class="card shadow border-left-danger text-success text-center py-1">
             <div class="card-body d-flex justify-content-between align-items-center" style="font-size: 16px;">
-                <span  class="fw-bold mb-0" >MISSING</span>
+                <span class="fw-bold mb-0">MISSING</span>
                 <h1 id="missingCount" class="fw-bold mb-0" style="font-size: 16px;">{{ $summary['Missing'] }}</h1>
             </div>
         </div>
@@ -124,9 +124,18 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center">
         <h4 class="fw-bold">Student Submissions</h4>
-        <button class="btn btn-primary" id="refreshBtn">
-            <i class="fas fa-sync-alt"></i> Refresh
-        </button>
+        <div>
+            <a href="{{ route('activity.download-scores', $activity->id) }}"
+                target="_blank"
+                class="btn btn-success me-2"
+                id="downloadBtn">
+                 <i class="fas fa-file-pdf"></i> Download Scores
+             </a>
+
+            <button class="btn btn-primary" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
     </div>
 
     <div class="row mt-3">
@@ -154,17 +163,17 @@
                                             <span
                                                 class="fw-bold ms-3 text-nowrap
                                           {{ $student->status === 'Missing'
-                                            ? 'text-danger'
-                                            : ($student->status === 'Pending'
-                                                ? 'text-warning'
-                                                : 'text-success') }}">
-                                        @if ($student->status === 'Missing')
-                                            Missing
-                                        @elseif ($student->status === 'Pending')
-                                            --/{{ $activity->points }}
-                                        @else
-                                            {{ $student->score }}/{{ $activity->points }}
-                                        @endif
+                                              ? 'text-danger'
+                                              : ($student->status === 'Pending'
+                                                  ? 'text-warning'
+                                                  : 'text-success') }}">
+                                                @if ($student->status === 'Missing')
+                                                    Missing
+                                                @elseif ($student->status === 'Pending')
+                                                    --/{{ $activity->points }}
+                                                @else
+                                                    {{ $student->score }}/{{ $activity->points }}
+                                                @endif
 
                                             </span>
                                         </div>
@@ -289,38 +298,38 @@
                 });
             });
 
-// Update the refreshStudentList function
-function refreshStudentList() {
-    let activityId = $('#studentList').data('activity-id');
-    let refreshButton = document.getElementById('refreshBtn');
+            // Update the refreshStudentList function
+            function refreshStudentList() {
+                let activityId = $('#studentList').data('activity-id');
+                let refreshButton = document.getElementById('refreshBtn');
 
-    // Show loading spinner
-    refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-    refreshButton.disabled = true;
+                // Show loading spinner
+                refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+                refreshButton.disabled = true;
 
-    $.ajax({
-        url: `/instructor/activity/${activityId}/students`,
-        type: "GET",
-        success: function(response) {
-            $('#studentList').empty();
+                $.ajax({
+                    url: `/instructor/activity/${activityId}/students`,
+                    type: "GET",
+                    success: function(response) {
+                        $('#studentList').empty();
 
-            if (response.students.length > 0) {
-                response.students.forEach(function(student) {
-                    let label = '';
-                    let labelClass = '';
+                        if (response.students.length > 0) {
+                            response.students.forEach(function(student) {
+                                let label = '';
+                                let labelClass = '';
 
-                    if (student.status === 'Missing') {
-                        label = 'Missing';
-                        labelClass = 'text-danger';
-                    } else if (student.status === 'Pending') {
-                        label = `--/${response.activity.points}`;
-                        labelClass = 'text-warning';
-                    } else {
-                        label = `${student.score}/${response.activity.points}`;
-                        labelClass = 'text-success';
-                    }
+                                if (student.status === 'Missing') {
+                                    label = 'Missing';
+                                    labelClass = 'text-danger';
+                                } else if (student.status === 'Pending') {
+                                    label = `--/${response.activity.points}`;
+                                    labelClass = 'text-warning';
+                                } else {
+                                    label = `${student.score}/${response.activity.points}`;
+                                    labelClass = 'text-success';
+                                }
 
-                    let studentItem = `
+                                let studentItem = `
                         <li class="list-group-item student-item d-flex align-items-center justify-content-between p-3 float-end"
                             data-user-id="${student.user.id}" data-activity-id="${activityId}"
                             data-score="${student.score === '--' ? 0 : student.score}">
@@ -337,45 +346,45 @@ function refreshStudentList() {
                             </div>
                         </li>
                     `;
-                    $('#studentList').append(studentItem);
-                });
-            } else {
-                $('#studentList').append(`
+                                $('#studentList').append(studentItem);
+                            });
+                        } else {
+                            $('#studentList').append(`
                     <div class="d-flex align-items-center">
                         <h5 class="text-center">No students enrolled</h5>
                     </div>
                 `);
+                        }
+
+                        // Update the summary counters
+                        $('#submittedCount').text(response.summary.Submitted);
+                        $('#pendingCount').text(response.summary.Pending);
+                        $('#missingCount').text(response.summary.Missing);
+
+                        // Reattach click events
+                        attachStudentItemHandlers();
+
+                        // Restore button state
+                        refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                        refreshButton.disabled = false;
+                    },
+                    error: function() {
+                        refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                        refreshButton.disabled = false;
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to refresh student list'
+                        });
+                    }
+                });
             }
 
-            // Update the summary counters
-            $('#submittedCount').text(response.summary.Submitted);
-            $('#pendingCount').text(response.summary.Pending);
-            $('#missingCount').text(response.summary.Missing);
-
-            // Reattach click events
-            attachStudentItemHandlers();
-
-            // Restore button state
-            refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
-            refreshButton.disabled = false;
-        },
-        error: function() {
-            refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
-            refreshButton.disabled = false;
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Failed to refresh student list'
+            // Add this click handler for the refresh button
+            $("#refreshBtn").on("click", function() {
+                refreshStudentList();
             });
-        }
-    });
-}
-
-// Add this click handler for the refresh button
-$("#refreshBtn").on("click", function() {
-    refreshStudentList();
-});
 
             // Copy button functionality
             $("#copyBtn").on("click", function() {
@@ -405,6 +414,7 @@ $("#refreshBtn").on("click", function() {
                     console.error('Failed to copy text: ', err);
                 });
             });
+
         });
     </script>
 @endpush
