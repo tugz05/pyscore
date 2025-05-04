@@ -60,6 +60,10 @@ Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->gr
 
     Route::get('/activity/comparison/{id}', [ClassController::class, 'compareStudentOutputs'])->name('activity.comparison');
 
+    Route::get('/class/{id}/summary-report', [ClassController::class, 'getSummaryReport']);
+
+
+
 });
 
 Route::middleware(['account_type:student', 'auth'])->prefix('student')->group(function () {

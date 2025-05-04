@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
+
 class ClassController extends Controller
 {
 
@@ -477,4 +478,45 @@ class ClassController extends Controller
         // Join the lines back into a single string
         return implode("\n", $codeLines);
     }
+
+    public function getSummaryReport($classId)
+{
+    // Get students in the class
+    $students = JoinedClass::where('classlist_id', $classId)
+        ->where('is_remove', false)
+        ->with('user')
+        ->get()
+        ->pluck('user'); // Get only user objects
+
+    // Get activities in the class
+    $activities = Activity::where('classlist_id', $classId)->get();
+
+    // Prepare report data
+    $report = [];
+
+    foreach ($students as $student) {
+        $studentData = [
+            'name' => $student->name,
+            'activities' => []
+        ];
+
+        foreach ($activities as $activity) {
+            $output = Output::where('user_id', $student->id)
+                ->where('activity_id', $activity->id)
+                ->first();
+
+            $studentData['activities'][] = [
+                'title' => $activity->title,
+                'score' => $output->score ?? '--'
+            ];
+        }
+
+        $report[] = $studentData;
+    }
+
+    return response()->json($report);
+}
+
+
+
 }

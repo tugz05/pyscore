@@ -30,6 +30,9 @@
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#people">People</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#summary_report">Summary Report</a>
+            </li>
         </ul>
         {{-- Stream Tab --}}
         <div class="tab-content mt-3">
@@ -106,7 +109,13 @@
             </div>
         </div>
         {{-- Close People Tab --}}
-
+        <div class="tab-content mt-3">
+            <!-- Stream Tab -->
+            <div class="tab-pane fade show" id="summary_report">
+                {{-- Summary Report --}}
+                @include('instructor.pages.summary_report')
+            </div>
+        </div>
     </div>
 
     <!-- Add Activity Modal -->
