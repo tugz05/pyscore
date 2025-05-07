@@ -144,7 +144,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmArchive">Archive</button>
+                    <button type="button" class="btn btn-danger" id="confirmArchive" data-loading-text="Archiving...">Archive</button>
+
                 </div>
             </div>
         </div>
@@ -282,6 +283,9 @@
                 $('#archiveConfirmModal').modal('show'); // Show the modal
                 $('#confirmArchive').click(function() {
                     let id = $('#archiveClassId').val();
+                    let $btn = $(this);
+ // Disable and update button text
+ $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Archiving...');
 
                     $.ajax({
                         url: "{{ route('archive.data') }}",
@@ -309,7 +313,11 @@
                                 text: 'Something went wrong. Please try again.',
                             });
 
-                        }
+                        },
+                        complete: function() {
+            // Restore button
+            $btn.prop('disabled', false).html('Archive');
+        }
                     });
                 });
 
