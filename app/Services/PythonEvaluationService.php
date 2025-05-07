@@ -20,7 +20,7 @@ class PythonEvaluationService {
                 . "- **Adherence to the assigned problems (35%)**: Assesses the extent to which the solution aligns with the specific requirements and constraints outlined in the instruction.\n"
                 . "- **Program Execution (30%)**: Evaluates whether the program runs successfully without errors and produces the expected output. It also considers the clarity and quality of the code construction.\n"
                 . "- **Correctness (20%)**: Checks the program's accuracy and logical correctness, ensuring it produces correct results for various inputs.\n"
-                . "- **Time Efficiency (15%)**: Assesses the efficiency of the program's algorithm and implementation, ensuring tasks complete within a reasonable timeframe.\n\n"
+                . "- **Time Efficiency (15%)**: Evaluates the program’s execution speed and how quickly the student completed the hands-on task based on Time Consumed.\n\n"
                 . "### Python Code:\n"
                 . "
 python\n$code\n

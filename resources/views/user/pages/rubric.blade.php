@@ -45,7 +45,7 @@
         </tr>
         <tr>
             <td>Time Efficiency (15%)</td>
-            <td>Assesses the efficiency of the program's algorithm and implementation. It checks the program's ability to complete tasks within a reasonable timeframe.</td>
+            <td>Evaluates the program’s execution speed and how quickly the student completed the hands-on task.</td>
         </tr>
     </tbody>
 </table>
