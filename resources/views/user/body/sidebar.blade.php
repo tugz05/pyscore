@@ -47,7 +47,7 @@
                 {{-- <h1>{{$classlists}}</h1> --}}
                 @if(count($classlists) > 0)
                 @forelse ($classlists as $class)
-                    @if ($class->is_remove != 1)
+                    @if ($class->is_remove != 1 && $class->classlist->is_archive != 1)
                         <a class="collapse-item truncate-text" href="{{ route('user.class.view', $class->classlist->id) }}" title="{{ $class->classlist->name }}">
                             {{$class->classlist->name }}
                         </a>

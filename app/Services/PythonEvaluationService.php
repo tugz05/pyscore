@@ -13,21 +13,14 @@ class PythonEvaluationService {
     }
 
     public function evaluatePythonCode($code, $instruction, $userId, $activityId, $sectionId, $assigned_score, $time_consumed) {
-        // $formattedTime = sprintf(
-        //     '%d Hours, %d minutes, %d seconds',
-        //     floor($time_consumed / 3600),
-        //     floor(($time_consumed % 3600) / 60),
-        //     $time_consumed % 60
-        // );
-        // Construct a more precise and structured prompt
         $prompt = "Instruction: $instruction\n\n"
                 . "Time consumed: $time_consumed\n\n"
                 . "Evaluate the following Python code based on the given instruction. Provide a score (0-$assigned_score) and a short feedback. Note that if the code is not in python automatically zero \n\n"
                 . "### Evaluation Criteria:\n"
                 . "- **Adherence to the assigned problems (35%)**: Assesses the extent to which the solution aligns with the specific requirements and constraints outlined in the instruction.\n"
                 . "- **Program Execution (30%)**: Evaluates whether the program runs successfully without errors and produces the expected output. It also considers the clarity and quality of the code construction.\n"
-                . "- **Correctness (25%)**: Checks the program's accuracy and logical correctness, ensuring it produces correct results for various inputs.\n"
-                . "- **Time Efficiency (10%)**: Assesses the efficiency of the program's algorithm and implementation, ensuring tasks complete within a reasonable timeframe.\n\n"
+                . "- **Correctness (20%)**: Checks the program's accuracy and logical correctness, ensuring it produces correct results for various inputs.\n"
+                . "- **Time Efficiency (15%)**: Assesses the efficiency of the program's algorithm and implementation, ensuring tasks complete within a reasonable timeframe.\n\n"
                 . "### Python Code:\n"
                 . "
 python\n$code\n

@@ -124,7 +124,7 @@
         </table>
 
         <div class="footer">
-            Generated on {{ now()->format('F d, Y h:i A') }}
+            Generated on {{ now()->format('F d, Y') }}
         </div>
     </div>
 

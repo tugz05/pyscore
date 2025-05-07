@@ -21,6 +21,9 @@
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#people">People</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#rubric">Rubric</a>
+            </li>
         </ul>
 
         <div class="tab-content mt-3">
@@ -71,6 +74,9 @@
             <!-- People Tab (Should only show instructor & classmates) -->
             <div class="tab-pane fade" id="people">
                 @include('user.pages.people')
+            </div>
+            <div class="tab-pane fade" id="rubric">
+                @include('user.pages.rubric')
             </div>
         </div>
     </div>
@@ -124,20 +130,31 @@
                                 `Activity: ${activity.title}, Due Date: ${activityDueDate}, Today: ${todayDate}`
                             ); // Debugging log
 
-                            if (activityDueDate === todayDate) {
-                                hasToday = true;
-                                upcomingToday +=
-                                    `<p class="mb-1">
-                            <strong>${activity.due_time || "No time specified"}</strong> |
-                            <a href="/student/activity/${activity.id}" class="text-primary fw-bold">${activity.title}</a>
-                        </p>`;
-                            } else if (activityDueDate === tomorrowDate) {
-                                upcomingTomorrow +=
-                                    `<p class="mb-2">
-                            <strong>${activity.due_time || "No time specified"}</strong> |
-                            <a href="/student/activity/${activity.id}" class="text-primary fw-bold">${activity.title}</a>
-                        </p>`;
-                            }
+                            let isAccessible = true;
+
+if (activity.accessible_date) {
+    const accessibleDateTime = new Date(`${activity.accessible_date}T${activity.accessible_time || "00:00:00"}`);
+    const now = new Date();
+    isAccessible = now >= accessibleDateTime;
+}
+
+if (!isAccessible) return; // Skip if it's not yet accessible
+
+if (activityDueDate === todayDate) {
+    hasToday = true;
+    upcomingToday +=
+        `<p class="mb-1">
+            <strong>${activity.due_time || "No time specified"}</strong> |
+            <a href="/student/activity/${activity.id}" class="text-primary fw-bold">${activity.title}</a>
+        </p>`;
+} else if (activityDueDate === tomorrowDate) {
+    upcomingTomorrow +=
+        `<p class="mb-2">
+            <strong>${activity.due_time || "No time specified"}</strong> |
+            <a href="/student/activity/${activity.id}" class="text-primary fw-bold">${activity.title}</a>
+        </p>`;
+}
+
                         });
 
                         if (!hasToday) {
