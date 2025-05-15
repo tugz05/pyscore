@@ -46,7 +46,7 @@
                     <input type="hidden" id="academic_year_id" name="academic_year_id">
                     <div class="modal-body">
                         <x-select name="semester" label="Select Semester"
-                            :options="['1st Semester' => '1st Semester', '2nd Semester' => '2nd Semester']" required />
+                            :options="['1st Semester' => '1st Semester', '2nd Semester' => '2nd Semester', 'Summer' => 'Summer']" required />
 
                         <x-select name="start_year" id="start_year" label="Start Year"
                             :options="array_combine(range(2024, 2099), range(2024, 2099))" required />
