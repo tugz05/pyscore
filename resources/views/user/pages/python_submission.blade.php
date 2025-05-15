@@ -187,98 +187,124 @@
         // Call function on page load
         checkSubmission();
 
+const draftKey = `draft_code_{{ Auth::id() }}_{{ $activity->id }}`;
 
+    // Restore draft if any
+    const savedDraft = localStorage.getItem(draftKey);
+    if (savedDraft && !$("#submitCode").prop("disabled")) {
+        editor.setValue(decodeURIComponent(atob(savedDraft)), -1);
+    }
+
+    // Auto-save draft every 5 seconds if not submitted
+    setInterval(() => {
+        if (!$("#submitCode").prop("disabled")) {
+            const currentCode = editor.getValue();
+            if (currentCode.trim()) {
+                const encoded = btoa(encodeURIComponent(currentCode));
+                localStorage.setItem(draftKey, encoded);
+            }
+        }
+    }, 5000);
+
+    // Clear draft on successful submission
+    function clearDraft() {
+        localStorage.removeItem(draftKey);
+    }
+
+    // Modify inside your AJAX submit success callback
+    // After: Swal.fire({...})
+    // ADD:
+    // clearDraft(); ✅ inside success of $.ajax
 
 
         // AJAX Submission
-        $('#submitCode').on('click', function () {
-    var pythonCode = editor.getValue().trim();
-    var mode = editor.session.getMode().$id;
+        $('#submitCode').on('click', function() {
+            var pythonCode = editor.getValue().trim();
+            var mode = editor.session.getMode().$id;
 
-    // ✅ List of keywords that are NOT allowed (Java, C++, JS)
-    const javaCppIndicators = [
-        '#include',
-        'public static void',
-        'System.out.println',
-        'using namespace',
-        'class {',
-        'console.log',
-        'std::',
-        'int main()',
-    ];
+            // ✅ List of keywords that are NOT allowed (Java, C++, JS)
+            const javaCppIndicators = [
+                '#include',
+                'public static void',
+                'System.out.println',
+                'using namespace',
+                'class {',
+                'console.log',
+                'std::',
+                'int main()',
+            ];
 
-    // 🔍 Check if any forbidden keyword exists in the code
-    const hasNonPythonSyntax = javaCppIndicators.some(keyword =>
-        pythonCode.includes(keyword)
-    );
+            // 🔍 Check if any forbidden keyword exists in the code
+            const hasNonPythonSyntax = javaCppIndicators.some(keyword =>
+                pythonCode.includes(keyword)
+            );
 
-    // ❌ If non-Python code is detected, block submission
-    if (hasNonPythonSyntax) {
-        Swal.fire({
-            icon: "error",
-            title: "Only Python Code is Accepted",
-            text: "Your code contains syntax from Java/C++/C. Please submit valid Python code.",
-            confirmButtonColor: "#d33"
-        });
-        return;
-    }
+            // ❌ If non-Python code is detected, block submission
+            if (hasNonPythonSyntax) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Only Python Code is Accepted",
+                    text: "Your code contains syntax from Java/C++/C. Please submit valid Python code.",
+                    confirmButtonColor: "#d33"
+                });
+                return;
+            }
 
-    // ❌ If code is empty
-    if (!pythonCode) {
-        Swal.fire({
-            icon: "warning",
-            title: "Empty Submission",
-            text: "You cannot submit an empty code.",
-            confirmButtonColor: "#d33"
-        });
-        return;
-    }
+            // ❌ If code is empty
+            if (!pythonCode) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Empty Submission",
+                    text: "You cannot submit an empty code.",
+                    confirmButtonColor: "#d33"
+                });
+                return;
+            }
 
-    // ✅ Encode and store
-    var encodedCode = btoa(unescape(encodeURIComponent(pythonCode)));
-    $('#python_code').val(encodedCode);
+            // ✅ Encode and store
+            var encodedCode = btoa(unescape(encodeURIComponent(pythonCode)));
+            $('#python_code').val(encodedCode);
 
-    // ✅ Confirm Python submission
-    Swal.fire({
-        title: "Are you sure you want to submit?",
-        text: "You won't be able to edit or unsubmit your solution!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Submit"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            showLoading();
-            $.ajax({
-                url: "{{ route('submit.python.code') }}",
-                type: "POST",
-                data: $('#codeForm').serialize(),
-                success: function (response) {
-                    hideLoading();
-                    Swal.fire({
-                        icon: "success",
-                        title: "Code Submitted!",
-                        text: "Your code has been successfully submitted.",
-                        timer: 3000,
-                        showConfirmButton: false
-                    });
-
-                    checkSubmission(); // Refresh submission state
-                },
-                error: function (xhr) {
-                    hideLoading();
-                    Swal.fire({
-                        icon: "error",
-                        title: "Submission Failed!",
-                        text: "There was an error submitting your code. Please try again.",
-                        confirmButtonColor: "#d33"
+            // ✅ Confirm Python submission
+            Swal.fire({
+                title: "Are you sure you want to submit?",
+                text: "You won't be able to edit or unsubmit your solution!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Submit"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoading();
+                    $.ajax({
+                        url: "{{ route('submit.python.code') }}",
+                        type: "POST",
+                        data: $('#codeForm').serialize(),
+                        success: function(response) {
+                            hideLoading();
+                            Swal.fire({
+                                icon: "success",
+                                title: "Code Submitted!",
+                                text: "Your code has been successfully submitted.",
+                                timer: 3000,
+                                showConfirmButton: false
+                            });
+clearDraft();
+                            checkSubmission(); // Refresh submission state
+                        },
+                        error: function(xhr) {
+                            hideLoading();
+                            Swal.fire({
+                                icon: "error",
+                                title: "Submission Failed!",
+                                text: "There was an error submitting your code. Please try again.",
+                                confirmButtonColor: "#d33"
+                            });
+                        }
                     });
                 }
             });
-        }
-    });
-});
-
+        });
     </script>
 @endpush
