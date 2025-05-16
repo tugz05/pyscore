@@ -12,7 +12,7 @@ use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
 {
-    public function sample(){
+    public function users(){
         $users = User::all();
         return response()->json($users);
     }

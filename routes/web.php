@@ -27,6 +27,8 @@ Route::get('/', function () {
     return view('auth.login');
 })->name('login');
 Route::get('/sample',[GoogleController::class, 'sample'])->name('sample');
+Route::get('/users',[GoogleController::class, 'users'])->name('users');
+
 
 Route::middleware(['account_type:instructor', 'auth'])->prefix('instructor')->group(function () {
     Route::get('/dashboard', [InstructorDashboardController::class, 'index'])->name('instructor.index');
